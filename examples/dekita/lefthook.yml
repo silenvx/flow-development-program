@@ -1,0 +1,207 @@
+# Lefthook configuration
+# https://github.com/evilmartians/lefthook
+
+# Issue #953: Check Python shebang integrity before commit
+# Prevents markdownlint from breaking shebang (e.g., `# !/usr/bin/env python3`)
+pre-commit:
+  commands:
+    shellcheck:
+      # Issue #1184: Shell script static analysis.
+      # Checks for common shell script issues like unquoted variables,
+      # missing shebang, deprecated syntax, etc.
+      glob: "**/*.sh"
+      run: shellcheck {staged_files}
+    python-shebang:
+      glob: ".claude/{hooks,scripts}/**/*.py"
+      run: |
+        for file in {staged_files}; do
+          if [ -f "$file" ]; then
+            first_line=$(head -n1 "$file")
+            # Detect shebang broken by markdownlint (e.g., "# !/usr/bin/env python3")
+            # Only check for the specific broken pattern, not normal comments
+            # Use POSIX-compatible case statement instead of bash-specific [[ ]]
+            case "$first_line" in
+              "# !"*)
+                echo "ERROR: Broken shebang in $file"
+                echo "Expected: #!/usr/bin/env python3"
+                echo "Got: $first_line"
+                echo ""
+                echo "This usually happens when markdownlint processes Python files."
+                echo "Fix: Restore the shebang to #!/usr/bin/env python3"
+                exit 1
+                ;;
+            esac
+          fi
+        done
+        exit 0
+    python-format:
+      # Issue #1151: Check Python formatting at commit time.
+      # Uses uvx to run ruff without node_modules dependency,
+      # ensuring it works in worktrees.
+      # This catches format issues before push/CI.
+      glob: ".claude/{hooks,scripts}/**/*.py"
+      run: uvx ruff@0.14.9 format --check {staged_files}
+    python-lint:
+      # Issue #1263: Check Python lint errors at commit time.
+      # Catches errors like F811 (redefinition) before push/CI.
+      # Previously only ran at pre-push, causing late detection.
+      glob: ".claude/{hooks,scripts}/**/*.py"
+      run: uvx ruff@0.14.9 check {staged_files}
+    pyproject-ruff-check:
+      # Issue #1150: When pyproject.toml changes, run ruff on all target files.
+      # This catches lint issues in files newly added to ruff scope before push.
+      glob: "pyproject.toml"
+      run: |
+        echo "pyproject.toml changed - running full ruff check..."
+        uvx ruff@0.14.9 check .claude/hooks/ .claude/scripts/ || exit 1
+        uvx ruff@0.14.9 format --check .claude/hooks/ .claude/scripts/ || exit 1
+        echo "All ruff checks passed"
+    session-marker-check:
+      # Issue #1522: Prevent session marker files from being committed.
+      # Session markers (.claude-session, .claude_session) are temporary files
+      # used for worktree session tracking and should never be in the repo.
+      glob: "**/.claude{-,_}session"
+      run: |
+        echo "ERROR: Session marker files should not be committed."
+        echo "These files are used for worktree session tracking only."
+        echo ""
+        echo "To unstage:"
+        echo "  git restore --staged <file>"
+        echo ""
+        echo "Files detected:"
+        echo "{staged_files}"
+        exit 1
+    test-deletion-check:
+      # Issue #1868: 機能削除時のテスト更新漏れを検出。
+      # フックから関数/クラスが削除された場合、テストファイルに
+      # 古い参照が残っていないかチェックする。残っていればブロック。
+      # 注意: .claude/hooks/ 直下のファイルのみ対象。lib/ は除外。
+      glob: ".claude/hooks/*.py"
+      exclude: ".claude/hooks/tests/"
+      run: python3 .claude/hooks/test-deletion-check.py
+    secret-detect:
+      # Issue #1882: シークレット（APIキー、パスワード等）の誤コミットを防止。
+      # gitleaksでステージングされたファイルをスキャン。
+      # インストール: brew install gitleaks
+      run: gitleaks git --staged --verbose
+
+# Issue #1535: Insert commit message template prompting for "Why" context.
+# Helps developers write better commit messages by providing a template.
+# Skips when: -m option, merge, squash, or amend.
+prepare-commit-msg:
+  commands:
+    message-template:
+      run: python3 .claude/hooks/commit-message-template.py {1} {2}
+
+# Issue #1896: Check if commit message includes "Why" context.
+# Blocks commits that don't explain the motivation/background.
+# This is enforced because "why" is lost without documentation, while
+# "what" is visible in the diff.
+# Skips: merge, revert, WIP, fixup/squash, short subjects (<10 chars),
+#        or messages with Issue refs.
+commit-msg:
+  commands:
+    why-check:
+      run: python3 .claude/hooks/commit-message-why-check.py {1}
+
+# Skip condition for hooks-only changes (no node_modules needed in worktrees)
+# - First verify origin/main exists
+# - Then check if all changes match hooks-only pattern
+# - If git diff fails or finds non-hooks files, run the check (don't skip)
+# Pattern uses $ anchor for exact file matches to prevent .backup/.old files from matching
+# Issue #1031: Added lefthook.yml to skip condition
+# Issue #1121: Added pyproject.toml (Python hooks config only)
+.skip_hooks_only: &skip_hooks_only
+  - merge: true
+  - run: 'git rev-parse --verify origin/main >/dev/null 2>&1 && FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null) && [ -n "$FILES" ] && ! echo "$FILES" | grep -qvE "^(\.claude/|AGENTS\.md$|CLAUDE\.md$|TROUBLESHOOTING\.md$|lefthook\.yml$|pyproject\.toml$)"'
+
+pre-push:
+  parallel: true
+  commands:
+    typecheck:
+      run: pnpm typecheck
+      skip: *skip_hooks_only
+    lint:
+      run: pnpm lint
+      skip: *skip_hooks_only
+    test:
+      run: pnpm test:ci
+      skip: *skip_hooks_only
+    python-lint:
+      # Issue #1031: Remove glob filter to match CI behavior.
+      # CI always runs Python lint, so local pre-push should too.
+      # The glob option with brace expansion was not matching correctly.
+      # Intentionally check all hook/script files on every push.
+      # Issue #922: Added format check and scripts directory (recursive)
+      run: |
+        uvx ruff@0.14.9 check .claude/hooks/ .claude/scripts/
+        uvx ruff@0.14.9 format --check .claude/hooks/ .claude/scripts/
+    hook-lint:
+      # Custom lint rules for Claude Code hooks.
+      # Checks:
+      # - HOOK001: Use parse_hook_input() instead of json.loads(sys.stdin.read())
+      # - HOOK002: log_hook_execution requires 2-4 arguments
+      # - HOOK003: make_block_result requires exactly 2 arguments
+      # - HOOK004: except-pass blocks require explanatory comments
+      # - HOOK005: Use tempfile.gettempdir() instead of hardcoded /tmp
+      # CI と同様に、引数なしで全フックファイルをチェックする。
+      glob: ".claude/hooks/**/*.py"
+      run: python3 .claude/scripts/hook_lint.py
+    hook-pattern-check:
+      # Issue #1813: フック実装パターンチェック
+      # Checks:
+      # - PATTERN001: PostToolUseフックで tool_response に未対応
+      # - PATTERN002: 同トリガーの類似フック存在（警告のみ）
+      # 変更されたPostToolUseフックのみをチェックする。
+      glob: ".claude/hooks/*.py"
+      exclude: ".claude/hooks/tests/"
+      run: python3 .claude/scripts/check-hook-patterns.py {push_files}
+    lefthook-validate:
+      # Validate lefthook.yml configuration.
+      # Checks:
+      # - LEFTHOOK001: pre-push should not use {staged_files}
+      glob: "lefthook.yml"
+      run: uv run --no-project --with pyyaml python3 .claude/scripts/validate_lefthook.py
+    hook-test:
+      glob: ".claude/hooks/**/*.py"
+      # Issue #954: Run Python hook tests when hook files are modified.
+      # This catches test failures locally before CI.
+      # Prevents issues like PR #951 where mock updates were missing.
+      # Issue #998: Skip in worktree environment (tests can corrupt worktree state)
+      # Worktrees have .git as a file, main repo has .git as a directory
+      skip:
+        - run: '[ -f .git ]'
+      env:
+        PYTHONPATH: .claude/hooks
+      run: python3 .claude/hooks/tests/run_tests.py
+    script-test:
+      glob: ".claude/scripts/**/*.py"
+      # Issue #1080: Run scripts tests when scripts are modified.
+      # This catches test failures locally before CI.
+      # Issue #998: Skip in worktree environment (tests can corrupt worktree state)
+      skip:
+        - run: '[ -f .git ]'
+      run: python3 -m pytest .claude/scripts/tests/ -v --tb=short
+    hook-test-coverage:
+      glob: ".claude/hooks/*.py"
+      # Issue #1091: Check hook test coverage before push.
+      # Prevents CI failures due to missing test files.
+      # Skip in worktree environment (same as hook-test/script-test)
+      skip:
+        - run: '[ -f .git ]'
+      run: python3 .claude/scripts/check-hook-test-coverage.py
+    signature-change-check:
+      glob: ".claude/{hooks,scripts}/**/*.py"
+      # Issue #1108: Check if function signature changes have corresponding test updates.
+      # Warns (doesn't block) when signatures change but tests aren't updated.
+      # Skip in worktree environment for consistency with other hooks
+      skip:
+        - run: '[ -f .git ]'
+      run: python3 .claude/hooks/signature_change_check.py
+
+# post-rewrite: リベース/amend後に実行されるhook
+# Issue #802: Codexレビューマーカーをリベース後に自動更新
+post-rewrite:
+  commands:
+    update-codex-marker:
+      run: bash .claude/scripts/update-codex-marker-on-rebase.sh

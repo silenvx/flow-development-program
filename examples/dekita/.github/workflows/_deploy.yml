@@ -1,0 +1,98 @@
+name: Deploy
+
+on:
+  workflow_call:
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
+      VITE_SENTRY_DSN:
+        required: false
+      VITE_POSTHOG_KEY:
+        required: false
+      VITE_POSTHOG_HOST:
+        required: false
+      VITE_ENABLE_ADS:
+        required: false
+      VITE_ADMAX_ID:
+        required: false
+    inputs:
+      VITE_API_URL:
+        required: true
+        type: string
+
+jobs:
+  deploy-worker:
+    runs-on: ${{ vars.RUNNER_TYPE || 'self-hosted' }}
+    name: Deploy Worker
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Enable corepack
+        run: corepack enable
+
+      # Issue #796: Fix pnpm cache restore on self-hosted runner
+      # The default store path uses relative paths which fail on restore
+      - name: Setup pnpm store
+        run: pnpm config set store-dir ~/.pnpm-store
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          command: deploy --env production --minify
+
+  deploy-frontend:
+    runs-on: ${{ vars.RUNNER_TYPE || 'self-hosted' }}
+    name: Deploy Frontend
+    needs: deploy-worker
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Enable corepack
+        run: corepack enable
+
+      # Issue #796: Fix pnpm cache restore on self-hosted runner
+      # The default store path uses relative paths which fail on restore
+      - name: Setup pnpm store
+        run: pnpm config set store-dir ~/.pnpm-store
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm build:frontend
+        env:
+          VITE_API_URL: ${{ inputs.VITE_API_URL }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          VITE_POSTHOG_KEY: ${{ secrets.VITE_POSTHOG_KEY }}
+          VITE_POSTHOG_HOST: ${{ secrets.VITE_POSTHOG_HOST }}
+          VITE_ENABLE_ADS: ${{ secrets.VITE_ENABLE_ADS }}
+          VITE_ADMAX_ID: ${{ secrets.VITE_ADMAX_ID }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy frontend/dist --project-name=dekita --commit-message=${{ github.sha }}

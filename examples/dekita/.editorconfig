@@ -1,0 +1,28 @@
+# EditorConfig helps maintain consistent coding styles across different editors
+# https://editorconfig.org
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Markdown files - preserve trailing whitespace for line breaks
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+
+# Makefiles require tabs
+[Makefile]
+indent_style = tab
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# JSON files (match Biome's line width)
+[*.json]
+indent_size = 2

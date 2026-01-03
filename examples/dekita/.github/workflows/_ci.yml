@@ -1,0 +1,219 @@
+name: CI
+
+on:
+  workflow_call:
+    inputs:
+      webapp_changed:
+        description: 'Whether webapp (frontend/worker/shared) has changes'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  ci:
+    runs-on: ${{ vars.RUNNER_TYPE || 'self-hosted' }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Fetch enough history for git diff against base branch
+          fetch-depth: 0
+
+      - name: Enable corepack
+        run: corepack enable
+
+      # Issue #796: Fix pnpm cache restore on self-hosted runner
+      # The default store path uses relative paths which fail on restore
+      - name: Setup pnpm store
+        run: pnpm config set store-dir ~/.pnpm-store
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Security audit
+        run: pnpm audit --audit-level=high
+
+      - name: Lint & Format (TypeScript/Markdown)
+        if: inputs.webapp_changed
+        run: pnpm lint
+
+      - name: Lint Python (ruff)
+        run: |
+          # Use uvx if available (self-hosted), otherwise install ruff via pip
+          # Issue #926: Use directory paths (recursive) to match lefthook configuration
+          if command -v uvx &> /dev/null; then
+            uvx ruff@0.14.9 check .claude/hooks/ .claude/scripts/
+            uvx ruff@0.14.9 format --check .claude/hooks/ .claude/scripts/
+          else
+            pip install ruff==0.14.9
+            ruff check .claude/hooks/ .claude/scripts/
+            ruff format --check .claude/hooks/ .claude/scripts/
+          fi
+
+      - name: Lint hooks (custom rules)
+        run: python3 .claude/scripts/hook_lint.py
+
+      - name: Lint shell scripts (shellcheck)
+        run: |
+          # Issue #1184: Shell script static analysis
+          # shellcheck is pre-installed on GitHub-hosted runners (Ubuntu)
+          # For self-hosted runners, install if not available
+          if ! command -v shellcheck &> /dev/null; then
+            echo "Installing shellcheck..."
+            sudo apt-get update && sudo apt-get install -y shellcheck
+          fi
+          # Find all .sh files excluding node_modules and run shellcheck
+          find . -name "*.sh" -type f ! -path "*/node_modules/*" -print0 | xargs -0 shellcheck
+
+      - name: Validate lefthook config
+        run: |
+          # Check lefthook.yml for common mistakes (e.g., {staged_files} in pre-push)
+          if command -v uv &> /dev/null; then
+            uv run --no-project --with pyyaml python3 .claude/scripts/validate_lefthook.py
+          else
+            pip install pyyaml -q
+            python3 .claude/scripts/validate_lefthook.py
+          fi
+
+      - name: Validate hooks settings
+        run: python3 .claude/scripts/validate-hooks-settings.py
+
+      - name: Check hook test coverage
+        if: github.event_name == 'pull_request'
+        run: python3 .claude/scripts/check-hook-test-coverage.py
+
+      - name: Run hook tests
+        env:
+          PYTHONPATH: .claude/hooks
+        run: python3 .claude/hooks/tests/run_tests.py
+
+      - name: Run bats tests (shell scripts)
+        run: |
+          # Run bats tests if bats-core is installed
+          # Install: brew install bats-core (macOS) or apt install bats (Linux)
+          if command -v bats &> /dev/null; then
+            echo "Running bats tests..."
+            bats .claude/scripts/tests/*.bats
+          else
+            echo "⚠️  bats-core not installed, skipping shell script tests"
+            echo "Install with: brew install bats-core (macOS) or apt install bats (Linux)"
+          fi
+
+      - name: Check Vite env vars consistency
+        if: inputs.webapp_changed
+        run: ./scripts/check-vite-env.sh
+
+      - name: Check i18n keys consistency
+        if: inputs.webapp_changed
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const ja = JSON.parse(fs.readFileSync('./frontend/src/i18n/locales/ja.json', 'utf8'));
+          const en = JSON.parse(fs.readFileSync('./frontend/src/i18n/locales/en.json', 'utf8'));
+
+          // Keys that are intentionally Japanese-only (legal documents)
+          const japaneseOnlyPrefixes = ['privacy.', 'terms.'];
+
+          function getKeys(obj, prefix = '') {
+            return Object.entries(obj).flatMap(([k, v]) => {
+              const key = prefix ? prefix + '.' + k : k;
+              return typeof v === 'object' && v !== null ? getKeys(v, key) : [key];
+            });
+          }
+
+          const jaKeys = getKeys(ja).sort();
+          const enKeys = getKeys(en).sort();
+
+          // Filter out Japanese-only keys when checking en.json
+          const jaKeysForEnCheck = jaKeys.filter(k => !japaneseOnlyPrefixes.some(p => k.startsWith(p)));
+          const missingInEn = jaKeysForEnCheck.filter(k => !enKeys.includes(k));
+          const missingInJa = enKeys.filter(k => !jaKeys.includes(k));
+
+          if (missingInEn.length > 0 || missingInJa.length > 0) {
+            if (missingInEn.length > 0) console.error('❌ Missing in en.json:', missingInEn.join(', '));
+            if (missingInJa.length > 0) console.error('❌ Missing in ja.json:', missingInJa.join(', '));
+            process.exit(1);
+          }
+          console.log('✅ i18n keys are consistent (' + jaKeysForEnCheck.length + ' checked keys, ' + (jaKeys.length - jaKeysForEnCheck.length) + ' Japanese-only keys)');
+          EOF
+
+      - name: Check locale privacy/terms (Japanese only)
+        if: inputs.webapp_changed
+        run: python3 .claude/scripts/check-locale-privacy-terms.py
+
+      - name: Check Sentry usage (scope leak prevention)
+        if: inputs.webapp_changed
+        run: python3 .claude/scripts/check-sentry-usage.py
+
+      - name: Check icon files consistency
+        if: inputs.webapp_changed
+        run: |
+          cd frontend
+          # Verify all PNG icon files exist and are committed
+          # These are generated locally from SVG and committed to avoid CI font issues
+          for file in public/icon-192.png public/icon-512.png public/apple-touch-icon.png public/ogp.png; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing PNG file: $file"
+              echo "Run 'cd frontend && pnpm generate-icons' locally and commit the PNG files."
+              exit 1
+            fi
+            if [ ! -s "$file" ]; then
+              echo "❌ PNG file is empty: $file"
+              exit 1
+            fi
+          done
+
+          # Check if SVG files were modified more recently than PNG files
+          # Get the last commit that modified SVG files
+          svg_commit=$(git log -1 --format="%H" -- public/favicon.svg public/ogp.svg 2>/dev/null || echo "")
+          # Get the last commit that modified PNG files
+          png_commit=$(git log -1 --format="%H" -- public/icon-192.png public/icon-512.png public/apple-touch-icon.png public/ogp.png 2>/dev/null || echo "")
+
+          if [ -n "$svg_commit" ] && [ -n "$png_commit" ]; then
+            # Check if SVG commit is more recent than PNG commit
+            if git merge-base --is-ancestor "$png_commit" "$svg_commit" 2>/dev/null && [ "$svg_commit" != "$png_commit" ]; then
+              echo "⚠️  Warning: SVG files were modified after PNG files."
+              echo "Consider running 'cd frontend && pnpm generate-icons' to regenerate PNG files."
+            fi
+          fi
+
+          echo "✅ All icon files present and valid"
+
+      - name: Check wrangler types are up to date
+        if: inputs.webapp_changed
+        run: |
+          cd worker
+          pnpm exec wrangler types
+          if git diff --exit-code worker-configuration.d.ts; then
+            echo "✅ wrangler types are up to date"
+          else
+            echo "❌ wrangler types are out of date!"
+            echo "Run 'cd worker && pnpm exec wrangler types' and commit the changes."
+            exit 1
+          fi
+
+      - name: Typecheck
+        if: inputs.webapp_changed
+        run: pnpm typecheck
+
+      - name: Test with coverage
+        if: inputs.webapp_changed
+        run: pnpm test:coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v6
+        if: always() && inputs.webapp_changed
+        with:
+          name: coverage-report
+          path: worker/coverage/
+          retention-days: 7
+
+      - name: Build
+        if: inputs.webapp_changed
+        run: pnpm build

@@ -1,0 +1,179 @@
+name: CI / Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: '強制デプロイ（変更検出をスキップ）'
+        required: false
+        type: boolean
+        default: false
+
+# 同じブランチ/PRの古いワークフローをキャンセル（PRのpush時のみ）
+# labeledイベントではCIをスキップしてE2Eのみ実行するため、キャンセル対象外
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action != 'labeled' }}
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ${{ vars.RUNNER_TYPE || 'self-hosted' }}
+    timeout-minutes: 5
+    # labeled イベント時はCIをスキップ（E2Eのみ実行）
+    if: github.event.action != 'labeled'
+    outputs:
+      webapp_changed: ${{ steps.check.outputs.webapp_changed }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for webapp changes
+        id: check
+        run: |
+          set -euo pipefail
+
+          # PRの場合はベースブランチとの差分、pushの場合は直前コミットとの差分（新規ブランチの場合はorigin/mainとの差分）
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # 手動トリガー時はmainとの差分
+            BASE_SHA="origin/main"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            # 新規ブランチの場合はmainとの差分
+            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              BASE_SHA="origin/main"
+            fi
+          fi
+
+          echo "Comparing $BASE_SHA..HEAD"
+
+          # Webアプリ関連のパスパターン
+          # Note: .github/workflows/ を含めるのは意図的。CI設定変更時は全ステップの検証が必要
+          WEBAPP_PATTERNS=(
+            "frontend/"
+            "worker/"
+            "shared/"
+            "package.json"
+            "pnpm-lock.yaml"
+            "biome.json"
+            "tsconfig.json"
+            "playwright.config.ts"
+            ".github/workflows/"
+          )
+
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          WEBAPP_CHANGED="false"
+          for pattern in "${WEBAPP_PATTERNS[@]}"; do
+            if echo "$CHANGED_FILES" | grep -q "^${pattern}"; then
+              echo "Match found: $pattern"
+              WEBAPP_CHANGED="true"
+              break
+            fi
+          done
+
+          echo "webapp_changed=$WEBAPP_CHANGED" >> $GITHUB_OUTPUT
+          echo "Result: webapp_changed=$WEBAPP_CHANGED"
+
+  ci:
+    name: CI
+    needs: detect-changes
+    uses: ./.github/workflows/_ci.yml
+    with:
+      webapp_changed: ${{ needs.detect-changes.outputs.webapp_changed == 'true' }}
+
+  preview-e2e:
+    name: Preview E2E
+    needs: [detect-changes, ci]
+    # Preview E2E の実行条件:
+    # - always(): CI がスキップされた場合（labeled イベント時）でも評価される
+    # - needs.ci.result: CI が成功またはスキップの場合のみ実行
+    # - run-e2e ラベル: PR に run-e2e ラベルがある場合に実行
+    # - workflow_dispatch: 手動実行の場合（main 以外）に実行
+    # - webapp_changed: Webアプリに変更がある場合のみ（labeled時はdetect-changesがスキップされるためチェック不要）
+    if: |
+      always() &&
+      (needs.ci.result == 'success' || needs.ci.result == 'skipped') &&
+      (needs.detect-changes.outputs.webapp_changed == 'true' || needs.detect-changes.result == 'skipped') &&
+      (
+        (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'run-e2e')) ||
+        (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')
+      )
+    uses: ./.github/workflows/_preview-e2e.yml
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      VITE_ENABLE_ADS: ${{ secrets.VITE_ENABLE_ADS }}
+      VITE_ADMAX_ID: ${{ secrets.VITE_ADMAX_ID }}
+    with:
+      branch: ${{ github.head_ref || github.ref_name }}
+
+  e2e:
+    name: E2E
+    needs: [detect-changes, ci]
+    # mainブランチのPR以外のイベント（push/workflow_dispatch）かつWebアプリに変更がある場合のみ実行
+    # force_deploy=true の場合は変更検出をスキップ
+    # always() を使用して detect-changes がスキップされても評価されるようにする
+    if: |
+      always() &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      (needs.detect-changes.outputs.webapp_changed == 'true' || inputs.force_deploy == true) &&
+      (needs.ci.result == 'success' || needs.ci.result == 'skipped')
+    uses: ./.github/workflows/_e2e.yml
+
+  deploy:
+    name: Deploy
+    needs: [detect-changes, ci, e2e]
+    # mainブランチのPR以外のイベント（push/workflow_dispatch）かつWebアプリに変更がある場合のみデプロイ
+    # force_deploy=true の場合は変更検出をスキップ
+    if: |
+      always() &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      (needs.detect-changes.outputs.webapp_changed == 'true' || inputs.force_deploy == true) &&
+      (needs.ci.result == 'success' || needs.ci.result == 'skipped') &&
+      (needs.e2e.result == 'success' || needs.e2e.result == 'skipped')
+    uses: ./.github/workflows/_deploy.yml
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+      VITE_POSTHOG_KEY: ${{ secrets.VITE_POSTHOG_KEY }}
+      VITE_POSTHOG_HOST: ${{ secrets.VITE_POSTHOG_HOST }}
+      VITE_ENABLE_ADS: ${{ secrets.VITE_ENABLE_ADS }}
+      VITE_ADMAX_ID: ${{ secrets.VITE_ADMAX_ID }}
+    with:
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+
+  # Required Status Check用ゲートジョブ
+  # 常に実行し、ステップ条件で結果を判定（REST APIマージ対応 Issue #1382）
+  # - 失敗/キャンセル時: Failステップが実行されexit 1
+  # - 成功時: Successステップが実行され正常終了
+  # ref: https://devopsdirective.com/posts/2025/08/github-actions-required-checks-for-conditional-jobs/
+  status-check:
+    name: Status Check
+    runs-on: ${{ vars.RUNNER_TYPE || 'self-hosted' }}
+    timeout-minutes: 5
+    needs: [detect-changes, ci, preview-e2e, e2e, deploy]
+    if: always()
+    permissions: {}
+    steps:
+      - name: Fail if any job failed or was cancelled
+        if: ${{ cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure') }}
+        run: |
+          echo "::error::Some jobs failed or were cancelled"
+          exit 1
+      - name: Success
+        if: ${{ !cancelled() && !contains(needs.*.result, 'cancelled') && !contains(needs.*.result, 'failure') }}
+        run: echo "All jobs passed or were skipped"

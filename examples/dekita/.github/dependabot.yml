@@ -1,0 +1,52 @@
+# Dependabot configuration
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+version: 2
+updates:
+  # npm/pnpm dependencies (pnpm is auto-detected via pnpm-lock.yaml)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    # Group updates to reduce PR noise
+    groups:
+      # Development dependencies (build tools, linters, formatters)
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      # Production dependencies - patch updates only (safer)
+      production-patch:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+    # Auto-merge settings via labels
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
+    # Limit open PRs to avoid overwhelming
+    open-pull-requests-limit: 5
+    # Ignore specific packages that cause issues
+    ignore:
+      # Major version updates require manual review
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(deps)"

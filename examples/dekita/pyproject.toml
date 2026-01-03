@@ -1,0 +1,53 @@
+# Python tools configuration for Claude Code hooks
+# Lint hooks and their tests
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+# Lint hooks, scripts, and their tests
+include = [".claude/hooks/*.py", ".claude/hooks/tests/*.py", ".claude/scripts/*.py", ".claude/scripts/tests/*.py"]
+exclude = [
+    "__pycache__",
+    ".venv",
+]
+
+[tool.ruff.lint]
+# Enable common rules
+select = [
+    "E",      # pycodestyle errors
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "UP",     # pyupgrade
+    "SIM115", # Use context manager for opening files (Issue #1139)
+    "D101",   # Missing docstring in public class
+    "D102",   # Missing docstring in public method
+    "D103",   # Missing docstring in public function
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test files and utility scripts don't need docstrings
+# Hooks/scripts use sys.path manipulation for imports - E402 is intentional
+".claude/hooks/tests/*.py" = ["D101", "D102", "D103", "E402"]
+".claude/scripts/*.py" = ["D101", "D102", "D103", "E402"]
+".claude/scripts/tests/*.py" = ["D101", "D102", "D103", "E402"]
+".claude/hooks/*.py" = ["E402"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = [".claude/hooks/tests", ".claude/scripts/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+pythonpath = [".claude/hooks/tests", ".claude/scripts/tests"]

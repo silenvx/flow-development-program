@@ -1,0 +1,51 @@
+{
+  "name": "dekita",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "dev": "./scripts/dev.sh",
+    "dev:frontend": "pnpm --filter @dekita/frontend dev",
+    "dev:worker": "pnpm --filter @dekita/worker dev",
+    "build": "pnpm build:frontend && pnpm build:worker",
+    "build:frontend": "pnpm --filter @dekita/frontend build",
+    "build:worker": "pnpm --filter @dekita/worker build",
+    "test": "pnpm test:frontend && pnpm test:worker",
+    "test:ci": "pnpm test:ci:frontend && pnpm test:ci:worker",
+    "test:ci:frontend": "pnpm --filter @dekita/frontend test:ci",
+    "test:ci:worker": "pnpm --filter @dekita/worker test:ci",
+    "test:coverage": "pnpm --filter @dekita/worker test:coverage",
+    "test:frontend": "pnpm --filter @dekita/frontend test",
+    "test:worker": "pnpm --filter @dekita/worker test",
+    "lint": "biome check . && pnpm exec markdownlint \"**/*.md\" && ./scripts/check-ad-coverage.sh",
+    "lint:fix": "biome check --write . && pnpm exec markdownlint \"**/*.md\" --fix",
+    "lint:ad": "./scripts/check-ad-coverage.sh",
+    "format": "biome format --write .",
+    "typecheck": "pnpm typecheck:frontend && pnpm typecheck:worker",
+    "typecheck:frontend": "pnpm --filter @dekita/frontend typecheck",
+    "typecheck:worker": "pnpm --filter @dekita/worker typecheck",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "prepare": "./scripts/prepare-lefthook.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^24.10.4",
+    "@types/qrcode": "^1.5.6",
+    "lefthook": "^2.0.13",
+    "markdownlint-cli": "^0.47.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^4.56.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild", "lefthook", "sharp", "workerd"]
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}

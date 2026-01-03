@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hook Metadata",
+  "description": "Schema for hook lifecycle metadata",
+  "type": "object",
+  "required": ["hooks"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "_comment": {
+      "type": "string"
+    },
+    "_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "hooks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["created_at", "purpose", "status", "trigger"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Date when the hook was created (YYYY-MM-DD)"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Brief description of what the hook does"
+          },
+          "expected_block_rate": {
+            "type": "string",
+            "pattern": "^\\d+(-\\d+)?%$",
+            "description": "Expected block rate (e.g., '5-10%' or '0%')"
+          },
+          "review_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Scheduled review date (YYYY-MM-DD)"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "stale_candidate", "deprecated", "disabled"],
+            "description": "Current status of the hook"
+          },
+          "trigger": {
+            "type": "string",
+            "description": "Hook trigger type (e.g., 'PreToolUse:Bash', 'Stop')"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Categorization tags"
+          },
+          "deprecated_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Date when marked as deprecated (if applicable)"
+          },
+          "deprecation_reason": {
+            "type": "string",
+            "description": "Reason for deprecation (if applicable)"
+          },
+          "removal_issue": {
+            "type": "string",
+            "pattern": "^#\\d+$",
+            "description": "Issue tracking the removal (if applicable)"
+          },
+          "skip_missing_check": {
+            "type": "boolean",
+            "description": "If true, this hook is excluded from missing execution detection (for hooks with specific trigger conditions)"
+          },
+          "activation_condition": {
+            "type": "string",
+            "description": "Human-readable description of when this hook actually activates (e.g., 'git commit commands only'). Used for documentation when skip_missing_check is true."
+          }
+        }
+      }
+    }
+  }
+}

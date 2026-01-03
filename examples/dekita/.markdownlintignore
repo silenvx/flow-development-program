@@ -1,0 +1,27 @@
+# Ignore non-markdown files
+# Issue #1270: Prevent markdownlint from processing code files
+
+# Python files
+*.py
+
+# JavaScript/TypeScript files
+*.js
+*.jsx
+*.ts
+*.tsx
+*.mjs
+*.cjs
+
+# Other code files
+*.json
+*.yaml
+*.yml
+*.toml
+*.sh
+*.bash
+
+# Build artifacts
+node_modules/
+dist/
+.worktrees/
+tmp/

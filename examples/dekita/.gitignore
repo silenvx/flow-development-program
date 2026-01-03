@@ -1,0 +1,80 @@
+# Dependencies
+node_modules/
+
+# Claude Code
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/scripts/
+!.claude/learnings/
+!.claude/skills/
+!.claude/docs/
+!.claude/commands/
+!.claude/prompts/
+
+# Git Worktrees (for parallel AI agent development)
+.worktrees/
+
+# Session marker (written by session-marker-updater hook)
+.claude-session
+.claude-session-marker
+# Also ignore underscore variant (common typo)
+.claude_session
+
+# AI Review tracking
+.codex-reviewed-commit
+
+# Build outputs
+dist/
+
+# Cloudflare
+.wrangler/
+
+# Environment variables
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+!.env.example
+!.dev.vars.example
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Temporary files
+tmp/
+*.local
+
+# Generated files (at root only, worker/ has its own)
+/worker-configuration.d.ts
+
+# Note: PNG icons are now committed to the repo (generated locally from SVG sources)
+# This ensures proper font rendering and faster CI builds
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Coverage reports
+coverage/
+*.lcov
+.mypy_cache

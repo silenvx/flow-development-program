@@ -1,0 +1,65 @@
+name: Bug Report
+description: バグの報告
+labels: ["bug", "needs-triage"]
+body:
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      description: バグの深刻度を選択してください
+      options:
+        - P0 - Critical（サービス停止レベル）
+        - P1 - High（主要機能が使えない）
+        - P2 - Medium（回避策あり）
+        - P3 - Low（軽微な問題）
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: バグの説明
+      description: 何が起きているか具体的に記述してください
+      placeholder: |
+        例: ログインボタンをクリックしても何も起きない
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      description: バグを再現するための手順
+      placeholder: |
+        1. '...' に移動
+        2. '...' をクリック
+        3. エラーが発生
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待される動作
+      description: 本来どうなるべきか
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境
+      description: ブラウザ、OS、デバイスなど
+      placeholder: |
+        - ブラウザ: Chrome 120
+        - OS: macOS 14.0
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 追加情報
+      description: スクリーンショット、ログなど
+    validations:
+      required: false

@@ -1,0 +1,35 @@
+name: Merge Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# 同じPRの古いワークフローをキャンセル
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  merge-check:
+    name: Merge Safety Check
+    runs-on: ${{ vars.RUNNER_TYPE || 'self-hosted' }}
+    timeout-minutes: 10
+    # ドラフトPRではスキップ
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run merge check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          echo "Checking PR #${PR_NUMBER}..."
+
+          # Run merge check in dry-run mode
+          # Exit codes: 0=ready, 1=issues found, 2=error
+          python3 .claude/hooks/merge-check.py --dry-run "${PR_NUMBER}"

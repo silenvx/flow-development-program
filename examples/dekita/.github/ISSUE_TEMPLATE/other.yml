@@ -1,0 +1,48 @@
+name: その他
+description: バグ・機能以外の課題
+labels: ["needs-triage"]
+body:
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      description: この課題の緊急度を選択してください
+      options:
+        - P0 - Critical（即対応必要）
+        - P1 - High（早めに対応）
+        - P2 - Medium（通常対応）
+        - P3 - Low（低優先度）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: 種類
+      description: 課題の種類を選択してください
+      options:
+        - ドキュメント
+        - リファクタリング
+        - テスト
+        - CI/CD
+        - セキュリティ
+        - パフォーマンス
+        - その他
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 説明
+      description: 課題の詳細を記述してください
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 追加情報
+      description: 参考資料など
+    validations:
+      required: false
