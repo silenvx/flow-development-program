@@ -30,7 +30,7 @@ prompts/generate-catalog.md を読んで、dekitaのカタログを生成して�
 
 | ファイル | 内容 |
 |---------|------|
-| `README.md` | 機能カタログ（何ができるか） |
+| `README.md` | 機能カタログ（全機能一覧） |
 | `flows.md` | フロー図（Mermaid） |
 
 ---
@@ -44,6 +44,8 @@ cat examples/<project>/.claude/index.json
 ```
 
 ### 2. README.md を生成
+
+**全フック・スクリプト・スキルを出力する**（抜粋しない）。
 
 以下の構造で作成:
 
@@ -64,35 +66,58 @@ cat examples/<project>/.claude/index.json
 | スクリプト | XX |
 | スキル | XX |
 
-## 主要機能
+---
 
-### ブランチ保護
-
-| フック | 説明 |
-|-------|------|
-| checkout_block | mainでのブランチ操作禁止 |
-| ... | ... |
-
-### マージ管理
+## フック一覧（全XX件）
 
 | フック | 説明 |
 |-------|------|
-| merge_check | マージ前の安全性チェック |
-| ... | ... |
+| `acceptance_criteria_reminder` | PR作成時に... |
+| `active_worktree_check` | セッション開始時に... |
+[... 全フックを出力 ...]
 
-[以下、カテゴリごとに分類]
+---
+
+## スクリプト一覧（全XX件）
+
+| スクリプト | 説明 |
+|----------|------|
+[... 全スクリプトを出力 ...]
+
+---
+
+## スキル一覧（全XX件）
+
+| スキル | 説明 |
+|-------|------|
+[... 全スキルを出力 ...]
+
+---
+
+## 詳細情報
+
+各フックの詳細（Why/What/keywords）は `index.json` を参照:
+
+```bash
+jq '.hooks[] | select(.name == "merge_check")' .claude/index.json
+```
 ```
 
-**カテゴリ分類の基準**:
+**jqでの一括出力例**:
 
-| カテゴリ | keywords例 |
-|---------|-----------|
-| ブランチ保護 | branch, checkout, main |
-| マージ管理 | merge, review, pr |
-| Issue管理 | issue, label, priority |
-| セッション管理 | session, worktree, handoff |
-| CI/CD | ci, monitor, deploy |
-| コード品質 | lint, test, format |
+```bash
+# 全フックをMarkdownテーブル形式で出力
+jq -r '.hooks[] | "| `\(.name)` | \(.summary | gsub("\n"; " ")) |"' \
+  examples/<project>/.claude/index.json
+
+# 全スクリプト
+jq -r '.scripts[] | "| `\(.name)` | \(.summary | gsub("\n"; " ")) |"' \
+  examples/<project>/.claude/index.json
+
+# 全スキル
+jq -r '.skills[] | "| `\(.name)` | \(.summary | gsub("\n"; " ")) |"' \
+  examples/<project>/.claude/index.json
+```
 
 ### 3. flows.md を生成
 
@@ -150,6 +175,7 @@ mkdir -p generated/catalog/<project>
 ## 生成時の注意
 
 - index.jsonの情報のみを使用（ソースコードは読まない）
+- **全機能を出力する**（主要機能だけに絞らない）
 - フロー図はindex.jsonのtrigger/matcherから推測
 - 不明な点は省略（推測で補わない）
 
@@ -161,4 +187,3 @@ mkdir -p generated/catalog/<project>
 
 1. 生成したファイル一覧
 2. 統計（フック数、スクリプト数等）
-3. 主要カテゴリと代表的なフック
