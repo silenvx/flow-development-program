@@ -13,7 +13,7 @@ import importlib.util
 
 spec = importlib.util.spec_from_file_location(
     "check_sentry_usage",
-    Path(__file__).parent.parent / "check-sentry-usage.py",
+    Path(__file__).parent.parent / "check_sentry_usage.py",
 )
 check_sentry_usage = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(check_sentry_usage)

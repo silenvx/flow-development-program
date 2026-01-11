@@ -26,6 +26,17 @@ AIコーディングエージェント向けのプロジェクト指示。
 - **セッション内で作成したIssueは実装まで完遂**: Issue作成だけで「完了」としない。作成したIssueは**確認を求めずに即座に着手**し、同じセッション内で実装・マージまで完遂する（大規模タスクや競合時はユーザー確認）
 - **仕組み化 = ドキュメント + 強制機構**: 「仕組み化」を謳う場合、ドキュメント追加だけでは不十分。違反を**ブロック**するフック/CI/ツール等の強制機構まで実装して初めて完了
 - **Dogfooding原則**: 新機能（特にデータ処理スクリプト）実装時は、その機能が解決する問題を**自分で再現・体験**してから実装完了とする。実データでテストし、エッジケース（空、改行含む、大量データ）を確認すること
+- **AIレビューは最後の砦**: AIレビュー（Copilot、Codex、Gemini等）を「安全網」として期待しない。AIレビューで検出されることを理由にIssue作成やテスト追加を省略してはならない
+  - ❌ 「レビューで検出可能だからIssue不要」
+  - ❌ 「AIレビューが指摘してくれたから問題なし」
+  - ✅ AIレビューは**存在しないもの**として行動し、自分で検証・対策する
+  - ✅ AIレビューで問題が検出された場合、「なぜ自分で事前に気づけなかったか」を振り返る
+- **ユーザーフィードバック = 修正 + 仕組み化**: ユーザーが問題を指摘した場合、その問題の修正だけでは不十分。類似問題を将来検出できる仕組み化が必須
+  - ❌ 問題を修正して「完了」とする
+  - ❌ 「今後気をつける」と記述して終了
+  - ✅ `/add-perspective` で振り返り観点を追加
+  - ✅ フック/CI/ツールで自動検出を実装
+  - ✅ 仕組み化が不要な理由をIssueに記録
 
 ### オープンIssueと行動の関係
 
@@ -505,7 +516,6 @@ uvx ruff format file.py              # 成功
 
 **例外**:
 
-- Yes/Noの確認のみ → テキストで確認可
 - 選択肢が1つで推奨案のみ → テキストで提示可
 
 ## プロジェクト概要
@@ -539,34 +549,49 @@ dekita! - ハンズオン・ワークショップ向けのリアルタイム進�
 
 ### Pythonツール
 
-`uvx`で実行（`uv run`は使用禁止）:
+| 用途 | コマンド | 備考 |
+| ---- | -------- | ---- |
+| ruff format | `uvx ruff format <file>` | 一時環境で実行（インストール不要） |
+| ruff check | `uvx ruff check <file>` | 一時環境で実行（インストール不要） |
+| pytest | `uv run pytest <path>` | 仮想環境内で実行 |
 
-| 用途 | コマンド |
-| ---- | -------- |
-| ruff format | `uvx ruff format <file>` |
-| ruff check | `uvx ruff check <file>` |
-
-**禁止**: `uv run ruff` - `pyproject.toml`に`[project]`テーブルがないためエラーになる
+**注**: `uv run pytest` は `pyproject.toml` の `[dependency-groups].dev` で管理されたpytestを使用
 
 ### CI監視
 
-PRのCI監視には`ci-monitor.py`を使用する（依存関係は`pyproject.toml`で管理）。
+PRのCI監視には`ci_monitor.py`を使用する（依存関係は`pyproject.toml`で管理）。
 
 | ❌ 禁止 | ✅ 推奨 |
 | ------- | ------- |
-| `gh pr checks --watch` | `python3 .claude/scripts/ci-monitor.py <PR番号> --session-id <SESSION_ID>` |
+| `gh pr checks --watch` | `python3 .claude/scripts/ci_monitor.py <PR番号> --session-id <SESSION_ID>` |
 
 ※ `<SESSION_ID>`はUserPromptSubmit hookで提供されるセッションID（UUID形式）
 
-**例**: `python3 .claude/scripts/ci-monitor.py 1234 --session-id 3f03a042-a9ef-44a2-839a-d17badc44b0a`
+**例**: `python3 .claude/scripts/ci_monitor.py 1234 --session-id 3f03a042-a9ef-44a2-839a-d17badc44b0a`
 
 **重要**: `--session-id`を省略するとppidフォールバックが発動し、ログが正しいセッションと紐付かなくなる
 
-**ci-monitor.pyの利点**:
+**ci_monitor.pyの利点**:
 
 - BEHIND検知 → 自動リベース
 - レビュー完了検知 → コメント取得
 - CI失敗 → 即座に通知
+
+### プラグイン
+
+Claude Code公式プラグインを活用する。
+
+| プラグイン | 用途 | 使用タイミング |
+| ---------- | ---- | -------------- |
+| `code-simplifier` | AI特有のコード肥大化を防止 | 長時間セッション後、PR作成前 |
+
+**インストール**: `claude plugin install <プラグイン名>`
+
+**プラグイン追加時の対応**:
+
+1. このセクションにプラグインを追記
+2. 使用タイミングを `development-workflow` Skillに追記
+3. 必要に応じてフックで強制（例: PR作成前に `/simplify` 実行を推奨）
 
 ## コスト方針
 
@@ -575,7 +600,7 @@ PRのCI監視には`ci-monitor.py`を使用する（依存関係は`pyproject.to
 
 ## セキュリティポリシー
 
-- 非公式GitHub Actionsの導入禁止
+- 非公式GitHub Actionsの導入禁止（例外: Astral公式アクション `astral-sh/*` は許可）
 - 外部ツール提案前にセキュリティリスクを評価
 - Dependabot PRではE2Eテスト自動実行しない（Pwn Request攻撃対策）
 
@@ -605,18 +630,22 @@ Claudeがコンテキストに基づいて自動で発見・使用する詳細�
 
 | Skill | 用途 |
 | ----- | ---- |
+| `reflect` | セッション振り返り、五省、なぜなぜ分析 |
+| `reflect-trends` | 直近3日間の傾向分析（fix比率、ブロックパターン） |
 | `development-workflow` | Worktree、PR作成、CI監視、マージ |
 | `code-review` | AIレビュー確認、コメント対応、Resolve |
-| `reflection` | 五省、なぜなぜ分析、振り返り |
 | `coding-standards` | コーディング規約、テスト、Lint |
 | `hooks-reference` | フック詳細仕様、設計原則 |
 | `troubleshooting` | エラー、問題発生時の解決策 |
+| `add-perspective` | 振り返り観点の追加 |
+| `claude-code-features` | Claude Code機能調査・提案 |
 
 **トリガー例**:
 
+- `/reflect` → セッション終了時の振り返り
+- `/reflect-trends` → 複数セッションの傾向分析
 - 「PRを作成したい」→ `development-workflow`
 - 「レビューコメントを確認」→ `code-review`
-- 「振り返りをしたい」→ `reflection`
 - フック修正・実装 → `hooks-reference`
 - 「エラーが出る」「動かない」→ `troubleshooting`
 
@@ -728,6 +757,24 @@ AIコードレビュー（Gemini, Codex, Copilot等）向けの品質基準。
 | **テストのリアリティ** | 実際の出力を模倣（stdout/stderr両方を考慮） |
 
 **背景**: #2099 でブランチ削除失敗パターンのみでマージ成功と判定し、誤検知が発生。#2101 で修正。
+
+### AIレビュー間の矛盾時の対応（P1）
+
+複数のAIレビュー（Copilot、Gemini、Codex等）の結果が矛盾する場合の対応方針。
+
+| 状況 | 対応 |
+| ---- | ---- |
+| Copilot「問題なし」+ Gemini「問題あり」 | **Geminiの指摘を優先**。Issue作成必須 |
+| 複数AIが異なる指摘 | 全ての指摘を検討し、妥当なものは対応 |
+| セキュリティ関連の指摘 | **必ずIssue化**。「問題なし」で無視しない |
+
+**原則**:
+
+1. **「問題なし」は採用しない**: あるAIが「問題なし」としても、別のAIの指摘を無視しない
+2. **セキュリティ指摘は最優先**: medium以上のセキュリティ指摘は必ずIssue化
+3. **統合判断**: 複数AIの結果を統合し、最も保守的な判断を採用
+
+**背景**: PR #2702 でCopilotは「問題なし」としたが、Geminiは2つのReDoS脆弱性を指摘。Issueが作成されずにマージされ、セキュリティ問題が本番に入った（Issue #2709）。
 
 ---
 

@@ -464,21 +464,21 @@ def monitor_notify_only(pr_number: str) -> int:
 
 
 def check_self_reference(pr_number: str) -> bool:
-    """Check if this PR modifies ci-monitor.py itself.
+    """Check if this PR modifies ci_monitor.py itself.
 
-    When monitoring a PR that changes ci-monitor.py, the running version
+    When monitoring a PR that changes ci_monitor.py, the running version
     may have bugs that are being fixed, leading to confusing behavior.
 
     Returns:
-        True if ci-monitor.py is in the changed files, False otherwise.
+        True if ci_monitor.py is in the changed files, False otherwise.
     """
     changed_files = get_pr_changed_files(pr_number)
 
     if changed_files is None:
         return False
 
-    # Match any path ending with ci-monitor.py (includes my-ci-monitor.py etc.)
-    return any(f.endswith("ci-monitor.py") for f in changed_files)
+    # Match any path ending with ci_monitor.py (includes my_ci_monitor.py etc.)
+    return any(f.endswith("ci_monitor.py") for f in changed_files)
 
 
 def _monitor_single_pr_for_event(

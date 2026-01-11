@@ -13,7 +13,7 @@ scripts_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(scripts_dir))
 
 # Load module from file path (handles hyphenated filenames)
-script_path = scripts_dir / "analyze-fork-tree.py"
+script_path = scripts_dir / "analyze_fork_tree.py"
 spec = importlib.util.spec_from_file_location("analyze_fork_tree", script_path)
 if spec is None or spec.loader is None:
     raise ImportError(
@@ -296,7 +296,7 @@ class TestMain:
         """Exits with error when project ID cannot be determined."""
         with patch.dict("os.environ", {}, clear=True):
             with patch.object(analyze_fork_tree, "get_project_id", return_value=None):
-                with patch("sys.argv", ["analyze-fork-tree.py"]):
+                with patch("sys.argv", ["analyze_fork_tree.py"]):
                     result = analyze_fork_tree.main()
 
                     assert result == 1
@@ -313,7 +313,7 @@ class TestMain:
 
             with patch.object(analyze_fork_tree, "CLAUDE_PROJECTS_DIR", Path(tmpdir)):
                 with patch.object(analyze_fork_tree, "get_project_id", return_value="test-project"):
-                    with patch("sys.argv", ["analyze-fork-tree.py", "--json"]):
+                    with patch("sys.argv", ["analyze_fork_tree.py", "--json"]):
                         result = analyze_fork_tree.main()
 
                         assert result == 0

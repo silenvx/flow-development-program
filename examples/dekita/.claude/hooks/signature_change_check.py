@@ -124,7 +124,7 @@ def find_test_file(source_file: str) -> str | None:
 
     Maps:
     - .claude/hooks/foo.py -> .claude/hooks/tests/test_foo.py
-    - .claude/hooks/foo-bar.py -> .claude/hooks/tests/test_foo_bar.py
+    - .claude/hooks/foo_bar.py -> .claude/hooks/tests/test_foo_bar.py
     - .claude/scripts/foo.py -> .claude/scripts/tests/test_foo.py
     """
     path = Path(source_file)

@@ -56,7 +56,7 @@ def get_current_branch_pr() -> int | None:
 
 def collect_pr_metrics(pr_number: int) -> bool:
     """PRメトリクスを収集"""
-    collect_script = SCRIPT_DIR / "collect-pr-metrics.py"
+    collect_script = SCRIPT_DIR / "collect_pr_metrics.py"
     if not collect_script.exists():
         return False
 

@@ -24,9 +24,42 @@ AIエージェント制御パターンの**公開参照リポジトリ**。
 
 ---
 
+## 重要ファイル
+
+### index.json
+
+`<project>/.claude/index.json` はフック/スクリプト/スキルの**検索可能なインデックス**。
+
+| フィールド | 説明 |
+|-----------|------|
+| `hooks[].name` | フック名 |
+| `hooks[].summary` | 1行の説明 |
+| `hooks[].why` | なぜ必要か |
+| `hooks[].what` | 何をするか |
+| `hooks[].hook_type` | blocking/warning/info/logging |
+| `hooks[].keywords` | 検索キーワード |
+| `hooks[].trigger` | 実行タイミング |
+
+**生成方法**:
+
+```bash
+python3 .claude/scripts/generate_index.py
+```
+
+**重要**: エクスポート前に必ず index.json を再生成すること。
+
+---
+
 ## 実行手順
 
-### 1. 公開対象の範囲を決める（include方式）
+### 1. index.json を再生成
+
+```bash
+cd <PROJECT_ROOT>
+python3 .claude/scripts/generate_index.py
+```
+
+### 2. 公開対象の範囲を決める（include方式）
 
 **原則**: 「公開してよいものだけを明示的に含める」。除外方式は事故が起きやすい。
 
@@ -34,7 +67,7 @@ AIエージェント制御パターンの**公開参照リポジトリ**。
 - **含める**: `.claude/`, `scripts/`, `tests/`, `README.md`
 - **除外する**: `frontend/`, `worker/`, `shared/`, `node_modules/`, `tmp/`, 機密ファイル
 
-### 2. 同期先を決める
+### 3. 同期先を決める
 
 FDP側は `examples/<project>/` にまとめる。
 
@@ -42,7 +75,7 @@ FDP側は `examples/<project>/` にまとめる。
 <FDP_ROOT>/examples/<project>/
 ```
 
-### 3. dry-runで差分を確認（削除対象も確認）
+### 4. dry-runで差分を確認（削除対象も確認）
 
 ```sh
 rsync -avh --dry-run --delete --itemize-changes \
@@ -54,6 +87,7 @@ rsync -avh --dry-run --delete --itemize-changes \
   --filter='- .claude/hooks/logs/***' \
   --filter='- .claude/hooks/.claude/***' \
   --filter='- .claude/hooks/.worktrees/***' \
+  --filter='- .claude/hooks/tests/***' \
   --filter='- **/__pycache__/***' \
   --filter='- **/*.pyc' \
   --filter='- .codex-reviewed-commit' \
@@ -101,8 +135,26 @@ Why:
 
 What:
     <何をするか>
+
+Remarks:
+    <補足情報>
+
+Tags:
+    type: blocking
+    category: quality-gate
 """
 ```
+
+### Tags セクション
+
+| キー | 値 | 説明 |
+|-----|-----|------|
+| `type` | `blocking` | ユーザーアクションをブロック |
+| | `warning` | 警告を表示するが続行可能 |
+| | `info` | 情報提供のみ |
+| | `logging` | ログ記録のみ |
+| | `utility` | ユーティリティモジュール |
+| `category` | 任意 | 機能カテゴリ |
 
 ## 出力
 
@@ -110,3 +162,4 @@ What:
 
 1. 同期で更新された主なパス
 2. 削除されたパス（`--delete` がある場合）
+3. index.json の統計（hooks/scripts/skills の数）

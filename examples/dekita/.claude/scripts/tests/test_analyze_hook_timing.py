@@ -11,7 +11,7 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-SCRIPT_PATH = Path(__file__).parent.parent / "analyze-hook-timing.py"
+SCRIPT_PATH = Path(__file__).parent.parent / "analyze_hook_timing.py"
 
 
 def load_module():

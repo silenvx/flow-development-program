@@ -23,6 +23,7 @@ Changelog:
     - silenvx/dekita#1661: コミットIssue番号の事前フェッチ最適化
     - silenvx/dekita#2457: 残タスクパターン検出追加
     - silenvx/dekita#2463: 完了率表示追加
+    - silenvx/dekita#2710: Geminiセキュリティ指摘のIssue化強制チェック追加
 """
 
 import sys
@@ -50,6 +51,7 @@ from lib.github import is_pr_merged
 from review_checker import (
     check_dismissal_without_issue,
     check_resolved_without_response,
+    check_security_issues_without_issue,
     check_unresolved_ai_threads,
 )
 
@@ -449,6 +451,33 @@ def run_all_pr_checks(
                     "背景: Issue #2449で残タスクがIssue化されずにクローズされ、\n"
                     "タスクが放置されました。この問題を防止するため、Issue #2457で\n"
                     "残タスクパターン検出機能を実装しました。"
+                ),
+            )
+        )
+
+    # Check 13: Gemini security warnings without Issue reference (Issue #2710)
+    security_warnings = check_security_issues_without_issue(pr_number)
+    if security_warnings:
+        warning_details = "\n".join(
+            f"  - [{w['severity']}] {w['path']}:{w['line']}: {w['body']}" for w in security_warnings
+        )
+        blocking_reasons.append(
+            BlockingReason(
+                check_name="security_issues_without_issue",
+                title=f"Geminiのセキュリティ指摘にIssue参照がありません（{len(security_warnings)}件）",
+                details=(
+                    f"該当スレッド:\n{warning_details}\n\n"
+                    "⚠️ 問題:\n"
+                    "Geminiがセキュリティ問題（medium以上）を検出しましたが、\n"
+                    "対応するIssueが作成されていません。\n\n"
+                    "対処方法:\n"
+                    "1. 各セキュリティ指摘に対応するIssueを作成\n"
+                    "   例: `gh issue create --title 'セキュリティ: ReDoS脆弱性' --body '...' --label P1`\n"
+                    "2. 該当スレッドにIssue番号を追記\n"
+                    "   「Issue #XXX を作成しました」\n"
+                    "3. 再度マージを実行\n\n"
+                    "背景: PR #2702でGeminiが2つのReDoS脆弱性を指摘したが、\n"
+                    "Issueが作成されずにマージされた（Issue #2710）。"
                 ),
             )
         )

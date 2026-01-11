@@ -14,7 +14,7 @@ from pathlib import Path
 # テスト対象モジュールのパスを追加
 scripts_dir = Path(__file__).parent.parent
 spec = importlib.util.spec_from_file_location(
-    "analyze_interrupts", scripts_dir / "analyze-interrupts.py"
+    "analyze_interrupts", scripts_dir / "analyze_interrupts.py"
 )
 if spec is None or spec.loader is None:
     raise ImportError("Cannot load analyze-interrupts.py")

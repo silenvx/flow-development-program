@@ -18,7 +18,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 # validate-hooks-settings.py has hyphens, so we need dynamic import
-SCRIPT_PATH = Path(__file__).parent.parent / "validate-hooks-settings.py"
+SCRIPT_PATH = Path(__file__).parent.parent / "validate_hooks_settings.py"
 _spec = importlib.util.spec_from_file_location("validate_hooks_settings", SCRIPT_PATH)
 validate_hooks_settings = importlib.util.module_from_spec(_spec)
 sys.modules["validate_hooks_settings"] = validate_hooks_settings
@@ -300,7 +300,7 @@ class TestMainFunction:
                 with patch.object(
                     validate_hooks_settings,
                     "__file__",
-                    str(scripts_dir / "validate-hooks-settings.py"),
+                    str(scripts_dir / "validate_hooks_settings.py"),
                 ):
                     captured_output = io.StringIO()
                     with patch("sys.stdout", captured_output):
@@ -324,7 +324,7 @@ class TestMainFunction:
             with patch.object(
                 validate_hooks_settings,
                 "__file__",
-                str(scripts_dir / "validate-hooks-settings.py"),
+                str(scripts_dir / "validate_hooks_settings.py"),
             ):
                 captured_output = io.StringIO()
                 with patch("sys.stdout", captured_output):
@@ -348,7 +348,7 @@ class TestMainFunction:
             with patch.object(
                 validate_hooks_settings,
                 "__file__",
-                str(scripts_dir / "validate-hooks-settings.py"),
+                str(scripts_dir / "validate_hooks_settings.py"),
             ):
                 captured_output = io.StringIO()
                 with patch("sys.stdout", captured_output):
@@ -369,7 +369,7 @@ class TestMainFunction:
             hooks_dir.mkdir()
 
             # Create hook file
-            hook_file = hooks_dir / "test-hook.py"
+            hook_file = hooks_dir / "test_hook.py"
             hook_file.write_text("# hook")
 
             settings_path = claude_dir / "settings.json"
@@ -392,7 +392,7 @@ class TestMainFunction:
             with patch.object(
                 validate_hooks_settings,
                 "__file__",
-                str(scripts_dir / "validate-hooks-settings.py"),
+                str(scripts_dir / "validate_hooks_settings.py"),
             ):
                 captured_output = io.StringIO()
                 with patch("sys.stdout", captured_output):
@@ -432,7 +432,7 @@ class TestMainFunction:
             with patch.object(
                 validate_hooks_settings,
                 "__file__",
-                str(scripts_dir / "validate-hooks-settings.py"),
+                str(scripts_dir / "validate_hooks_settings.py"),
             ):
                 captured_output = io.StringIO()
                 with patch("sys.stdout", captured_output):
@@ -441,7 +441,7 @@ class TestMainFunction:
             assert result == 1
             output = captured_output.getvalue()
             assert "Missing hook files detected" in output
-            assert "missing-hook.py" in output
+            assert "missing_hook.py" in output
 
     def test_partial_missing_hooks(self):
         """Should detect missing files when some hooks exist and others don't."""
@@ -482,7 +482,7 @@ class TestMainFunction:
             with patch.object(
                 validate_hooks_settings,
                 "__file__",
-                str(scripts_dir / "validate-hooks-settings.py"),
+                str(scripts_dir / "validate_hooks_settings.py"),
             ):
                 captured_output = io.StringIO()
                 with patch("sys.stdout", captured_output):

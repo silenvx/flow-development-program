@@ -33,7 +33,7 @@ description: 振り返り観点を追加するガイド。ユーザー指摘か�
 
 ```bash
 # 既存の観点を確認（PERSPECTIVES配列全体を表示）
-grep -A 100 "PERSPECTIVES = \[" .claude/hooks/reflection-self-check.py | head -150
+grep -A 100 "PERSPECTIVES = \[" .claude/hooks/reflection_self_check.py | head -150
 ```
 
 既存観点で検出可能な場合は追加不要。キーワードの拡充で対応できる場合はキーワード追加のみ。
@@ -49,9 +49,9 @@ grep -A 100 "PERSPECTIVES = \[" .claude/hooks/reflection-self-check.py | head -1
 | `description` | 確認すべき内容 | `CI失敗時に根本原因を分析したか` |
 | `keywords` | 検出用キーワード（正規表現） | `[r"CI.*失敗", r"根本原因"]` |
 
-### 4. reflection-self-check.py への追加
+### 4. reflection_self_check.py への追加
 
-`.claude/hooks/reflection-self-check.py` の `PERSPECTIVES` 配列に追加:
+`.claude/hooks/reflection_self_check.py` の `PERSPECTIVES` 配列に追加:
 
 ```python
 # Issue #XXXX: [問題の説明]
@@ -67,9 +67,9 @@ grep -A 100 "PERSPECTIVES = \[" .claude/hooks/reflection-self-check.py | head -1
 },
 ```
 
-### 5. execute.md への追加
+### 5. reflect SKILL.md への追加
 
-`reflection-self-check.py`のPERSPECTIVESに追加した新観点を、`.claude/prompts/reflection/execute.md`のセクション8「観点チェック（自己確認）」（L449以降）のテーブルにも反映する:
+`reflection_self_check.py`のPERSPECTIVESに追加した新観点を、`.claude/skills/reflect/SKILL.md`のセクション6「改善点の洗い出し」の観点チェックテーブルにも反映する:
 
 ```markdown
 | N | 新観点の名前 | 確認すべき内容 | #XXXX |
@@ -137,7 +137,7 @@ def test_detects_new_perspective(self):
 
 - [ ] 既存観点で対応できないか確認した
 - [ ] `id`, `name`, `description`, `keywords` を定義した
-- [ ] `reflection-self-check.py` の PERSPECTIVES に追加した
+- [ ] `reflection_self_check.py` の PERSPECTIVES に追加した
 - [ ] `execute.md` のセクション8に追加した
 - [ ] テストを追加した
 - [ ] Pythonの構文エラーがないことを確認した

@@ -12,6 +12,7 @@ from typing import Any
 from ci_monitor.ai_review import (
     check_and_report_contradictions,
     has_copilot_or_codex_reviewer,
+    has_gemini_reviewer,
     is_copilot_review_error,
     request_copilot_review,
 )
@@ -19,6 +20,7 @@ from ci_monitor.constants import (
     ASYNC_REVIEWER_CHECK_DELAY_SECONDS,
     COPILOT_REVIEWER_LOGIN,
     DEFAULT_COPILOT_PENDING_TIMEOUT,
+    DEFAULT_GEMINI_PENDING_TIMEOUT,
     DEFAULT_LOCAL_CHANGES_MAX_WAIT,
     DEFAULT_LOCAL_CHANGES_WAIT_INTERVAL,
     DEFAULT_MAX_COPILOT_RETRY,
@@ -149,6 +151,10 @@ def monitor_pr(
     copilot_pending_since: float | None = (
         None  # Track when Copilot first became pending (Issue #1532)
     )
+    gemini_pending_since: float | None = (
+        None  # Track when Gemini first became pending (Issue #2711)
+    )
+    gemini_timed_out = False  # Track if Gemini timeout has been handled (Issue #2711)
     pr_recreate_count = 0  # Track PR recreation attempts (Issue #1532)
 
     # Issue #1351: Helper functions to avoid code duplication in retry logic
@@ -272,6 +278,9 @@ def monitor_pr(
     initial_state, _ = get_pr_state(pr_number)
     previous_reviewers = initial_state.pending_reviewers if initial_state else []
     was_codex_pending = is_codex_review_pending(pr_number)  # Track Codex Cloud review state
+    was_gemini_pending = has_gemini_reviewer(
+        previous_reviewers
+    )  # Track Gemini review state (Issue #2711)
 
     # Issue #2454: wait_review is always True, removed effective_wait_review logic
 
@@ -679,11 +688,49 @@ def monitor_pr(
             if copilot_pending_since is not None:
                 copilot_pending_since = None
 
+        # Issue #2711: Track Gemini pending state and check for timeout
+        gemini_is_pending = has_gemini_reviewer(state.pending_reviewers)
+        if gemini_is_pending:
+            if gemini_timed_out:
+                # Already timed out, skip Gemini check (no repeated logging)
+                if not has_copilot_or_codex_reviewer(state.pending_reviewers):
+                    if not is_codex_review_pending(pr_number):
+                        current_ai_pending = False
+            elif gemini_pending_since is None:
+                gemini_pending_since = time.time()
+                log("Gemini待機タイマー開始", json_mode)
+            else:
+                pending_duration = time.time() - gemini_pending_since
+                if pending_duration > DEFAULT_GEMINI_PENDING_TIMEOUT:
+                    # Gemini has been pending too long, skip waiting for it
+                    log(
+                        f"Gemini待機タイムアウト ({pending_duration:.0f}s > {DEFAULT_GEMINI_PENDING_TIMEOUT}s), "
+                        f"Gemini待機をスキップ...",
+                        json_mode,
+                    )
+                    gemini_timed_out = True  # Mark as handled to prevent repeated logging
+                    # If Gemini is the only pending AI reviewer, proceed as if no AI pending
+                    if not has_copilot_or_codex_reviewer(state.pending_reviewers):
+                        if not is_codex_review_pending(pr_number):
+                            current_ai_pending = False
+                            log("他のAIレビュー待機なし、Geminiなしで続行", json_mode)
+        else:
+            # Reset pending timer and timeout flag when Gemini is no longer pending
+            if gemini_pending_since is not None:
+                gemini_pending_since = None
+            if gemini_timed_out:
+                gemini_timed_out = False
+
         if not review_notified and not current_ai_pending:
             # Check if we previously had AI reviewers pending
             # Note: For Codex Cloud, the check is done via is_codex_review_pending()
             # which is called inside has_ai_review_pending()
-            if has_copilot_or_codex_reviewer(previous_reviewers) or was_codex_pending:
+            # Issue #2711: Include Gemini in the check
+            if (
+                has_copilot_or_codex_reviewer(previous_reviewers)
+                or was_codex_pending
+                or was_gemini_pending
+            ):
                 # Check if Copilot review ended with an error
                 is_error, error_message = is_copilot_review_error(pr_number)
                 if is_error:
@@ -790,9 +837,10 @@ def monitor_pr(
                         ci_passed=state.check_status == CheckStatus.SUCCESS,
                     )
 
-        # Update previous reviewers and Codex pending state for next iteration
+        # Update previous reviewers and Codex/Gemini pending state for next iteration
         previous_reviewers = state.pending_reviewers
         was_codex_pending = is_codex_review_pending(pr_number)
+        was_gemini_pending = has_gemini_reviewer(state.pending_reviewers)  # Issue #2711
 
         # Check CI status
         if state.check_status == CheckStatus.SUCCESS:
@@ -846,10 +894,14 @@ def monitor_pr(
                     # Reset review tracking for the new re-review
                     previous_reviewers = state.pending_reviewers
                     was_codex_pending = is_codex_review_pending(pr_number)
+                    was_gemini_pending = has_gemini_reviewer(state.pending_reviewers)  # Issue #2711
                     review_notified = False
                     copilot_retry_count = 0  # Reset retry counter for new review cycle
                     copilot_retry_in_progress = False  # Issue #1343: Reset retry-in-progress flag
                     copilot_retry_wait_polls = 0  # Issue #1343: Reset poll counter
+                    # Issue #2711: Reset Gemini timer and timeout flag for new review cycle
+                    gemini_pending_since = None
+                    gemini_timed_out = False
                     time.sleep(adjusted_interval)
                     continue
 

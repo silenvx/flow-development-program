@@ -383,7 +383,7 @@ def check_self_branch_deletion(command: str, hook_cwd: str | None = None) -> dic
                     "CLAUDE_PROJECT_DIR not set, skipping merge-check dry-run",
                 )
             else:
-                merge_check_script = Path(project_dir) / ".claude" / "hooks" / "merge-check.py"
+                merge_check_script = Path(project_dir) / ".claude" / "hooks" / "merge_check.py"
 
                 if merge_check_script.exists():
                     try:

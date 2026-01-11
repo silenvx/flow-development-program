@@ -643,35 +643,64 @@ class TestIsCodexReviewPending:
 class TestHasAiReviewPending:
     """Tests for has_ai_review_pending."""
 
+    @patch("ci_monitor.pr_operations.is_gemini_review_pending")
     @patch("ci_monitor.pr_operations.has_copilot_or_codex_reviewer")
     @patch("ci_monitor.pr_operations.is_codex_review_pending")
-    def test_copilot_pending(self, mock_codex: MagicMock, mock_copilot: MagicMock) -> None:
+    def test_copilot_pending(
+        self, mock_codex: MagicMock, mock_copilot: MagicMock, mock_gemini: MagicMock
+    ) -> None:
         """Copilot in reviewers returns True."""
         mock_copilot.return_value = True
         mock_codex.return_value = False
+        mock_gemini.return_value = False
 
         result = has_ai_review_pending("123", ["copilot"])
 
         assert result is True
         mock_codex.assert_not_called()
+        mock_gemini.assert_not_called()
 
+    @patch("ci_monitor.pr_operations.is_gemini_review_pending")
     @patch("ci_monitor.pr_operations.has_copilot_or_codex_reviewer")
     @patch("ci_monitor.pr_operations.is_codex_review_pending")
-    def test_codex_pending(self, mock_codex: MagicMock, mock_copilot: MagicMock) -> None:
+    def test_codex_pending(
+        self, mock_codex: MagicMock, mock_copilot: MagicMock, mock_gemini: MagicMock
+    ) -> None:
         """Codex review pending returns True."""
         mock_copilot.return_value = False
         mock_codex.return_value = True
+        mock_gemini.return_value = False
 
         result = has_ai_review_pending("123", [])
 
         assert result is True
+        mock_gemini.assert_not_called()
 
+    @patch("ci_monitor.pr_operations.is_gemini_review_pending")
     @patch("ci_monitor.pr_operations.has_copilot_or_codex_reviewer")
     @patch("ci_monitor.pr_operations.is_codex_review_pending")
-    def test_no_ai_pending(self, mock_codex: MagicMock, mock_copilot: MagicMock) -> None:
+    def test_gemini_pending(
+        self, mock_codex: MagicMock, mock_copilot: MagicMock, mock_gemini: MagicMock
+    ) -> None:
+        """Gemini in reviewers returns True (Issue #2711)."""
+        mock_copilot.return_value = False
+        mock_codex.return_value = False
+        mock_gemini.return_value = True
+
+        result = has_ai_review_pending("123", ["gemini-code-assist[bot]"])
+
+        assert result is True
+
+    @patch("ci_monitor.pr_operations.is_gemini_review_pending")
+    @patch("ci_monitor.pr_operations.has_copilot_or_codex_reviewer")
+    @patch("ci_monitor.pr_operations.is_codex_review_pending")
+    def test_no_ai_pending(
+        self, mock_codex: MagicMock, mock_copilot: MagicMock, mock_gemini: MagicMock
+    ) -> None:
         """No AI review pending returns False."""
         mock_copilot.return_value = False
         mock_codex.return_value = False
+        mock_gemini.return_value = False
 
         result = has_ai_review_pending("123", [])
 

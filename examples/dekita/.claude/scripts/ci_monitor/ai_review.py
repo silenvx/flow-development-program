@@ -9,7 +9,12 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any
 
-from ci_monitor.constants import AI_REVIEWER_IDENTIFIERS, COPILOT_REVIEWER_LOGIN
+from ci_monitor.constants import (
+    AI_REVIEWER_IDENTIFIERS,
+    COPILOT_CODEX_IDENTIFIERS,
+    COPILOT_REVIEWER_LOGIN,
+    GEMINI_REVIEWER_LOGIN,
+)
 from ci_monitor.github_api import run_gh_command
 from ci_monitor.models import CodexReviewRequest
 
@@ -47,9 +52,15 @@ def is_ai_reviewer(author: str) -> bool:
 def has_copilot_or_codex_reviewer(reviewers: list[str]) -> bool:
     """Check if Copilot or Codex is in the pending reviewers.
 
-    Uses is_ai_reviewer() for consistent AI reviewer detection.
+    Issue #2711: Uses COPILOT_CODEX_IDENTIFIERS instead of AI_REVIEWER_IDENTIFIERS
+    to avoid matching Gemini reviewers. Gemini has separate handling via
+    is_gemini_review_pending() with rate limit detection.
     """
-    return any(is_ai_reviewer(reviewer) for reviewer in reviewers)
+    for reviewer in reviewers:
+        reviewer_lower = reviewer.lower()
+        if any(ai in reviewer_lower for ai in COPILOT_CODEX_IDENTIFIERS):
+            return True
+    return False
 
 
 def _check_eyes_reaction(comment_id: int) -> bool:
@@ -162,6 +173,121 @@ def get_copilot_reviews(pr_number: str) -> list[dict[str, Any]]:
         return json.loads(output)
     except json.JSONDecodeError:
         return []
+
+
+# Gemini Code Assist functions (Issue #2711)
+
+
+def get_gemini_reviews(pr_number: str) -> list[dict[str, Any]]:
+    """Get reviews posted by Gemini Code Assist on the PR.
+
+    Issue #2711: Added to support Gemini review waiting.
+
+    Returns a list of reviews from gemini-code-assist[bot].
+    """
+    success, output = run_gh_command(
+        [
+            "api",
+            f"/repos/{{owner}}/{{repo}}/pulls/{pr_number}/reviews",
+            "--jq",
+            # Match official Gemini bot account only
+            f'[.[] | select(.user.login == "{GEMINI_REVIEWER_LOGIN}") '
+            "| {id, user: .user.login, submitted_at, state, body}]",
+        ]
+    )
+
+    if not success:
+        return []
+
+    try:
+        return json.loads(output)
+    except json.JSONDecodeError:
+        return []
+
+
+def has_gemini_reviewer(reviewers: list[str]) -> bool:
+    """Check if Gemini is in the pending reviewers.
+
+    Issue #2711: Check for gemini-code-assist[bot] in requested reviewers.
+    Uses exact matching to avoid false positives.
+
+    Args:
+        reviewers: List of pending reviewer login names.
+
+    Returns:
+        True if Gemini is in the list.
+    """
+    return GEMINI_REVIEWER_LOGIN in reviewers
+
+
+# Gemini rate limit patterns (Issue #2711)
+GEMINI_RATE_LIMIT_PATTERNS = [
+    "rate limit",
+    "rate-limit",
+    "quota exceeded",
+    "too many requests",
+]
+
+
+def is_gemini_rate_limited(pr_number: str) -> tuple[bool, str | None]:
+    """Check if Gemini has hit rate limits based on review comments.
+
+    Issue #2711: Detect rate limiting from Gemini's review body.
+
+    Returns:
+        Tuple of (is_rate_limited, message). If rate limited, returns
+        (True, rate_limit_message). Otherwise returns (False, None).
+    """
+    reviews = get_gemini_reviews(pr_number)
+
+    if not reviews:
+        return False, None
+
+    # Sort by submitted_at descending to get the most recent review first
+    sorted_reviews = sorted(
+        reviews,
+        key=lambda r: r.get("submitted_at", ""),
+        reverse=True,
+    )
+
+    # Only check the most recent review
+    latest_review = sorted_reviews[0]
+    body = latest_review.get("body", "").lower()
+
+    for pattern in GEMINI_RATE_LIMIT_PATTERNS:
+        if pattern in body:
+            return True, latest_review.get("body", "")
+
+    return False, None
+
+
+def is_gemini_review_pending(pr_number: str, pending_reviewers: list[str]) -> bool:
+    """Check if Gemini review is pending and not rate limited.
+
+    Issue #2711: A Gemini review is pending if:
+    1. gemini-code-assist[bot] is in requested_reviewers, AND
+    2. Gemini has not posted a rate limit error (if rate limited, skip waiting)
+
+    Note: Unlike Copilot which checks for "no review posted", Gemini only checks
+    for rate limiting because Gemini may post reviews while still in pending_reviewers.
+
+    Args:
+        pr_number: PR number to check.
+        pending_reviewers: List of pending reviewers from GitHub API.
+
+    Returns:
+        True if Gemini review is pending and should be waited for.
+    """
+    # Check if Gemini is in pending reviewers
+    if not has_gemini_reviewer(pending_reviewers):
+        return False
+
+    # Check if rate limited (don't wait if rate limited)
+    is_limited, _ = is_gemini_rate_limited(pr_number)
+    if is_limited:
+        return False
+
+    return True
 
 
 # Error patterns that indicate Copilot review failure

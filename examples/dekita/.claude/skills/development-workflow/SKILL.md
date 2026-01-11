@@ -17,11 +17,12 @@ Git Worktreeを使用した開発フローの詳細手順。
 4. `git fetch origin main && git diff HEAD..origin/main -- <変更予定ファイル>` - **main最新確認**
 5. 作業・コミット
 6. **ローカルテスト・Lint（必須）** - CI前に問題を検出
-7. `codex review --base main` - ローカルレビュー（**コミット追加後は再実行**）
-8. `gh pr create` - PR作成（**UI変更時はスクリーンショット必須**）
-9. `ci-monitor.py` でCI監視 + AIレビュー確認・対応
-10. `gh pr merge --squash` - マージ（必ず実行）
-11. worktree削除・main更新
+7. `/simplify` - コード簡素化（**長時間セッション後に推奨**）
+8. `codex review --base main` - ローカルレビュー（**コミット追加後は再実行**）
+9. `gh pr create` - PR作成（**UI変更時はスクリーンショット必須**）
+10. `ci_monitor.py` でCI監視 + AIレビュー確認・対応
+11. `gh pr merge --squash` - マージ（必ず実行）
+12. worktree削除・main更新
 
 **重要**: タスク完了時は必ずマージまで実行する。PR作成で止まらない。
 
@@ -82,8 +83,8 @@ git fetch origin main
 # 2. worktree作成時点とmain最新の差分確認（変更予定ファイル）
 git diff HEAD..origin/main -- <変更予定ファイル>
 
-# 例: merge-check.pyを変更する場合
-git diff HEAD..origin/main -- .claude/hooks/merge-check.py
+# 例: merge_check.pyを変更する場合
+git diff HEAD..origin/main -- .claude/hooks/merge_check.py
 
 # 3. 差分が大きい場合は内容を確認
 git show origin/main:<変更予定ファイル> | head -100
@@ -292,7 +293,7 @@ uvx ruff format --check .claude/hooks/
 pnpm test:ci
 
 # Pythonフック変更時
-python -m pytest .claude/hooks/tests/ -v
+uv run pytest .claude/hooks/tests/
 ```
 
 ### チェックリスト
@@ -300,7 +301,7 @@ python -m pytest .claude/hooks/tests/ -v
 | 変更対象 | 必須チェック |
 |----------|-------------|
 | TypeScript/JavaScript | `pnpm lint && pnpm typecheck` |
-| Pythonフック | `uvx ruff check && python -m pytest` |
+| Pythonフック | `uvx ruff check && uv run pytest` |
 | React コンポーネント | 上記 + ブラウザでの目視確認 |
 | API エンドポイント | 上記 + 手動リクエストテスト |
 
@@ -375,7 +376,7 @@ git worktree remove .worktrees/<name>
 
 ## CI監視
 
-`gh pr checks --watch` の代わりに `ci-monitor.py` を使用。
+`gh pr checks --watch` の代わりに `ci_monitor.py` を使用。
 
 ### シフトレフト原則
 
@@ -385,14 +386,14 @@ git worktree remove .worktrees/<name>
 |----------|------|
 | CI失敗を検知 | 即座に修正開始（完了を待たない） |
 | レビューコメント検知 | 即座に対応開始（CI完了を待たない） |
-| BEHIND検知 | 自動リベース（ci-monitor.pyが処理） |
+| BEHIND検知 | 自動リベース（ci_monitor.pyが処理） |
 
 ### バックグラウンド実行（シフトレフト推奨）
 
 ```bash
 # バックグラウンドでCI監視開始（--early-exit でシフトレフト有効化）
 # Issue #1637: --wait-review と --json はデフォルトで有効
-python3 .claude/scripts/ci-monitor.py {PR} --early-exit
+python3 .claude/scripts/ci_monitor.py {PR} --early-exit
 
 # → レビューコメント検知時に即座に終了・通知（CI失敗は常に即座に終了）
 # → 待ち時間中は並行タスクを実行
@@ -414,7 +415,7 @@ CI/レビュー待ちの間は受動的に待機せず、以下のタスクを**
 
 ### コマンドオプション
 
-**重要**: 全てのci-monitor.py呼び出しには `--session-id <SESSION_ID>` を付ける（ログのセッション紐付けに必要）
+**重要**: 全てのci_monitor.py呼び出しには `--session-id <SESSION_ID>` を付ける（ログのセッション紐付けに必要）
 
 ※ `<SESSION_ID>`はUserPromptSubmit hookで提供されるセッションID
 
@@ -422,16 +423,16 @@ CI/レビュー待ちの間は受動的に待機せず、以下のタスクを**
 # Issue #2454: 簡素化されたオプション（JSON出力とレビュー待機は常に有効）
 
 # 基本（CI + レビュー待機、JSON出力）
-python3 .claude/scripts/ci-monitor.py {PR} --session-id <SESSION_ID>
+python3 .claude/scripts/ci_monitor.py {PR} --session-id <SESSION_ID>
 
 # シフトレフト推奨: CI失敗/レビュー検知で即座に終了
-python3 .claude/scripts/ci-monitor.py {PR} --session-id <SESSION_ID> --early-exit
+python3 .claude/scripts/ci_monitor.py {PR} --session-id <SESSION_ID> --early-exit
 
 # タイムアウト指定（デフォルト: 30分）
-python3 .claude/scripts/ci-monitor.py {PR} --session-id <SESSION_ID> --timeout 60
+python3 .claude/scripts/ci_monitor.py {PR} --session-id <SESSION_ID> --timeout 60
 ```
 
-### ci-monitor.py 機能
+### ci_monitor.py 機能
 
 | 監視対象                  | 自動対処       |
 | ------------------------- | -------------- |
@@ -460,7 +461,7 @@ CI監視やcodex reviewをバックグラウンドで実行しながら、別の
 
 # 1. CI監視をバックグラウンドで開始
 #    Bashツールの run_in_background=true で実行し、task_idを取得
-python3 .claude/scripts/ci-monitor.py {PR} --early-exit
+python3 .claude/scripts/ci_monitor.py {PR} --early-exit
 # → task_id を控えておく（例: bg_task_abc123）
 
 # 2. codex reviewをバックグラウンドで開始（任意）
@@ -516,7 +517,7 @@ gh pr merge {PR} --squash
 
 ```bash
 # PR #100 のCI監視をバックグラウンドで開始
-python3 .claude/scripts/ci-monitor.py 100 --early-exit
+python3 .claude/scripts/ci_monitor.py 100 --early-exit
 # → task_id: bg_task_abc123
 
 # 別Issueの軽量な修正を開始
@@ -549,9 +550,9 @@ cd .worktrees/issue-101
 
 [GitHub Merge Queue](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue) は Organization 所有リポジトリのみ対応。個人アカウント所有リポジトリでは利用できない。
 
-### 既存の対策（ci-monitor.py）
+### 既存の対策（ci_monitor.py）
 
-`ci-monitor.py`はCI監視とBEHIND時の自動リベースを担当:
+`ci_monitor.py`はCI監視とBEHIND時の自動リベースを担当:
 
 | オプション | 効果 |
 |------------|------|
@@ -560,7 +561,7 @@ cd .worktrees/issue-101
 
 ```bash
 # CI監視（BEHIND時は自動リベース）
-python3 .claude/scripts/ci-monitor.py {PR}
+python3 .claude/scripts/ci_monitor.py {PR}
 
 # マージはgh pr mergeで直接実行（PostToolUseフックが発火する）
 gh pr merge {PR} --squash
@@ -579,7 +580,7 @@ gh pr merge {PR} --squash
 
 ### リベース回数の警告
 
-`ci-monitor.py`は2回以上のリベースが必要だった場合に警告を表示:
+`ci_monitor.py`は2回以上のリベースが必要だった場合に警告を表示:
 
 ```
 ⚠️ 2回目のリベースが必要でした（並行作業が多い可能性。merge queue検討を推奨）
@@ -646,7 +647,7 @@ gh pr update-branch {PR} --rebase
 
 # CI + レビュー待機（バックグラウンドで実行し、待ち時間タスクを並行処理）
 # Issue #1637: --wait-review と --json はデフォルトで有効
-python3 .claude/scripts/ci-monitor.py {PR}
+python3 .claude/scripts/ci_monitor.py {PR}
 
 # マージ（リモートブランチはGitHub設定で自動削除される）
 gh pr merge {PR} --squash

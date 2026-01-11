@@ -28,7 +28,7 @@ from importlib.util import module_from_spec, spec_from_file_location
 
 spec = spec_from_file_location(
     "background_task_logger",
-    Path(__file__).parent.parent / "background-task-logger.py",
+    Path(__file__).parent.parent / "background_task_logger.py",
 )
 module = module_from_spec(spec)
 spec.loader.exec_module(module)
@@ -265,7 +265,7 @@ class TestCLI:
     def test_no_args_shows_help(self, temp_log_dir, capsys):
         """Test that no arguments shows help."""
         with pytest.raises(SystemExit) as exc_info:
-            with patch.object(sys, "argv", ["background-task-logger.py"]):
+            with patch.object(sys, "argv", ["background_task_logger.py"]):
                 module.main()
 
         assert exc_info.value.code == 0
@@ -276,7 +276,7 @@ class TestCLI:
         """Test --list flag shows logs."""
         log_background_event("task", "EVENT")
 
-        with patch.object(sys, "argv", ["background-task-logger.py", "--list"]):
+        with patch.object(sys, "argv", ["background_task_logger.py", "--list"]):
             module.main()
 
         captured = capsys.readouterr()
@@ -287,7 +287,7 @@ class TestCLI:
         """Test --summary flag shows summary."""
         log_background_event("task", "EVENT")
 
-        with patch.object(sys, "argv", ["background-task-logger.py", "--summary"]):
+        with patch.object(sys, "argv", ["background_task_logger.py", "--summary"]):
             module.main()
 
         captured = capsys.readouterr()
@@ -297,7 +297,7 @@ class TestCLI:
         """Test --json flag outputs JSON."""
         log_background_event("task", "EVENT")
 
-        with patch.object(sys, "argv", ["background-task-logger.py", "--list", "--json"]):
+        with patch.object(sys, "argv", ["background_task_logger.py", "--list", "--json"]):
             module.main()
 
         captured = capsys.readouterr()
@@ -310,7 +310,7 @@ class TestCLI:
         log_background_event("ci-monitor", "EVENT1", session_id="s1")
         log_background_event("codex-review", "EVENT2", session_id="s2")
 
-        with patch.object(sys, "argv", ["background-task-logger.py", "--task", "ci-monitor"]):
+        with patch.object(sys, "argv", ["background_task_logger.py", "--task", "ci-monitor"]):
             module.main()
 
         captured = capsys.readouterr()
@@ -339,7 +339,7 @@ class TestCLI:
             f.write(json.dumps(old_event) + "\n")
             f.write(json.dumps(new_event) + "\n")
 
-        with patch.object(sys, "argv", ["background-task-logger.py", "--since", "2025-12-15"]):
+        with patch.object(sys, "argv", ["background_task_logger.py", "--since", "2025-12-15"]):
             module.main()
 
         captured = capsys.readouterr()
@@ -350,7 +350,7 @@ class TestCLI:
         """Test --since flag with invalid date format."""
         with pytest.raises(SystemExit) as exc_info:
             with patch.object(
-                sys, "argv", ["background-task-logger.py", "--since", "invalid-date"]
+                sys, "argv", ["background_task_logger.py", "--since", "invalid-date"]
             ):
                 module.main()
 

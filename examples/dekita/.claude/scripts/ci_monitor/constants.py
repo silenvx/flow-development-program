@@ -12,7 +12,7 @@ DEFAULT_POLLING_INTERVAL = 30
 DEFAULT_TIMEOUT_MINUTES = 20
 DEFAULT_MAX_COPILOT_RETRY = 3
 DEFAULT_MAX_RETRY_WAIT_POLLS = 4
-DEFAULT_COPILOT_PENDING_TIMEOUT = 300
+DEFAULT_COPILOT_PENDING_TIMEOUT = 1200  # 20 minutes
 DEFAULT_MAX_PR_RECREATE = 1
 DEFAULT_MAX_MERGE_ATTEMPTS = 3
 
@@ -53,8 +53,19 @@ CODE_BLOCK_PATTERN = re.compile(
     re.MULTILINE,
 )
 
-# Known AI reviewer identifiers (Issue #1109)
-AI_REVIEWER_IDENTIFIERS = ["copilot", "codex", "openai", "chatgpt"]
+# Known AI reviewer identifiers (Issue #1109, #2711)
+# COPILOT_CODEX_IDENTIFIERS: Used by has_copilot_or_codex_reviewer() for pending reviewer check
+# AI_REVIEWER_IDENTIFIERS: Used by is_ai_reviewer() for comment/review author detection
+COPILOT_CODEX_IDENTIFIERS = ["copilot", "codex", "openai", "chatgpt"]
+AI_REVIEWER_IDENTIFIERS = COPILOT_CODEX_IDENTIFIERS + ["gemini"]
 
 # Copilot reviewer login name for API requests
 COPILOT_REVIEWER_LOGIN = "copilot-pull-request-reviewer[bot]"
+
+# Gemini Code Assist reviewer login name (Issue #2711)
+GEMINI_REVIEWER_LOGIN = "gemini-code-assist[bot]"
+
+# Gemini pending timeout (Issue #2711)
+# How long to wait for Gemini review before skipping (seconds)
+# If Gemini doesn't respond and doesn't indicate rate limiting within this time, skip waiting
+DEFAULT_GEMINI_PENDING_TIMEOUT = 1200  # 20 minutes

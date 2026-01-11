@@ -5,15 +5,21 @@ from unittest.mock import MagicMock, patch
 from ci_monitor.ai_review import (
     COPILOT_ERROR_PATTERNS,
     COPILOT_REVIEWER_LOGIN,
+    GEMINI_RATE_LIMIT_PATTERNS,
     check_and_report_contradictions,
     get_codex_review_requests,
     get_codex_reviews,
     get_copilot_reviews,
+    get_gemini_reviews,
     has_copilot_or_codex_reviewer,
+    has_gemini_reviewer,
     is_ai_reviewer,
     is_copilot_review_error,
+    is_gemini_rate_limited,
+    is_gemini_review_pending,
     request_copilot_review,
 )
+from ci_monitor.constants import GEMINI_REVIEWER_LOGIN
 
 
 class TestIsAiReviewer:
@@ -64,6 +70,24 @@ class TestHasCopilotOrCodexReviewer:
     def test_empty_list(self):
         """Test empty reviewers list."""
         assert has_copilot_or_codex_reviewer([]) is False
+
+    def test_does_not_match_gemini(self):
+        """Test that Gemini is NOT detected by has_copilot_or_codex_reviewer.
+
+        Issue #2711: Gemini has separate handling via is_gemini_review_pending()
+        with rate limit detection. has_copilot_or_codex_reviewer() must not match
+        Gemini to avoid bypassing the rate limit skip logic.
+        """
+        reviewers = ["gemini-code-assist[bot]"]
+        assert has_copilot_or_codex_reviewer(reviewers) is False
+
+        # Mixed list: only Copilot/Codex should trigger True
+        reviewers_mixed = ["gemini-code-assist[bot]", "john-doe"]
+        assert has_copilot_or_codex_reviewer(reviewers_mixed) is False
+
+        # But if Copilot is also present, should return True
+        reviewers_with_copilot = ["gemini-code-assist[bot]", "copilot-pull-request-reviewer[bot]"]
+        assert has_copilot_or_codex_reviewer(reviewers_with_copilot) is True
 
 
 class TestGetCodexReviewRequests:
@@ -299,3 +323,183 @@ class TestCopilotConstants:
         assert len(COPILOT_ERROR_PATTERNS) > 0
         assert "encountered an error" in COPILOT_ERROR_PATTERNS
         assert "unable to review" in COPILOT_ERROR_PATTERNS
+
+
+# Gemini Code Assist tests (Issue #2711)
+
+
+class TestIsAiReviewerGemini:
+    """Tests for is_ai_reviewer with Gemini."""
+
+    def test_gemini_reviewer(self):
+        """Test detection of Gemini reviewer."""
+        assert is_ai_reviewer("gemini-code-assist[bot]") is True
+
+    def test_gemini_case_insensitive(self):
+        """Test case insensitive detection."""
+        assert is_ai_reviewer("GEMINI-code-assist[bot]") is True
+        assert is_ai_reviewer("Gemini-Code-Assist[bot]") is True
+
+
+class TestGetGeminiReviews:
+    """Tests for get_gemini_reviews function."""
+
+    @patch("ci_monitor.ai_review.run_gh_command")
+    def test_finds_gemini_reviews(self, mock_run):
+        """Test finding Gemini reviews."""
+        mock_run.return_value = (
+            True,
+            '[{"id": 1, "user": "gemini-code-assist[bot]", "state": "COMMENTED", "body": "Looks good"}]',
+        )
+        reviews = get_gemini_reviews("42")
+        assert len(reviews) == 1
+        assert reviews[0]["user"] == "gemini-code-assist[bot]"
+
+    @patch("ci_monitor.ai_review.run_gh_command")
+    def test_no_gemini_reviews(self, mock_run):
+        """Test when no Gemini reviews exist."""
+        mock_run.return_value = (True, "[]")
+        reviews = get_gemini_reviews("42")
+        assert len(reviews) == 0
+
+    @patch("ci_monitor.ai_review.run_gh_command")
+    def test_command_failure(self, mock_run):
+        """Test when gh command fails."""
+        mock_run.return_value = (False, "error")
+        reviews = get_gemini_reviews("42")
+        assert len(reviews) == 0
+
+
+class TestHasGeminiReviewer:
+    """Tests for has_gemini_reviewer function."""
+
+    def test_has_gemini(self):
+        """Test detection of Gemini in reviewers list."""
+        reviewers = ["john-doe", "gemini-code-assist[bot]"]
+        assert has_gemini_reviewer(reviewers) is True
+
+    def test_no_gemini(self):
+        """Test when Gemini is not in reviewers list."""
+        reviewers = ["john-doe", "copilot-pull-request-reviewer[bot]"]
+        assert has_gemini_reviewer(reviewers) is False
+
+    def test_empty_list(self):
+        """Test empty reviewers list."""
+        assert has_gemini_reviewer([]) is False
+
+
+class TestIsGeminiRateLimited:
+    """Tests for is_gemini_rate_limited function."""
+
+    @patch("ci_monitor.ai_review.get_gemini_reviews")
+    def test_detects_rate_limit(self, mock_get):
+        """Test detection of rate limit in Gemini review."""
+        mock_get.return_value = [
+            {
+                "id": 1,
+                "submitted_at": "2024-01-01T00:00:00Z",
+                "body": "Unable to review due to rate limit exceeded",
+            }
+        ]
+        is_limited, message = is_gemini_rate_limited("42")
+        assert is_limited is True
+        assert "rate limit" in message.lower()
+
+    @patch("ci_monitor.ai_review.get_gemini_reviews")
+    def test_detects_quota_exceeded(self, mock_get):
+        """Test detection of quota exceeded in Gemini review."""
+        mock_get.return_value = [
+            {
+                "id": 1,
+                "submitted_at": "2024-01-01T00:00:00Z",
+                "body": "Review failed: quota exceeded for this repository",
+            }
+        ]
+        is_limited, message = is_gemini_rate_limited("42")
+        assert is_limited is True
+
+    @patch("ci_monitor.ai_review.get_gemini_reviews")
+    def test_not_rate_limited(self, mock_get):
+        """Test when not rate limited."""
+        mock_get.return_value = [
+            {
+                "id": 1,
+                "submitted_at": "2024-01-01T00:00:00Z",
+                "body": "Code looks good. Nice work!",
+            }
+        ]
+        is_limited, message = is_gemini_rate_limited("42")
+        assert is_limited is False
+        assert message is None
+
+    @patch("ci_monitor.ai_review.get_gemini_reviews")
+    def test_no_reviews(self, mock_get):
+        """Test when no reviews exist."""
+        mock_get.return_value = []
+        is_limited, message = is_gemini_rate_limited("42")
+        assert is_limited is False
+        assert message is None
+
+    @patch("ci_monitor.ai_review.get_gemini_reviews")
+    def test_latest_not_rate_limited(self, mock_get):
+        """Test that only the latest review is checked."""
+        mock_get.return_value = [
+            {
+                "id": 1,
+                "submitted_at": "2024-01-01T00:00:00Z",
+                "body": "rate limit exceeded",
+            },
+            {
+                "id": 2,
+                "submitted_at": "2024-01-02T00:00:00Z",
+                "body": "Code looks good",
+            },
+        ]
+        is_limited, _ = is_gemini_rate_limited("42")
+        # Latest review (2024-01-02) is not rate limited
+        assert is_limited is False
+
+
+class TestIsGeminiReviewPending:
+    """Tests for is_gemini_review_pending function."""
+
+    @patch("ci_monitor.ai_review.is_gemini_rate_limited")
+    @patch("ci_monitor.ai_review.has_gemini_reviewer")
+    def test_pending_when_in_reviewers(self, mock_has, mock_limited):
+        """Test pending when Gemini is in pending reviewers."""
+        mock_has.return_value = True
+        mock_limited.return_value = (False, None)
+        assert is_gemini_review_pending("42", ["gemini-code-assist[bot]"]) is True
+
+    @patch("ci_monitor.ai_review.is_gemini_rate_limited")
+    @patch("ci_monitor.ai_review.has_gemini_reviewer")
+    def test_not_pending_when_not_in_reviewers(self, mock_has, mock_limited):
+        """Test not pending when Gemini is not in reviewers."""
+        mock_has.return_value = False
+        mock_limited.return_value = (False, None)
+        assert is_gemini_review_pending("42", ["copilot-bot"]) is False
+
+    @patch("ci_monitor.ai_review.is_gemini_rate_limited")
+    @patch("ci_monitor.ai_review.has_gemini_reviewer")
+    def test_not_pending_when_rate_limited(self, mock_has, mock_limited):
+        """Test not pending when rate limited (should not wait)."""
+        mock_has.return_value = True
+        mock_limited.return_value = (True, "rate limit exceeded")
+        # Should return False because we don't wait for rate-limited Gemini
+        assert is_gemini_review_pending("42", ["gemini-code-assist[bot]"]) is False
+
+
+class TestGeminiConstants:
+    """Tests for Gemini-related constants."""
+
+    def test_gemini_reviewer_login(self):
+        """Test GEMINI_REVIEWER_LOGIN constant."""
+        assert "gemini" in GEMINI_REVIEWER_LOGIN.lower()
+        assert "[bot]" in GEMINI_REVIEWER_LOGIN
+        assert GEMINI_REVIEWER_LOGIN == "gemini-code-assist[bot]"
+
+    def test_gemini_rate_limit_patterns(self):
+        """Test GEMINI_RATE_LIMIT_PATTERNS contains expected patterns."""
+        assert len(GEMINI_RATE_LIMIT_PATTERNS) > 0
+        assert "rate limit" in GEMINI_RATE_LIMIT_PATTERNS
+        assert "quota exceeded" in GEMINI_RATE_LIMIT_PATTERNS

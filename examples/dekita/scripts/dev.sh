@@ -37,8 +37,12 @@ FRONTEND_PID=""
 
 # クリーンアップ関数
 cleanup() {
-    [[ -n "$WORKER_PID" ]] && kill "$WORKER_PID" 2>/dev/null || true
-    [[ -n "$FRONTEND_PID" ]] && kill "$FRONTEND_PID" 2>/dev/null || true
+    if [[ -n "$WORKER_PID" ]]; then
+        kill "$WORKER_PID" 2>/dev/null || true
+    fi
+    if [[ -n "$FRONTEND_PID" ]]; then
+        kill "$FRONTEND_PID" 2>/dev/null || true
+    fi
     rm -f "$WORKER_LOG"
 }
 trap cleanup EXIT

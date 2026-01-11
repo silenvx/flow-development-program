@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Load module from file path (handles hyphenated filenames)
-script_path = Path(__file__).parent.parent / "check-hook-test-coverage.py"
+script_path = Path(__file__).parent.parent / "check_hook_test_coverage.py"
 spec = importlib.util.spec_from_file_location("check_hook_test_coverage", script_path)
 check_hook_test_coverage = importlib.util.module_from_spec(spec)
 sys.modules["check_hook_test_coverage"] = check_hook_test_coverage

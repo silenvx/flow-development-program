@@ -15,7 +15,7 @@ scripts_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(scripts_dir))
 
 # Load module from file path (handles hyphenated filenames)
-script_path = scripts_dir / "collect-pr-metrics.py"
+script_path = scripts_dir / "collect_pr_metrics.py"
 spec = importlib.util.spec_from_file_location("collect_pr_metrics", script_path)
 collect_pr_metrics = importlib.util.module_from_spec(spec)
 sys.modules["collect_pr_metrics"] = collect_pr_metrics

@@ -62,9 +62,9 @@ class HookContext:
         session_id: The Claude Code session ID from hook JSON input.
 
     Example:
-        >>> hook_input = parse_hook_input()
-        >>> ctx = create_hook_context(hook_input)
-        >>> session_id = ctx.get_session_id()  # Use in your hook logic
+        >>> ctx = HookContext(session_id="test-session-123")
+        >>> ctx.get_session_id()
+        'test-session-123'
     """
 
     session_id: str | None = None
@@ -261,8 +261,8 @@ def handle_session_id_arg(session_id: str | None) -> str | None:
     Common helper for scripts that accept --session-id argument.
     Validates the session ID format and returns it if valid.
 
-    Issue #2326: Extracted from collect-session-metrics.py,
-    session-report-generator.py, and analyze-fork-tree.py.
+    Issue #2326: Extracted from collect_session_metrics.py,
+    session_report_generator.py, and analyze_fork_tree.py.
     Issue #2496: No longer sets global state. Returns validated session_id instead.
 
     Args:

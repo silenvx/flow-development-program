@@ -13,7 +13,7 @@ scripts_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(scripts_dir))
 
 # Load module from file path (handles hyphenated filenames)
-script_path = scripts_dir / "session-summary.py"
+script_path = scripts_dir / "session_summary.py"
 spec = importlib.util.spec_from_file_location("session_summary", script_path)
 if spec is None or spec.loader is None:
     raise ImportError(

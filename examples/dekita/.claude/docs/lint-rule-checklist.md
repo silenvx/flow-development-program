@@ -47,7 +47,7 @@
 
 - [ ] `hook_lint.py` のテストカバレッジを確認
   ```bash
-  python3 -m pytest .claude/scripts/tests/test_hook_lint.py -v
+  uv run pytest .claude/scripts/tests/test_hook_lint.py
   ```
 - [ ] 誤検知テストが十分に含まれているか確認
 

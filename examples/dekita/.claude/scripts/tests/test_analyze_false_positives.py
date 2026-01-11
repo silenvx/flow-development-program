@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 # Load module directly from file (handles hyphen in filename)
-_script_path = Path(__file__).parents[1] / "analyze-false-positives.py"
+_script_path = Path(__file__).parents[1] / "analyze_false_positives.py"
 _spec = importlib.util.spec_from_file_location("analyze_false_positives", _script_path)
 afp = importlib.util.module_from_spec(_spec)
 sys.modules["analyze_false_positives"] = afp

@@ -16,7 +16,7 @@ import importlib.util
 
 spec = importlib.util.spec_from_file_location(
     "check_hook_patterns",
-    SCRIPTS_DIR / "check-hook-patterns.py",
+    SCRIPTS_DIR / "check_hook_patterns.py",
 )
 check_hook_patterns = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(check_hook_patterns)
@@ -156,7 +156,7 @@ class TestGetPostToolUseHooks:
             }
         }
         hooks = check_hook_patterns.get_post_tool_use_hooks(settings)
-        assert "test-hook.py" in hooks
+        assert "test_hook.py" in hooks
 
     def test_empty_settings(self):
         """空のsettingsの場合"""

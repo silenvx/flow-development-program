@@ -123,6 +123,7 @@ LOG_DIR = _PROJECT_DIR / ".claude" / "logs"
 # Subdirectories for organized logging
 EXECUTION_LOG_DIR = LOG_DIR / "execution"  # Hook execution, git operations
 METRICS_LOG_DIR = LOG_DIR / "metrics"  # PR metrics, session metrics, etc.
+DECISIONS_LOG_DIR = LOG_DIR / "decisions"  # Issue decision logs (Issue #2677)
 # Review/test completion markers (.done files)
 # Marker file specification (Issue #813):
 # - Filename: Uses SANITIZED branch name (e.g., "codex-review-feat-issue-123.done")

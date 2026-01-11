@@ -9,6 +9,7 @@ What:
     - Dismissal検証（Issue参照必須）
     - 応答検証（Claude Code応答必須）
     - 未解決スレッド検出
+    - セキュリティ指摘のIssue化強制
 
 Remarks:
     - fix_verification_checker.py: 修正主張の検証
@@ -20,9 +21,11 @@ Changelog:
     - silenvx/dekita#432: ACTION_KEYWORDS追加（修正報告と却下を区別）
     - silenvx/dekita#662: DISMISSAL_EXCLUSIONS追加（技術用語の誤検知防止）
     - silenvx/dekita#1123: verified:/検証済み/確認済み追加
+    - silenvx/dekita#2710: セキュリティ指摘のIssue化強制追加
 """
 
 import json
+import re
 import subprocess
 
 from check_utils import (
@@ -424,6 +427,183 @@ def check_resolved_without_response(pr_number: str) -> list[dict]:
                 )
 
         return threads_without_response
+    except Exception:
+        # On error, don't block (fail open)
+        return []
+
+
+# Gemini security badge patterns (Issue #2710)
+# Format: ![security-{level}](https://www.gstatic.com/codereviewagent/security-{level}-priority.svg)
+GEMINI_SECURITY_BADGES = [
+    "security-medium",
+    "security-high",
+    "security-critical",
+]
+
+# Gemini bot user name
+GEMINI_BOT_USER = "gemini-code-assist[bot]"
+
+# Strict Issue reference pattern for security checks (Issue #2710)
+# Unlike ISSUE_REFERENCE_PATTERN which accepts "issue作成", this requires
+# an actual Issue number (#123) since security issues must be tracked in a real Issue.
+STRICT_ISSUE_REFERENCE_PATTERN = re.compile(r"#\d+")
+
+
+def check_security_issues_without_issue(pr_number: str) -> list[dict]:
+    """Check if any Gemini security warnings lack corresponding Issue references.
+
+    Issue #2710: Gemini may flag security issues (medium/high/critical) that should
+    be tracked as Issues before merging. This function detects such warnings and
+    ensures they have Issue references in the thread.
+
+    Gemini security badges format:
+        ![security-medium](https://www.gstatic.com/codereviewagent/security-medium-priority.svg)
+        ![security-high](https://www.gstatic.com/codereviewagent/security-high-priority.svg)
+        ![security-critical](https://www.gstatic.com/codereviewagent/security-critical-priority.svg)
+
+    Note: Unlike check_dismissal_without_issue which accepts "issue作成" pattern,
+    this function requires an actual Issue number (#123) since security issues
+    must be tracked in a real Issue, not just a promise to create one.
+
+    GraphQL Limitations:
+        - reviewThreads: Paginated, up to 500 threads (10 pages × 50)
+        - comments(first: 30): Only the first 30 comments per thread are checked.
+
+    Returns list of threads with security warnings that lack Issue references.
+    Each item contains: path, line, body (snippet), severity
+    """
+    try:
+        repo_info = get_repo_owner_and_name()
+        if not repo_info:
+            return []
+
+        owner, name = repo_info
+
+        # GraphQL query with pagination support (similar to check_dismissal_without_issue)
+        query = """
+        query($owner: String!, $name: String!, $pr: Int!, $cursor: String) {
+          repository(owner: $owner, name: $name) {
+            pullRequest(number: $pr) {
+              reviewThreads(first: 50, after: $cursor) {
+                nodes {
+                  id
+                  path
+                  line
+                  comments(first: 30) {
+                    nodes {
+                      body
+                      author { login }
+                    }
+                  }
+                }
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+              }
+            }
+          }
+        }
+        """
+
+        # Fetch all threads with pagination
+        threads: list[dict] = []
+        cursor: str | None = None
+        max_pages = 10  # Safety limit: 500 threads max
+
+        for _ in range(max_pages):
+            cmd = [
+                "gh",
+                "api",
+                "graphql",
+                "-f",
+                f"query={query}",
+                "-F",
+                f"owner={owner}",
+                "-F",
+                f"name={name}",
+                "-F",
+                f"pr={pr_number}",
+            ]
+            if cursor:
+                cmd.extend(["-F", f"cursor={cursor}"])
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=TIMEOUT_HEAVY,
+            )
+
+            if result.returncode != 0 or not result.stdout.strip():
+                break
+
+            data = json.loads(result.stdout)
+            review_threads = (
+                data.get("data", {})
+                .get("repository", {})
+                .get("pullRequest", {})
+                .get("reviewThreads", {})
+            )
+
+            page_threads = review_threads.get("nodes", [])
+            threads.extend(page_threads)
+
+            page_info = review_threads.get("pageInfo", {})
+            cursor = page_info.get("endCursor")
+            # Pagination end condition: hasNextPage is False or endCursor is invalid
+            if not page_info.get("hasNextPage") or not cursor:
+                break
+
+        threads_with_security_without_issue = []
+
+        for thread in threads:
+            comments = thread.get("comments", {}).get("nodes", [])
+            if not comments:
+                continue
+
+            # Check if the first comment is from Gemini
+            first_comment = comments[0]
+            author = first_comment.get("author", {}).get("login", "")
+            if author.lower() != GEMINI_BOT_USER.lower():
+                continue
+
+            # Check if the first comment contains security badges
+            body = first_comment.get("body", "")
+            body_lower = body.lower()
+
+            # Find the highest severity security badge
+            detected_severity = None
+            for badge in GEMINI_SECURITY_BADGES:
+                if badge.lower() in body_lower:
+                    detected_severity = badge
+                    # Don't break - keep checking to find higher severity
+
+            if not detected_severity:
+                continue
+
+            # Check if ANY comment in the thread has a real Issue reference (#123)
+            # Note: We use STRICT_ISSUE_REFERENCE_PATTERN here, not ISSUE_REFERENCE_PATTERN.
+            # "issue作成します" is not sufficient - we need an actual Issue number.
+            thread_has_issue_ref = False
+            for comment in comments:
+                comment_body = comment.get("body", "")
+                comment_body_stripped = strip_code_blocks(comment_body)
+                if STRICT_ISSUE_REFERENCE_PATTERN.search(comment_body_stripped):
+                    thread_has_issue_ref = True
+                    break
+
+            if not thread_has_issue_ref:
+                threads_with_security_without_issue.append(
+                    {
+                        "path": thread.get("path", "unknown"),
+                        "line": thread.get("line"),
+                        "body": truncate_body(body),
+                        "severity": detected_severity,
+                    }
+                )
+
+        return threads_with_security_without_issue
     except Exception:
         # On error, don't block (fail open)
         return []

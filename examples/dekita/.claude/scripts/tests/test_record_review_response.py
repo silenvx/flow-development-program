@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 
 # record-review-response.py has a hyphen in the name, so we need to import it dynamically
-SCRIPT_PATH = Path(__file__).parent.parent / "record-review-response.py"
+SCRIPT_PATH = Path(__file__).parent.parent / "record_review_response.py"
 _spec = importlib.util.spec_from_file_location("record_review_response", SCRIPT_PATH)
 record_review_response = importlib.util.module_from_spec(_spec)
 sys.modules["record_review_response"] = record_review_response
@@ -189,7 +189,7 @@ class TestMainFunction:
     def test_requires_issue_for_issue_created(self, capsys):
         """Should fail when resolution=issue_created without --issue."""
         test_args = [
-            "record-review-response.py",
+            "record_review_response.py",
             "--pr",
             "123",
             "--comment-id",
@@ -210,7 +210,7 @@ class TestMainFunction:
         """Should accept valid command line arguments."""
         log_file = tmp_path / "review-quality.jsonl"
         test_args = [
-            "record-review-response.py",
+            "record_review_response.py",
             "--pr",
             "123",
             "--comment-id",

@@ -107,7 +107,7 @@ codex review --base main --instructions "セキュリティを重点チェック
 
 #### 範囲外と判断してよいケース
 
-`ci-monitor.py` が自動分類するが、手動判断が必要な場合:
+`ci_monitor.py` が自動分類するが、手動判断が必要な場合:
 
 | 分類 | 条件 | 対応 |
 | ---- | ---- | ---- |
@@ -162,7 +162,7 @@ codex review --base main --instructions "セキュリティを重点チェック
 
 1. コメント内容を確認
 2. **AIレビュー指摘の検証**（下記チェックリスト参照）
-3. **範囲内/範囲外を判断**（ci-monitor.pyの分類を参照）
+3. **範囲内/範囲外を判断**（ci_monitor.pyの分類を参照）
 4. **ultrathink** して評価（妥当か、修正すべきか、却下すべきか）
 5. 修正 or 却下理由をコメント
 6. Resolveする
@@ -173,27 +173,27 @@ codex review --base main --instructions "セキュリティを重点チェック
 レビューコメントへの対応結果を記録し、AIレビューの品質を追跡する。
 
 **自動記録**: 以下は自動でログに記録される
-- Copilot/Codex Cloud のコメント → `ci-monitor.py` が REVIEW_COMPLETED 時に記録
-- Codex CLI のコメント → `codex-review-output-logger.py` が実行後に記録
+- Copilot/Codex Cloud のコメント → `ci_monitor.py` が REVIEW_COMPLETED 時に記録
+- Codex CLI のコメント → `codex_review_output_logger.py` が実行後に記録
 
 **手動記録**: 対応結果（resolution/validity）は以下のスクリプトで記録
 
 ```bash
 # 採用した場合
-python3 .claude/scripts/record-review-response.py \
+python3 .claude/scripts/record_review_response.py \
   --pr {PR} --comment-id {COMMENT_ID} --resolution accepted
 
 # 却下した場合（理由付き）
-python3 .claude/scripts/record-review-response.py \
+python3 .claude/scripts/record_review_response.py \
   --pr {PR} --comment-id {COMMENT_ID} --resolution rejected \
   --validity invalid --reason "誤検知: 既存コードで問題なし"
 
 # Issue作成した場合
-python3 .claude/scripts/record-review-response.py \
+python3 .claude/scripts/record_review_response.py \
   --pr {PR} --comment-id {COMMENT_ID} --resolution issue_created --issue {ISSUE_NUMBER}
 
 # カテゴリを上書き（自動推定が不正確な場合）
-python3 .claude/scripts/record-review-response.py \
+python3 .claude/scripts/record_review_response.py \
   --pr {PR} --comment-id {COMMENT_ID} --resolution accepted --category security
 ```
 
@@ -201,19 +201,19 @@ python3 .claude/scripts/record-review-response.py \
 
 ```bash
 # サマリー表示
-python3 .claude/scripts/analyze-review-quality.py
+python3 .claude/scripts/analyze_review_quality.py
 
 # レビュアー別統計
-python3 .claude/scripts/analyze-review-quality.py --by-reviewer
+python3 .claude/scripts/analyze_review_quality.py --by-reviewer
 
 # カテゴリ別統計
-python3 .claude/scripts/analyze-review-quality.py --by-category
+python3 .claude/scripts/analyze_review_quality.py --by-category
 
 # 期間指定
-python3 .claude/scripts/analyze-review-quality.py --since 2025-12-01
+python3 .claude/scripts/analyze_review_quality.py --since 2025-12-01
 
 # JSON出力
-python3 .claude/scripts/analyze-review-quality.py --json
+python3 .claude/scripts/analyze_review_quality.py --json
 ```
 
 ### 修正後の即時対応（重要）
@@ -269,8 +269,8 @@ mutation {
 **自動化スクリプト**:
 
 ```bash
-# review-respond.py を使用（PR番号、コメントID、スレッドID、返信内容を指定）
-python3 .claude/scripts/review-respond.py {PR} {COMMENT_ID} {THREAD_ID} "修正内容"
+# review_respond.py を使用（PR番号、コメントID、スレッドID、返信内容を指定）
+python3 .claude/scripts/review_respond.py {PR} {COMMENT_ID} {THREAD_ID} "修正内容"
 ```
 
 ### レビュー対応ツールの選択（Issue #1011, #2633）
@@ -280,7 +280,7 @@ python3 .claude/scripts/review-respond.py {PR} {COMMENT_ID} {THREAD_ID} "修正�
 | 状況 | 推奨ツール | 理由 |
 | ---- | ---------- | ---- |
 | **複数スレッドに同じメッセージ** | `batch_resolve_threads.py` | 一括解決、署名自動付与 |
-| **個別スレッドに異なる対応** | `review-respond.py` | 個別対応、署名自動付与 |
+| **個別スレッドに異なる対応** | `review_respond.py` | 個別対応、署名自動付与 |
 | **上記で対応できない特殊ケース** | GraphQL API | 柔軟だがブロックリスク |
 
 **⚠️ 重要**: 「レビュースレッド解決の優先順位」セクション（後述）も参照。
@@ -300,7 +300,7 @@ python3 .claude/scripts/review-respond.py {PR} {COMMENT_ID} {THREAD_ID} "修正�
 python3 .claude/scripts/batch_resolve_threads.py {PR} "修正しました。Verified: [内容]"
 
 # 状況: スレッドごとに異なる内容で返信する場合
-python3 .claude/scripts/review-respond.py {PR} {COMMENT_ID} {THREAD_ID} "対応内容"
+python3 .claude/scripts/review_respond.py {PR} {COMMENT_ID} {THREAD_ID} "対応内容"
 ```
 
 **⚠️ GraphQL/REST APIを直接使う場合の注意**:
@@ -330,7 +330,7 @@ python3 .claude/scripts/review-respond.py {PR} {COMMENT_ID} {THREAD_ID} "対応�
 
 ```text
 修正しました。Verified: タブ区切りパースの修正を確認
-- ファイル: .claude/hooks/worktree-removal-check.py:91-110
+- ファイル: .claude/hooks/worktree_removal_check.py:91-110
 - 変更: `split("\t", 2)` でタブ区切りを正しくパース
 
 -- Claude Code
@@ -345,7 +345,7 @@ python3 .claude/scripts/review-respond.py {PR} {COMMENT_ID} {THREAD_ID} "対応�
 
 **すべてのレビューコメントへの返信には `-- Claude Code` 署名を含める**。
 
-署名がないと `merge-check.py` がマージをブロックする（Claude Codeの返信として認識されないため）。
+署名がないと `merge_check.py` がマージをブロックする（Claude Codeの返信として認識されないため）。
 
 ```text
 [対応内容や却下理由]
@@ -355,7 +355,7 @@ python3 .claude/scripts/review-respond.py {PR} {COMMENT_ID} {THREAD_ID} "対応�
 
 **署名の目的**:
 - Claude Codeによる対応であることを明示
-- `merge-check.py` がスレッドの対応状況を追跡可能に
+- `merge_check.py` がスレッドの対応状況を追跡可能に
 - レビュー履歴の一貫性を保つ
 
 **返信なしでResolveしない**:
@@ -422,14 +422,14 @@ AIレビューが誤った指摘をした場合の対応手順。
 > **⚠️ 重要: `gh pr comment` は使用禁止**
 >
 > `gh pr comment` で追加したPRコメントは、レビュースレッドへの返信として認識されない。
-> `merge-check.py` は GraphQL の `reviewThreads.comments` のみをチェックするため、
+> `merge_check.py` は GraphQL の `reviewThreads.comments` のみをチェックするため、
 > 通常のPRコメントでは「インライン返信なし」と判断されマージがブロックされる。
 >
 > **必ず以下のいずれかを使用**:
-> - `review-respond.py` スクリプト（推奨）
+> - `review_respond.py` スクリプト（推奨）
 > - GraphQL の `addPullRequestReviewThreadReply` mutation
 >
-> **注**: REST API の `in_reply_to` パラメータは動作しない（HTTP 422）。`/replies` エンドポイント（`review-respond.py` が使用）は動作する。（PR #957で確認）
+> **注**: REST API の `in_reply_to` パラメータは動作しない（HTTP 422）。`/replies` エンドポイント（`review_respond.py` が使用）は動作する。（PR #957で確認）
 
 ### 「Verified」コメント時の検証要件（重要）
 
@@ -455,7 +455,7 @@ Verified: [具体的に何を確認したか]
 
 ```text
 Verified: タブ区切りによるパース修正を確認
-- ファイル: .claude/hooks/worktree-removal-check.py:91-110
+- ファイル: .claude/hooks/worktree_removal_check.py:91-110
 - 確認内容: `--format=%ct\t%ar\t%s` でタブ区切り、`split("\t", 2)` で正しくパース
 
 -- Claude Code
@@ -570,7 +570,7 @@ AIレビュー（Copilot/Codex）の指摘に対応する**前**に確認:
 | 優先度 | ツール | 用途 | 理由 |
 | ------ | ------ | ---- | ---- |
 | 1 | **batch_resolve_threads.py** | すべての未解決スレッドに同じメッセージで一括解決 | 署名自動付与、resolve-thread-guardを回避 |
-| 2 | review-respond.py | 個別スレッドに異なるメッセージを投稿 | スレッドごとに対応内容が異なる場合 |
+| 2 | review_respond.py | 個別スレッドに異なるメッセージを投稿 | スレッドごとに対応内容が異なる場合 |
 | 3 | GraphQL API | 最終手段 | resolve-thread-guardがブロックする可能性 |
 
 **batch_resolve_threads.py の使用例**:
@@ -583,7 +583,7 @@ python3 .claude/scripts/batch_resolve_threads.py {PR} "修正しました。Veri
 python3 .claude/scripts/batch_resolve_threads.py {PR} --dry-run
 ```
 
-**注意**: スレッドごとに異なるメッセージが必要な場合は `review-respond.py` を使用する。
+**注意**: スレッドごとに異なるメッセージが必要な場合は `review_respond.py` を使用する。
 
 **なぜbatch_resolve_threads.pyを優先するか**:
 
@@ -620,7 +620,7 @@ force-push/リベース後はCopilot/Codexが同じ内容で再レビューし�
 
 ### 自動重複解決機能（ci-monitor）
 
-`ci-monitor.py`はリベース前後で同一内容のスレッドを自動検出し、自動でResolveする機能を持つ。
+`ci_monitor.py`はリベース前後で同一内容のスレッドを自動検出し、自動でResolveする機能を持つ。
 
 **仕組み**:
 1. リベース前にResolve済みスレッドのハッシュを記録
@@ -838,6 +838,16 @@ AIレビューで発生した誤検知パターンを記録する。同様のパ
 **対応**: False positiveとして却下（修正不要）
 
 **回避策**: 関連する関数でパラメータセットが異なる場合、その理由（目的の違い）をdocstringで説明する。`record_block`は`reason`が必要（ブロック理由を記録）、`check_block_resolution`は`reason`不要（解決チェックのみ）のように、目的に応じたパラメータ差異は正しい設計。
+
+### JSONLファイルにJSON配列対応を求める指摘
+
+| 発生 | パターン | 詳細 |
+| ---- | -------- | ---- |
+| PR #2725 | 「Handle JSON-array transcripts」 | JSONL形式（.jsonl、1行1JSON）のファイルを処理するコードに対し、「JSON配列形式にも対応すべき」と指摘。Claude Codeのトランスクリプトは常にJSONL形式で保存されるため不要 |
+
+**対応**: False positiveとして却下（修正不要）
+
+**回避策**: JSONL形式のファイル処理では、ファイル拡張子（.jsonl）と用途（Claude Codeトランスクリプト）を確認する。`lib.transcript.load_transcript`のような別ライブラリがJSON配列をサポートしていても、直接ファイルを読む場合はJSONL前提で問題ない。
 
 ## マージ前チェックリスト
 

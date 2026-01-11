@@ -226,7 +226,7 @@ class TestMainFunction:
         """Should show message when no records found."""
         log_file = tmp_path / "review-quality.jsonl"
 
-        test_args = ["analyze-review-quality.py"]
+        test_args = ["analyze_review_quality.py"]
         with patch("sys.argv", test_args):
             with patch("analyze_review_quality.REVIEW_QUALITY_LOG", log_file):
                 from analyze_review_quality import main
@@ -244,7 +244,7 @@ class TestMainFunction:
             '{"pr_number": "123", "comment_id": "1", "reviewer": "copilot", "timestamp": "2025-12-20T10:00:00+00:00"}\n'
         )
 
-        test_args = ["analyze-review-quality.py", "--json"]
+        test_args = ["analyze_review_quality.py", "--json"]
         with patch("sys.argv", test_args):
             with patch("analyze_review_quality.REVIEW_QUALITY_LOG", log_file):
                 from analyze_review_quality import main

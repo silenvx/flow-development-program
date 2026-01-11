@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 # Load block_evaluator module directly from file
-_script_path = Path(__file__).parents[1] / "block-evaluator.py"
+_script_path = Path(__file__).parents[1] / "block_evaluator.py"
 _spec = importlib.util.spec_from_file_location("block_evaluator", _script_path)
 be = importlib.util.module_from_spec(_spec)
 sys.modules["block_evaluator"] = be

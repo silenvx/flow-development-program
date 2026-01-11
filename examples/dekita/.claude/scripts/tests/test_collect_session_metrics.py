@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for collect-session-metrics.py script."""
+"""Tests for collect_session_metrics.py script."""
 
 import importlib.util
 import json
@@ -15,7 +15,7 @@ scripts_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(scripts_dir))
 
 # Load module from file path (handles hyphenated filenames)
-script_path = scripts_dir / "collect-session-metrics.py"
+script_path = scripts_dir / "collect_session_metrics.py"
 spec = importlib.util.spec_from_file_location("collect_session_metrics", script_path)
 collect_session_metrics = importlib.util.module_from_spec(spec)
 sys.modules["collect_session_metrics"] = collect_session_metrics
@@ -915,7 +915,7 @@ class TestRecordSessionMetrics:
 class TestMain:
     """Tests for main function."""
 
-    @patch("sys.argv", ["collect-session-metrics.py"])
+    @patch("sys.argv", ["collect_session_metrics.py"])
     @patch.object(collect_session_metrics, "handle_session_id_arg")
     @patch.object(collect_session_metrics, "get_fallback_session_id")
     @patch.object(collect_session_metrics, "analyze_session_from_hooks")
@@ -961,7 +961,7 @@ class TestMain:
             "repeated_search_count": 1,
             "bash_retry_count": 0,
             "rework_file_count": 2,
-            "top_rework_files": ["ci-monitor.py", "merge-check.py"],
+            "top_rework_files": ["ci_monitor.py", "merge_check.py"],
         }
 
         captured_output = StringIO()
@@ -987,7 +987,7 @@ class TestMain:
         assert "test-session-123" in output
 
     @patch.object(collect_session_metrics, "handle_session_id_arg")
-    @patch("sys.argv", ["collect-session-metrics.py"])
+    @patch("sys.argv", ["collect_session_metrics.py"])
     @patch.object(collect_session_metrics, "get_fallback_session_id")
     @patch.object(collect_session_metrics, "analyze_session_from_hooks")
     @patch.object(collect_session_metrics, "collect_git_stats")
@@ -1125,7 +1125,7 @@ class TestMainDuplicatePrevention:
     Issue #2496: Updated to mock handle_session_id_arg and get_fallback_session_id.
     """
 
-    @patch("sys.argv", ["collect-session-metrics.py"])
+    @patch("sys.argv", ["collect_session_metrics.py"])
     @patch.object(collect_session_metrics, "handle_session_id_arg")
     @patch.object(collect_session_metrics, "get_fallback_session_id")
     @patch.object(collect_session_metrics, "is_session_end_recorded")
@@ -1180,7 +1180,7 @@ class TestMainDuplicatePrevention:
         output = captured_output.getvalue()
         assert "Session Metrics Recorded (End):" in output
 
-    @patch("sys.argv", ["collect-session-metrics.py"])
+    @patch("sys.argv", ["collect_session_metrics.py"])
     @patch.object(collect_session_metrics, "handle_session_id_arg")
     @patch.object(collect_session_metrics, "get_fallback_session_id")
     @patch.object(collect_session_metrics, "is_session_end_recorded")

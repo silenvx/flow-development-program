@@ -19,7 +19,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # review-respond.py has a hyphen in the name, so we need to import it dynamically
-SCRIPT_PATH = Path(__file__).parent.parent / "review-respond.py"
+SCRIPT_PATH = Path(__file__).parent.parent / "review_respond.py"
 _spec = importlib.util.spec_from_file_location("review_respond", SCRIPT_PATH)
 review_respond = importlib.util.module_from_spec(_spec)
 sys.modules["review_respond"] = review_respond

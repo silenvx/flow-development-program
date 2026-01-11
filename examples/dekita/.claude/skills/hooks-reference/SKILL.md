@@ -7,6 +7,84 @@ description: Claude Codeフックの詳細仕様、設計原則、設定方法�
 
 Claude Codeフックの詳細仕様と設計原則。
 
+## 新規フック実装時の必須チェックリスト（クイックリファレンス）
+
+新しいフックを作成する前に必ず確認すること。これを怠るとCIでブロックされる。
+
+### 関数シグネチャ（よくある間違い）
+
+| 関数 | 正しい呼び出し | よくある間違い |
+|------|---------------|---------------|
+| `make_approve_result` | `make_approve_result("hook-name")` | `make_approve_result()` ← 引数必須 |
+| `make_block_result` | `make_block_result("hook-name", "理由")` | `make_block_result("理由")` ← 2引数必須 |
+| `log_hook_execution` | `log_hook_execution(..., decision="block")` | `log_hook_execution(..., result="block")` ← `decision=`が正しい |
+
+### JSON出力（必須）
+
+```python
+# ❌ 悪い例: Python辞書をそのまま出力
+print(make_approve_result("my-hook"))  # {'decision': 'approve', ...}
+
+# ✅ 良い例: json.dumpsでJSON文字列に変換
+print(json.dumps(make_approve_result("my-hook")))  # {"decision": "approve", ...}
+```
+
+**理由**: Claude CodeはJSON形式を期待している。Python辞書形式（シングルクォート）は解析エラーになる。
+
+### テストファイル（CI必須）
+
+新規フックには必ずテストファイルを作成する:
+
+- **ファイル名**: `.claude/hooks/tests/test_<hook名（アンダースコア区切り）>.py`
+- **例**: `issue-branch-check.py` → `test_issue_branch_check.py`
+
+CIの `hook-test-requirement-check` がテストなしの新規フックをブロックする。
+
+### 最小実装テンプレート
+
+```python
+#!/usr/bin/env python3
+"""フックの説明."""
+from __future__ import annotations
+
+import json
+
+from lib.execution import log_hook_execution
+from lib.results import make_approve_result, make_block_result
+from lib.session import parse_hook_input
+
+
+def main() -> None:
+    """メイン処理."""
+    hook_input = parse_hook_input()
+    tool_name = hook_input.get("tool_name", "")
+
+    # 対象外はスキップ
+    if tool_name != "Bash":
+        print(json.dumps(make_approve_result("my-hook")))
+        return
+
+    # チェックロジック
+    # ...
+
+    # ブロック時
+    print(json.dumps(make_block_result("my-hook", "ブロック理由")))
+    log_hook_execution(
+        hook_name="my-hook",
+        decision="block",
+        reason="ブロック理由",
+    )
+
+
+if __name__ == "__main__":
+    main()
+```
+
+**詳細は以下のセクションを参照**:
+
+- [共通ライブラリ関数の詳細仕様](#共通ライブラリ関数の詳細仕様必読)
+- [フックテンプレート](#フックテンプレート)
+
 ## フック出力フォーマット
 
 フックはJSON形式で結果を返す:
@@ -183,7 +261,7 @@ def main():
 
 各フックのsystemMessage出力例。新規フック開発時の参考に。
 
-**task-start-checklist.py**:
+**task_start_checklist.py**:
 ```
 📋 **タスク開始前の確認チェックリスト**
 
@@ -200,7 +278,7 @@ def main():
 💡 不明点があれば、実装前に必ず質問してください。
 ```
 
-**dependency-check-reminder.py**:
+**dependency_check_reminder.py**:
 ```
 📦 **依存関係追加を検出**
 
@@ -218,7 +296,7 @@ def main():
 💡 古いAPIや非推奨メソッドの使用を防ぐため、最新情報の確認を推奨します。
 ```
 
-**open-issue-reminder.py**:
+**open_issue_reminder.py**:
 ```
 🚨 **高優先度Issue（優先対応必須）**:
   → #123: 本番環境でログイン失敗 [P1, bug]
@@ -246,19 +324,19 @@ def main():
 - **トリガー**: ファイル編集前
 - **動作**: main/masterでの編集をブロック、worktree外を警告
 
-### オープンIssueリマインド (`open-issue-reminder.py`)
+### オープンIssueリマインド (`open_issue_reminder.py`)
 
 - **目的**: 未アサインIssue表示、競合防止
 - **動作**: セッション開始時（1時間間隔）に最初のBashでトリガー
 
-### タスク開始チェックリスト (`task-start-checklist.py`)
+### タスク開始チェックリスト (`task_start_checklist.py`)
 
 - **目的**: タスク開始時の要件・設計確認漏れ防止
 - **動作**: セッション開始時（1時間間隔）に最初のEdit/Write/Bashでトリガー
 - **表示内容**: 要件確認、設計判断、影響範囲、前提条件のチェックリスト
 - **ブロック**: しない（systemMessageでリマインド表示のみ）
 
-### 依存関係チェックリマインド (`dependency-check-reminder.py`)
+### 依存関係チェックリマインド (`dependency_check_reminder.py`)
 
 - **目的**: 依存関係追加時にContext7/Web検索を促す
 - **動作**: `pnpm add`, `npm install`, `pip install` 等のコマンド検出時にトリガー
@@ -266,13 +344,13 @@ def main():
 - **ブロック**: しない（systemMessageでリマインド表示のみ）
 - **重複防止**: 同じパッケージには1セッション1回のみ表示
 
-### Issue自動アサイン (`issue-auto-assign.py`)
+### Issue自動アサイン (`issue_auto_assign.py`)
 
 - **目的**: 複数エージェントのIssue競合防止
 - **動作**: `git worktree add` でブランチ名からIssue番号を検出し自動assign
 - **パターン**: `feature/issue-123-desc`, `fix/123-bug`, `#123-feature`
 
-### PRスコープチェック (`pr-scope-check.py`)
+### PRスコープチェック (`pr_scope_check.py`)
 
 - **目的**: 1 Issue = 1 PR ルール強制
 - **動作**: `gh pr create` で複数Issue参照をブロック
@@ -281,7 +359,7 @@ def main():
 
 worktree作成・PR作成時のSkill参照を促す2つの補完的なフック。
 
-#### `workflow-skill-reminder.py`（リマインド型）
+#### `workflow_skill_reminder.py`（リマインド型）
 
 - **目的**: worktree/PR作成時に`development-workflow` Skill参照をリマインド
 - **トリガー**: `git worktree add`, `gh pr create` 検出時
@@ -301,7 +379,7 @@ worktree作成時は `development-workflow` Skill を参照してください。
 ...
 ```
 
-#### `skill-usage-reminder.py`（強制型）
+#### `skill_usage_reminder.py`（強制型）
 
 - **目的**: Skill使用なしでのworktree/PR作成を**ブロック**
 - **トリガー**: `git worktree add`, `gh pr create` 検出時
@@ -314,20 +392,20 @@ worktree作成時は `development-workflow` Skill を参照してください。
 
 | フック | チェック内容 | 動作 |
 |--------|------------|------|
-| `workflow-skill-reminder.py` | リマインド表示 | 「Skillを参照すべき」とリマインド |
-| `skill-usage-reminder.py` | Skill未使用時にブロック | Skill未使用なら**ブロック** |
+| `workflow_skill_reminder.py` | リマインド表示 | 「Skillを参照すべき」とリマインド |
+| `skill_usage_reminder.py` | Skill未使用時にブロック | Skill未使用なら**ブロック** |
 
 **フロー**:
 
 1. `git worktree add` を実行しようとすると、同じ PreToolUse フェーズで2つのフックが起動する
-2. `workflow-skill-reminder.py`: 常に `"approve"` を返しつつ、`systemMessage` で「development-workflow Skillを参照してください」とリマインドを表示
-3. `skill-usage-reminder.py`: transcript を確認し、指定された Skill が未参照であれば `"block"` を返し、参照済みであれば `"approve"` を返す
+2. `workflow_skill_reminder.py`: 常に `"approve"` を返しつつ、`systemMessage` で「development-workflow Skillを参照してください」とリマインドを表示
+3. `skill_usage_reminder.py`: transcript を確認し、指定された Skill が未参照であれば `"block"` を返し、参照済みであれば `"approve"` を返す
 
-両フックは同じコマンドに対して**並行して独立に実行され**、`workflow-skill-reminder.py` のリマインドと `skill-usage-reminder.py` のブロック可否判定の結果が組み合わされて Claude に渡される。
+両フックは同じコマンドに対して**並行して独立に実行され**、`workflow_skill_reminder.py` のリマインドと `skill_usage_reminder.py` のブロック可否判定の結果が組み合わされて Claude に渡される。
 
 **設計意図**: リマインドで気づかせ、無視した場合はブロックで強制。2段階の防御で「手順が身についている」という誤った判断を防止。
 
-### マージ安全性チェック (`merge-check.py`)
+### マージ安全性チェック (`merge_check.py`)
 
 4つのチェック:
 
@@ -338,9 +416,9 @@ worktree作成時は `development-workflow` Skill を参照してください。
 
 **却下検出キーワード**: 「範囲外」「軽微」「out of scope」「defer」
 
-### CI待機チェック (`ci-wait-check.py`)
+### CI待機チェック (`ci_wait_check.py`)
 
-- **目的**: CI監視を `ci-monitor.py` に一元化
+- **目的**: CI監視を `ci_monitor.py` に一元化
 - **ブロック**: `gh pr checks --watch`, `gh pr view --json mergeStateStatus` 等
 
 ### Codex CLIレビューチェック
@@ -348,28 +426,28 @@ worktree作成時は `development-workflow` Skill を参照してください。
 - **logger**: `codex review` 実行時にブランチ・コミットを記録
 - **check**: `gh pr create` / `git push` 時に現在コミットがレビュー済みか確認
 
-### Pythonコードチェック (`python-lint-check.py`)
+### Pythonコードチェック (`python_lint_check.py`)
 
 - **目的**: CI前にPythonスタイル違反を検知
 - **動作**: `git commit` でステージされた `.py` を `uvx ruff` でチェック
 
-### フック設計チェック (`hooks-design-check.py`)
+### フック設計チェック (`hooks_design_check.py`)
 
 - **目的**: フック間の責務重複防止、品質チェック
 - **動作**: 新規フック追加時にSRPチェックリストを警告表示、`log_hook_execution()` 未使用をブロック
 
-### UI確認チェック (`ui-check-reminder.py`)
+### UI確認チェック (`ui_check_reminder.py`)
 
 - **目的**: UI変更後の目視確認漏れ防止
 - **対象**: `locales/*.json`, `components/**/*.tsx`, `routes/**/*.tsx`, `index.css`
-- **確認記録**: `python3 .claude/scripts/confirm-ui-check.py`
+- **確認記録**: `python3 .claude/scripts/confirm_ui_check.py`
 
-### Markdownサイズチェック (`markdown-size-check.py`)
+### Markdownサイズチェック (`markdown_size_check.py`)
 
 - **目的**: Markdownファイル肥大化防止
 - **上限**: 40KB（Claude Codeパフォーマンス影響閾値）
 
-### Worktree削除前チェック (`worktree-removal-check.py`)
+### Worktree削除前チェック (`worktree_removal_check.py`)
 
 - **目的**: worktree削除前にアクティブ作業を検出し、セッション競合・破壊を防止
 - **トリガー**: `git worktree remove` コマンド検出時
@@ -413,21 +491,21 @@ except OSError:
 
 ## PostToolUse フック一覧
 
-### Issue AIレビュー (`issue-ai-review.py`)
+### Issue AIレビュー (`issue_ai_review.py`)
 
 - **目的**: Issue作成後に自動でAIレビュー（Gemini/Codex）を実行
 - **トリガー**: `gh issue create` 成功後
 - **動作**: バックグラウンドでGemini/Codexレビューを実行し、結果をIssueコメントとして投稿
 - **ブロック**: しない（PostToolUseで非ブロッキング実行）
 
-### Worktree自動セットアップ (`worktree-auto-setup.py`)
+### Worktree自動セットアップ (`worktree_auto_setup.py`)
 
 - **目的**: worktree作成後の依存関係自動インストール
 - **トリガー**: `git worktree add` 成功後
 - **動作**: `setup-worktree.sh` を自動実行（pnpm install等）
 - **ブロック**: しない（PostToolUseで非ブロッキング実行）
 
-### ブロック改善リマインダー (`block-improvement-reminder.py`)
+### ブロック改善リマインダー (`block_improvement_reminder.py`)
 
 - **目的**: 同一フックが連続ブロックした際にフック改善を促す
 - **トリガー**: Bashツール実行後、セッションのブロック履歴を確認
@@ -798,6 +876,56 @@ pattern = r"(?:^|&&|\|\||;|\s+)(?:\w+=\S+\s+)*git\s+worktree\s+add"
 - [ ] **Fail-Close設計**: 不確実な状況ではブロック側に倒す
 - [ ] **hook_cwd取得**: cwdに依存するフックは `input_data.get("cwd")` を使用（Issue #1172）
 
+### セキュリティチェックリスト
+
+フック実装時に確認すべきセキュリティ項目。特に外部由来のデータを使用する場合は必須。
+
+| チェック項目 | 確認内容 | 対策例 |
+|-------------|----------|--------|
+| **Path Traversal** | session_id等をファイルパスに使用していないか | `is_valid_session_id()` でUUID形式を検証 |
+| **ファイルパス構築** | ユーザー由来のデータをパスに含める場合 | 許可リスト方式、正規表現でフォーマット検証 |
+| **コマンドインジェクション** | subprocess等でユーザー入力を使用 | `shell=False`、引数はリスト形式 |
+| **秘密情報の露出** | ログや出力に秘密情報が含まれないか | API key, token, passwordをマスク |
+| **パス正規化** | symlink経由でのアクセス | `Path.resolve()` で正規化 |
+
+**Path Traversal対策の実装例**:
+
+```python
+from lib.session import is_valid_session_id
+
+def get_state_file(session_id: str) -> Path | None:
+    """Get state file path with security validation.
+
+    Args:
+        session_id: The session ID (should be UUID format).
+
+    Returns:
+        Path to state file, or None if session_id is invalid.
+    """
+    # Security: Validate session_id to prevent path traversal attacks
+    # e.g., "../../../etc/passwd" would be rejected
+    if not is_valid_session_id(session_id):
+        return None
+    return STATE_DIR / f"state-{session_id}.json"
+```
+
+**アンチパターン**:
+
+```python
+# ❌ 悪い例: 検証なしでファイルパスに使用
+def get_state_file(session_id: str) -> Path:
+    # session_id = "../../../etc/passwd" で任意ファイルアクセス可能
+    return STATE_DIR / f"state-{session_id}.json"
+
+# ✅ 良い例: 検証してから使用
+def get_state_file(session_id: str) -> Path | None:
+    if not is_valid_session_id(session_id):
+        return None  # Invalid session_id
+    return STATE_DIR / f"state-{session_id}.json"
+```
+
+**関連Issue**: #2696, PR #2693
+
 **hook_cwdパターン**:
 ```python
 input_data = parse_hook_input()
@@ -872,9 +1000,9 @@ def get_message() -> str:
 **必須チェック項目**:
 
 - [ ] **関連Skill特定**: このフックが関連するSkillを特定したか？
-  - 例: `bug-issue-creation-guard.py` → `code-review` Skill
-  - 例: `merge-check.py` → `code-review` Skill
-  - 例: `worktree-removal-check.py` → `development-workflow` Skill
+  - 例: `bug_issue_creation_guard.py` → `code-review` Skill
+  - 例: `merge_check.py` → `code-review` Skill
+  - 例: `worktree_removal_check.py` → `development-workflow` Skill
 - [ ] **ルール網羅**: 関連Skillに記載されたルールを全てカバーしているか？
   - 例: `code-review` Skillに「テスト不足は同じPRで対応」とあれば、「テスト」パターンも検出必須
 - [ ] **パターン確認**: フックの検出パターンがSkillの記述と一致するか？
@@ -920,7 +1048,7 @@ Detection patterns based on Skill rules:
 
 ## パターン検出フック作成ガイドライン
 
-キーワードリストや正規表現パターンを使用してテキストを検出するフック（例: `defer-keyword-check.py`）を作成・変更する際のガイドライン。
+キーワードリストや正規表現パターンを使用してテキストを検出するフック（例: `defer_keyword_check.py`）を作成・変更する際のガイドライン。
 
 ### 実データ分析の重要性
 
@@ -950,21 +1078,21 @@ Detection patterns based on Skill rules:
 
 ### 分析ツール
 
-`.claude/scripts/analyze-pattern-data.py` を使用:
+`.claude/scripts/analyze_pattern_data.py` を使用:
 
 ```bash
 # パターン検索（実データからマッチを確認）
-python3 .claude/scripts/analyze-pattern-data.py search \
+python3 .claude/scripts/analyze_pattern_data.py search \
   --pattern "後で|将来|フォローアップ" \
   --show-matches
 
 # 頻度分析（パターンの出現頻度を確認）
-python3 .claude/scripts/analyze-pattern-data.py analyze \
+python3 .claude/scripts/analyze_pattern_data.py analyze \
   --pattern "スコープ外" \
   --days 30
 
 # パターンリスト検証（複数パターンの精度を一括チェック）
-python3 .claude/scripts/analyze-pattern-data.py validate \
+python3 .claude/scripts/analyze_pattern_data.py validate \
   --patterns-file my-patterns.txt
 ```
 
@@ -996,7 +1124,7 @@ python3 .claude/scripts/analyze-pattern-data.py validate \
 
 ### 自動検出
 
-`hook-change-detector.py` がパターン検出フックの変更を検知し、実データ分析チェックリストをリマインドします。
+`hook_change_detector.py` がパターン検出フックの変更を検知し、実データ分析チェックリストをリマインドします。
 
 検出条件:
 - `*_KEYWORDS`, `*_PATTERNS`, `*_REGEX` 変数を含む
@@ -1054,7 +1182,7 @@ python3 .claude/scripts/analyze-pattern-data.py validate \
 import re
 
 # NOTE: この関数はドキュメント用の簡略化サンプルです。
-# 実際のフック実装では、.claude/hooks/ci-wait-check.py 内の strip_quoted_content を参照してください。
+# 実際のフック実装では、.claude/hooks/ci_wait_check.py 内の strip_quoted_content を参照してください。
 # そちらは文字単位のパースにより、エスケープされた引用符や未閉じ引用符などのエッジケースに対応しています。
 def strip_quoted_content(text: str) -> str:
     """引用符内のコンテンツを簡易的に除去する.
@@ -1065,7 +1193,7 @@ def strip_quoted_content(text: str) -> str:
     注意: この実装は正規表現による簡略版であり、以下のエッジケースには対応していません:
         - 文字列外のエスケープされた引用符（例: \"foo\"）
         - 閉じられていない引用符
-    実運用時は .claude/hooks/ci-wait-check.py の実装を使用してください。
+    実運用時は .claude/hooks/ci_wait_check.py の実装を使用してください。
     """
     return re.sub(r'(["\'])(?:\\.|(?!\1).)*\1', r'\1\1', text)
 
@@ -1197,10 +1325,10 @@ def test_approves_when_same(self):
 
 ```bash
 # 最近のブロック一覧
-python3 .claude/scripts/block-evaluator.py list
+python3 .claude/scripts/block_evaluator.py list
 
 # 特定のblockを詳細表示
-python3 .claude/scripts/block-evaluator.py evaluate <block_id>
+python3 .claude/scripts/block_evaluator.py evaluate <block_id>
 ```
 
 ### 2. Block妥当性の評価
@@ -1212,10 +1340,10 @@ python3 .claude/scripts/block-evaluator.py evaluate <block_id>
 
 ```bash
 # 対話的に評価
-python3 .claude/scripts/block-evaluator.py evaluate <block_id>
+python3 .claude/scripts/block_evaluator.py evaluate <block_id>
 
 # ワンライナーで評価
-python3 .claude/scripts/block-evaluator.py evaluate <block_id> \
+python3 .claude/scripts/block_evaluator.py evaluate <block_id> \
   -e false_positive \
   -r "テストファイルなのにブロックされた" \
   -i "テストファイルを除外すべき"
@@ -1224,7 +1352,7 @@ python3 .claude/scripts/block-evaluator.py evaluate <block_id> \
 ### 3. 評価サマリーの確認
 
 ```bash
-python3 .claude/scripts/block-evaluator.py summary
+python3 .claude/scripts/block_evaluator.py summary
 ```
 
 出力例:
@@ -1238,9 +1366,9 @@ codex-review-check                10        1        0      9.1%
 ### 4. 誤検知パターンの分析
 
 ```bash
-python3 .claude/scripts/analyze-false-positives.py
+python3 .claude/scripts/analyze_false_positives.py
 # 特定のフックのみ分析
-python3 .claude/scripts/analyze-false-positives.py --hook ci-wait-check
+python3 .claude/scripts/analyze_false_positives.py --hook ci-wait-check
 ```
 
 ### 5. フック改善
@@ -1295,7 +1423,7 @@ convention = "google"
 
 **ローカル確認**:
 ```bash
-uvx ruff@0.14.9 check .claude/hooks/ .claude/scripts/ --select D101,D102,D103
+uvx ruff check .claude/hooks/ .claude/scripts/ --select D101,D102,D103
 ```
 
 ### シグネチャ変更チェック
@@ -1321,7 +1449,7 @@ uvx ruff@0.14.9 check .claude/hooks/ .claude/scripts/ --select D101,D102,D103
 | 対応済み | `[対応済み] コミット abc1234 で修正` |
 | 別Issue | `[別Issue] #123 で対応予定` |
 
-**署名なしでResolveすると `merge-check.py` でブロック**される。
+**署名なしでResolveすると `merge_check.py` でブロック**される。
 
 ### 関連Issue
 
@@ -1337,7 +1465,7 @@ uvx ruff@0.14.9 check .claude/hooks/ .claude/scripts/ --select D101,D102,D103
 
 ```python
 # .claude/hooks/tests/test_my_hook.py
-"""Tests for my-hook.py"""
+"""Tests for my_hook.py"""
 import json
 from unittest.mock import patch
 
@@ -1482,7 +1610,7 @@ if __name__ == "__main__":
         "hooks": [
           {
             "type": "command",
-            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/hooks/my-hook.py"
+            "command": "python3 $CLAUDE_PROJECT_DIR/.claude/hooks/my_hook.py"
           }
         ]
       }

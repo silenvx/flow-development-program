@@ -17,7 +17,7 @@ import pytest
 
 spec = importlib.util.spec_from_file_location(
     "analyze_api_operations",
-    Path(__file__).parent.parent / "analyze-api-operations.py",
+    Path(__file__).parent.parent / "analyze_api_operations.py",
 )
 analyze_api_operations = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(analyze_api_operations)

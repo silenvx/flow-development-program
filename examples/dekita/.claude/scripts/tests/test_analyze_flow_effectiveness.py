@@ -15,7 +15,7 @@ from unittest.mock import patch
 import pytest
 
 # テスト対象のモジュールをインポート（ハイフン付きファイル名のため動的インポート）
-_script_path = Path(__file__).parent.parent / "analyze-flow-effectiveness.py"
+_script_path = Path(__file__).parent.parent / "analyze_flow_effectiveness.py"
 _spec = importlib.util.spec_from_file_location("analyze_flow_effectiveness", _script_path)
 _module = importlib.util.module_from_spec(_spec)
 sys.modules["analyze_flow_effectiveness"] = _module
@@ -157,7 +157,7 @@ class TestScriptExecutionFromDifferentDirectories:
     def test_script_execution_from_project_root(self):
         """プロジェクトルートからのスクリプト実行が正常に動作することを確認"""
         project_root = _get_main_project_root()
-        script_path = project_root / ".claude" / "scripts" / "analyze-flow-effectiveness.py"
+        script_path = project_root / ".claude" / "scripts" / "analyze_flow_effectiveness.py"
 
         result = subprocess.run(
             ["python", str(script_path), "report"],
@@ -175,7 +175,7 @@ class TestScriptExecutionFromDifferentDirectories:
         """scriptsディレクトリからのスクリプト実行が正常に動作することを確認"""
         project_root = _get_main_project_root()
         scripts_dir = project_root / ".claude" / "scripts"
-        script_path = scripts_dir / "analyze-flow-effectiveness.py"
+        script_path = scripts_dir / "analyze_flow_effectiveness.py"
 
         result = subprocess.run(
             ["python", str(script_path), "report"],
@@ -191,7 +191,7 @@ class TestScriptExecutionFromDifferentDirectories:
     def test_script_execution_from_temp_directory(self, tmp_path):
         """一時ディレクトリからのスクリプト実行が正常に動作することを確認"""
         project_root = _get_main_project_root()
-        script_path = project_root / ".claude" / "scripts" / "analyze-flow-effectiveness.py"
+        script_path = project_root / ".claude" / "scripts" / "analyze_flow_effectiveness.py"
 
         result = subprocess.run(
             ["python", str(script_path), "report"],

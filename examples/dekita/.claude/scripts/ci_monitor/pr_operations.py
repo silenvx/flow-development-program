@@ -17,6 +17,7 @@ from ci_monitor.ai_review import (
     get_codex_review_requests,
     get_codex_reviews,
     has_copilot_or_codex_reviewer,
+    is_gemini_review_pending,
 )
 from ci_monitor.constants import (
     DEFAULT_STABLE_CHECK_INTERVAL,
@@ -730,10 +731,13 @@ def is_codex_review_pending(pr_number: str) -> bool:
 
 
 def has_ai_review_pending(pr_number: str, pending_reviewers: list[str]) -> bool:
-    """Check if any AI review (Copilot or Codex Cloud) is pending.
+    """Check if any AI review (Copilot, Codex Cloud, or Gemini) is pending.
+
+    Issue #2711: Added Gemini Code Assist to the checks.
 
     This combines two detection mechanisms:
-    1. GitHub reviewer assignments (Copilot, Codex in pending_reviewers)
+    1. GitHub reviewer assignments (Copilot, Codex, or Gemini in pending_reviewers,
+       with rate limit detection for Gemini)
     2. Codex Cloud via @codex review comments
 
     Args:
@@ -747,6 +751,10 @@ def has_ai_review_pending(pr_number: str, pending_reviewers: list[str]) -> bool:
         return True
 
     if is_codex_review_pending(pr_number):
+        return True
+
+    # Issue #2711: Check for Gemini review (skipped if rate limited)
+    if is_gemini_review_pending(pr_number, pending_reviewers):
         return True
 
     return False

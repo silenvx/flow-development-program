@@ -33,7 +33,7 @@ def collect_session_metrics(session_id: str) -> bool:
     Args:
         session_id: Claude Codeから提供されたセッションID
     """
-    collect_script = SCRIPT_DIR / "collect-session-metrics.py"
+    collect_script = SCRIPT_DIR / "collect_session_metrics.py"
     if not collect_script.exists():
         return False
 
@@ -58,7 +58,7 @@ def generate_session_report(session_id: str) -> bool:
     Args:
         session_id: Claude Codeから提供されたセッションID
     """
-    report_script = SCRIPT_DIR / "session-report-generator.py"
+    report_script = SCRIPT_DIR / "session_report_generator.py"
     if not report_script.exists():
         return False
 

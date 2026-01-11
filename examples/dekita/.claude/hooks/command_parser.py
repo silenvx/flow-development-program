@@ -8,7 +8,7 @@ Why:
 What:
     - Git worktreeコマンド検出・パス抽出
     - gh prコマンド解析（変更系/読み取り系の判定）
-    - ci-monitor.pyコマンド検出
+    - ci_monitor.pyコマンド検出
 
 Remarks:
     - shell_tokenizer.py: 低レベルシェルトークン化を担当
@@ -16,7 +16,7 @@ Remarks:
     - shlex.split()で引用符内の誤検知を防止
 
 Changelog:
-    - silenvx/dekita#608: ci-monitor.pyコマンド検出追加
+    - silenvx/dekita#608: ci_monitor.pyコマンド検出追加
     - silenvx/dekita#649: --delete-branch検出追加
 """
 
@@ -314,12 +314,12 @@ def is_gh_pr_command(command: str) -> bool:
 
 
 def is_ci_monitor_command(command: str) -> tuple[bool, list[str]]:
-    """Check if command is a ci-monitor.py command that operates on PRs.
+    """Check if command is a ci_monitor.py command that operates on PRs.
 
     Detects:
-    - python3 .claude/scripts/ci-monitor.py 602
-    - ci-monitor.py 602 603 604 (multi-PR mode)
-    - ./scripts/ci-monitor.py 602
+    - python3 .claude/scripts/ci_monitor.py 602
+    - ci_monitor.py 602 603 604 (multi-PR mode)
+    - ./scripts/ci_monitor.py 602
 
     Returns:
         Tuple of (is_ci_monitor, pr_numbers) where pr_numbers is a list of all PR numbers.
@@ -329,9 +329,9 @@ def is_ci_monitor_command(command: str) -> tuple[bool, list[str]]:
     except ValueError:
         tokens = command.split()
 
-    # Find ci-monitor.py in tokens
+    # Find ci_monitor.py in tokens
     for i, token in enumerate(tokens):
-        if token.endswith("ci-monitor.py"):
+        if token.endswith("ci_monitor.py"):
             # Look for all PR numbers in subsequent tokens (skip flags)
             pr_numbers: list[str] = []
             for j in range(i + 1, len(tokens)):

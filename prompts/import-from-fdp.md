@@ -37,12 +37,12 @@ FDPはコピー元ではなく**参考**として使用する。
 
 ## 前提
 
-**参照ソースは `generated/explain-all/<source>/` を使用する。**
+**参照ソースは `examples/<source>/.claude/index.json` を使用する。**
 
-- `<source>` は参照リポジトリ名（例: `fdp`, `project-a`）
-- このディレクトリが未生成の場合は、先に `prompts/explain-all.md` を実行して生成する
+- `<source>` は参照リポジトリ名（例: `dekita`, `project-a`）
+- index.json が存在しない場合は `examples/<source>/.claude/scripts/generate_index.py` を実行して生成
 
-> 将来的に軽量インデックスへ置き換える設計は可能だが、現時点では `generated/explain-all/` を前提とする
+> index.json はフック/スクリプト/スキルのメタデータ（Why/What/keywords等）を含む軽量インデックス
 
 ---
 
@@ -56,27 +56,54 @@ FDPはコピー元ではなく**参考**として使用する。
 ### 2. 参照ソースを選択
 
 - FDPを参照するか、別リポジトリを参照するかを決める
-- 参照ソースの `generated/explain-all/<source>/` を対象にする
+- 参照ソースの `examples/<source>/.claude/index.json` を対象にする
 
-### 3. 参照ソースで関連パターンを検索
+### 3. index.json でパターンを検索
 
-ユーザーが指定した目的に関連するファイルを探す：
+ユーザーが指定した目的に関連するフック/スクリプトを探す：
 
 ```bash
-# explain-allの説明ファイルを検索
-rg "worktree" generated/explain-all/<source>/ -n
+# キーワードでフックを検索（例: worktree関連）
+jq '.hooks[] | select(.keywords[]? | test("worktree"; "i")) | {name, summary, why}' \
+  examples/<source>/.claude/index.json
+
+# サマリーで検索（例: マージ関連）
+jq '.hooks[] | select(.summary | test("マージ|merge"; "i")) | {name, summary, hook_type}' \
+  examples/<source>/.claude/index.json
+
+# hook_type で絞り込み（blocking/warning/info/logging）
+jq '.hooks[] | select(.hook_type == "blocking") | {name, summary}' \
+  examples/<source>/.claude/index.json
+
+# スクリプトを検索
+jq '.scripts[] | select(.summary | test("ci|monitor"; "i")) | {name, summary}' \
+  examples/<source>/.claude/index.json
+
+# スキルを検索
+jq '.skills[] | {name, summary, description}' \
+  examples/<source>/.claude/index.json
 ```
 
 ### 4. パターンを理解
 
-見つかったファイルについて以下を把握：
+見つかったエントリについて以下を把握：
 
-| 情報 | 確認方法 |
-|------|----------|
-| 目的（Why） | explain-allのWhy列 |
-| 機能（What） | explain-allのWhat列 |
-| 実行タイミング | explain-allの使い方列や設定説明 |
-| 依存 | explain-allの記載（なければ推測ではなく明示的に不明とする） |
+| 情報 | index.json のフィールド |
+|------|------------------------|
+| 目的（Why） | `.why` |
+| 機能（What） | `.what` |
+| 概要 | `.summary` |
+| 実行タイミング | `.trigger` / `.matcher` |
+| フックタイプ | `.hook_type` (blocking/warning/info/logging) |
+| 検索キーワード | `.keywords` |
+| 備考 | `.remarks` |
+
+**詳細コードの確認**（必要に応じて）:
+
+```bash
+# パスからソースコードを読む
+cat examples/<source>/<path>
+```
 
 ### 5. プロジェクトの要件を確認
 
@@ -88,8 +115,8 @@ rg "worktree" generated/explain-all/<source>/ -n
 
 参照パターンを参考に、プロジェクトに適した実装を作成：
 
-1. FDPのdocstringで目的（Why/What）を把握
-2. 実装アプローチを理解
+1. index.json で目的（Why/What）を把握
+2. 必要に応じてソースコードで実装アプローチを理解
 3. プロジェクトの要件に合わせて再設計
 4. 独自のコードとして実装
 5. テストで動作確認
@@ -114,6 +141,13 @@ Why:
 
 What:
     <何をするか>
+
+Remarks:
+    <補足情報>
+
+Tags:
+    type: blocking
+    category: quality-gate
 """
 ```
 
@@ -123,12 +157,12 @@ What:
 
 | カテゴリ | 検索キーワード例 |
 |----------|-----------------|
-| Worktree保護 | `worktree`, `session-guard`, `locked` |
-| PRマージチェック | `merge-check`, `review`, `closes` |
+| Worktree保護 | `worktree`, `session`, `locked` |
+| PRマージチェック | `merge`, `review`, `closes` |
 | Issue管理 | `issue`, `assign`, `priority` |
 | セッション管理 | `session`, `handoff`, `continuation` |
-| 振り返り | `reflection`, `gosei`, `lesson` |
-| CI監視 | `ci-monitor`, `checks`, `behind` |
+| 振り返り | `reflect`, `gosei`, `lesson` |
+| CI監視 | `ci`, `monitor`, `checks`, `behind` |
 | コード品質 | `lint`, `test`, `coverage` |
 
 ---
@@ -140,4 +174,4 @@ What:
 1. 実装したファイル一覧
 2. settings.jsonへの登録内容
 3. 動作確認結果
-4. 参照元（`<source>`）と参照ファイル
+4. 参照元（`<source>`）と参照フック名

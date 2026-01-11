@@ -601,7 +601,7 @@ Sentry.withScope((scope) => {
 
 ### CI検査
 
-`check-sentry-usage.py` がCI時に自動検査。禁止パターンがあるとCIが失敗。
+`check_sentry_usage.py` がCI時に自動検査。禁止パターンがあるとCIが失敗。
 
 ## UI変更の確認
 

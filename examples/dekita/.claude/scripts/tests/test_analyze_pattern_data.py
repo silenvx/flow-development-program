@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-SCRIPT_PATH = Path(__file__).parent.parent / "analyze-pattern-data.py"
+SCRIPT_PATH = Path(__file__).parent.parent / "analyze_pattern_data.py"
 
 
 @pytest.fixture

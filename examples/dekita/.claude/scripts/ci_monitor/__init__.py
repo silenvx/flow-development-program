@@ -40,20 +40,27 @@ from ci_monitor import (
 )
 from ci_monitor.ai_review import (
     COPILOT_ERROR_PATTERNS,
+    GEMINI_RATE_LIMIT_PATTERNS,
     check_and_report_contradictions,
     get_codex_review_requests,
     get_codex_reviews,
     get_copilot_reviews,
+    get_gemini_reviews,
     has_copilot_or_codex_reviewer,
+    has_gemini_reviewer,
     is_ai_reviewer,
     is_copilot_review_error,
+    is_gemini_rate_limited,
+    is_gemini_review_pending,
     request_copilot_review,
 )
 from ci_monitor.constants import (
     AI_REVIEWER_IDENTIFIERS,
     ASYNC_REVIEWER_CHECK_DELAY_SECONDS,
+    COPILOT_CODEX_IDENTIFIERS,
     COPILOT_REVIEWER_LOGIN,
     DEFAULT_COPILOT_PENDING_TIMEOUT,
+    DEFAULT_GEMINI_PENDING_TIMEOUT,
     DEFAULT_LOCAL_CHANGES_MAX_WAIT,
     DEFAULT_LOCAL_CHANGES_WAIT_INTERVAL,
     DEFAULT_MAX_COPILOT_RETRY,
@@ -63,6 +70,7 @@ from ci_monitor.constants import (
     DEFAULT_MAX_RETRY_WAIT_POLLS,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_MINUTES,
+    GEMINI_REVIEWER_LOGIN,
     GITHUB_FILES_LIMIT,
 )
 from ci_monitor.events import (
@@ -192,6 +200,7 @@ __all__ = [
     # Constants
     "AI_REVIEWER_IDENTIFIERS",
     "ASYNC_REVIEWER_CHECK_DELAY_SECONDS",
+    "COPILOT_CODEX_IDENTIFIERS",
     "DEFAULT_COPILOT_PENDING_TIMEOUT",
     "DEFAULT_LOCAL_CHANGES_MAX_WAIT",
     "DEFAULT_LOCAL_CHANGES_WAIT_INTERVAL",
@@ -240,6 +249,14 @@ __all__ = [
     "check_and_report_contradictions",
     "COPILOT_ERROR_PATTERNS",
     "COPILOT_REVIEWER_LOGIN",
+    # Gemini (Issue #2711)
+    "GEMINI_RATE_LIMIT_PATTERNS",
+    "GEMINI_REVIEWER_LOGIN",
+    "DEFAULT_GEMINI_PENDING_TIMEOUT",
+    "get_gemini_reviews",
+    "has_gemini_reviewer",
+    "is_gemini_rate_limited",
+    "is_gemini_review_pending",
     # Review Comments
     "strip_code_blocks",
     "get_review_comments",
