@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "generated_at": "2026-01-14T01:40:52.332694+00:00",
+  "generated_at": "2026-01-14T05:20:32.979644+00:00",
   "project": "dekita",
   "hooks": [
     {
@@ -9,13 +9,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PR作成時に対象Issueの受け入れ条件未完了を警告する。",
-      "keywords": [
-        "acceptance",
-        "criteria",
-        "issue",
-        "merge",
-        "reminder"
-      ],
+      "keywords": ["acceptance", "criteria", "issue", "merge", "reminder"],
       "why": "受け入れ条件が未完了のままPRを作成すると、マージ時にmerge-checkで\nブロックされる。PR作成時に警告することで、事前に気づいて対処できる。",
       "what": "- gh pr createコマンドを検出\n- ブランチ名からIssue番号を抽出\n- 対象Issueの受け入れ条件（チェックボックス）を確認\n- 未完了項目がある場合に警告（ブロックはしない）",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで通知）\n- merge-checkはマージ時、本フックはPR作成時に警告\n- 取り消し線（~~）付きの項目はスキップ",
@@ -28,11 +22,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時に作業中（未マージ）のworktree一覧を表示する。",
-      "keywords": [
-        "active",
-        "issue",
-        "worktree"
-      ],
+      "keywords": ["active", "issue", "worktree"],
       "why": "複数セッション間で同じIssueへの重複着手を防止するため、\n既存の作業状況を把握する必要がある。",
       "what": "- 作業中のworktree（PRがOPEN/未作成）を検出\n- ブランチ名、PR状態、最終コミット情報を表示\n- 情報提供のみ（ブロックしない）",
       "remarks": "- 情報提供型フック（ブロックしない、systemMessageで通知）\n- worktree-session-guardはブロック、本フックは情報提供\n- session-worktree-statusは現在のworktree、本フックは全worktree",
@@ -45,13 +35,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "merge-check用のAIレビュー状態確認ユーティリティ。",
-      "keywords": [
-        "checker",
-        "codex",
-        "copilot",
-        "merge",
-        "review"
-      ],
+      "keywords": ["checker", "codex", "copilot", "merge", "review"],
       "why": "AIレビュー（Copilot/Codex）がレビュー中やエラー状態のままマージすると、\nレビューなしでコードがマージされる。マージ前にAIレビュー状態を確認する。",
       "what": "- AIレビュアーがレビュー中かを確認\n- AIレビューエラーの検出\n- Copilotレビューの再リクエスト\n- 連続エラー時の警告付きマージ許可",
       "remarks": "- フックではなくユーティリティモジュール\n- merge-check.pyから呼び出される\n- 連続エラー時は警告付きでマージ許可（緩和処理）",
@@ -64,13 +48,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "外部APIコマンド（gh, git, npm）の実行詳細をログ記録する。",
-      "keywords": [
-        "api",
-        "git",
-        "logger",
-        "npm",
-        "operation"
-      ],
+      "keywords": ["api", "git", "logger", "npm", "operation"],
       "why": "API操作の実行時間やエラー率を分析することで、ワークフローの\nボトルネックや障害パターンを特定できる。",
       "what": "- コマンドタイプと操作種別を記録\n- 実行時間（ms）を計測\n- 終了コードと成功/失敗を記録\n- レート制限エラーを検出・フラグ付け\n\nState:\n- writes: .claude/logs/execution/api-operations-{session}.jsonl",
       "remarks": "- ログ記録型フック（ブロックしない、記録のみ）\n- api-operation-timerと連携（開始時刻を記録）\n- gh/git/npmコマンドを対象",
@@ -83,13 +61,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "外部APIコマンドの開始時刻を記録する（api-operation-loggerと連携）。",
-      "keywords": [
-        "api",
-        "logger",
-        "operation",
-        "posttooluse",
-        "timer"
-      ],
+      "keywords": ["api", "logger", "operation", "posttooluse", "timer"],
       "why": "APIコマンドの実行時間を計測するため、開始時刻を記録しておく必要がある。\nPostToolUseフックで終了時刻と比較して実行時間を算出する。",
       "what": "- gh, git, npmコマンドを検出\n- 開始時刻を一時ファイルに記録\n- 古いタイミングファイルをクリーンアップ\n\nState:\n- writes: /tmp/claude-hooks/api-timing/{session}-{tool_use_id}.json",
       "remarks": "- 記録型フック（ブロックしない、開始時刻の記録のみ）\n- api-operation-loggerと連携（本フックがPre、loggerがPost）\n- 1時間以上経過した古いファイルは自動クリーンアップ",
@@ -102,11 +74,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "選択肢をテキストで列挙するパターンを検出し、AskUserQuestionツールの使用を提案する。",
-      "keywords": [
-        "askuser",
-        "askuserquestion",
-        "suggestion"
-      ],
+      "keywords": ["askuser", "askuserquestion", "suggestion"],
       "why": "テキストでの選択肢列挙はユーザーの入力負担が大きく、選択ミスのリスクがある。\nAskUserQuestionツールを使うことでUXが向上する。",
       "what": "- トランスクリプトから選択肢パターン（A案/B案、1./2.等）を検出\n- AskUserQuestion使用回数と比較\n- 過少な場合に警告を表示（ブロックしない）",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで通知）\n- コードブロック内のパターンは除外\n- セッション終了時（Stop）に発火",
@@ -119,12 +87,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "連続Bash失敗を検知し、シェル破損時に引き継ぎプロンプト生成を提案する。",
-      "keywords": [
-        "bash",
-        "failure",
-        "tracker",
-        "worktree"
-      ],
+      "keywords": ["bash", "failure", "tracker", "worktree"],
       "why": "worktreeの自己削除等でカレントディレクトリが消えると、シェルが破損状態になり\n全てのコマンドが失敗し続ける。この状態を早期検知して回復策を提示する。",
       "what": "- Bash失敗を連続カウント\n- シェル破損パターン（\"No such file or directory\"等）を検出\n- 閾値（3回連続）超過で警告と回復オプションを提示\n\nState:\n- writes: /tmp/claude-hooks/bash-failures.json",
       "remarks": "- 警告型フック（ブロックしない、回復策を提示）\n- PostToolUse:Bashで発火\n- シェル破損パターンはre.IGNORECASEでマッチング",
@@ -137,12 +100,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "同一フックの連続ブロックを検知し、フック改善を提案する。",
-      "keywords": [
-        "block",
-        "improvement",
-        "reminder",
-        "skip"
-      ],
+      "keywords": ["block", "improvement", "reminder", "skip"],
       "why": "同じフックが3回以上連続でブロックする場合、フック自体に改善の余地がある\n可能性が高い。SKIP環境変数やメッセージ改善を提案する。",
       "what": "- セッション内の連続ブロックをフック別にカウント\n- 閾値（3回連続）超過で改善リマインダーを表示\n- セッション内で同一フックへのリマインダーは1回のみ\n\nState:\n- reads: .claude/logs/execution/hook-execution-{session}.jsonl\n- writes: .claude/logs/session/block-reminder-{session}-{hook}.marker",
       "remarks": "- 警告型フック（ブロックしない、改善提案を表示）\n- PreToolUseで発火（次のツール実行前にチェック）\n- マーカーファイルで同一フックへの重複リマインダーを防止",
@@ -155,12 +113,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ブロック後にテキストのみ応答（ツール呼び出しなし）を検知し警告する。",
-      "keywords": [
-        "agents",
-        "block",
-        "response",
-        "tracker"
-      ],
+      "keywords": ["agents", "block", "response", "tracker"],
       "why": "AGENTS.mdでは「ブロックは代替アクションを実行せよ」と定めている。\nブロック後にツール呼び出しがない場合、エージェントループが停止している。",
       "what": "- セッション終了時にブロックパターンを分析\n- ブロック後にツール呼び出しがないケースを検出\n- 警告メッセージを表示（ブロックはしない）\n\nState:\n- reads: .claude/logs/metrics/block-patterns-{session}.jsonl\n- reads: .claude/logs/execution/hook-execution-{session}.jsonl",
       "remarks": "- 分析型フック（ブロックしない、パターン分析のみ）\n- セッション終了時（Stop）に発火\n- SessionStartなど非ツールフックは除外",
@@ -173,11 +126,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にメインリポジトリのブランチ状態を確認する。",
-      "keywords": [
-        "branch",
-        "main",
-        "worktree"
-      ],
+      "keywords": ["branch", "main", "worktree"],
       "why": "メインリポジトリがmain以外のブランチの状態でセッションを開始すると、\nworktreeワークフローを無視した作業につながる可能性がある。",
       "what": "- 現在のディレクトリがworktree内かどうか確認\n- worktree内でなければ、現在のブランチを確認\n- mainでない場合はセッション開始をブロック\n- mainブランチに戻す手順を提示",
       "remarks": "- ブロック型フック（mainでない場合はブロック）\n- worktree内の場合はスキップ（worktreeでは任意ブランチを許可）\n- SessionStartで発火",
@@ -190,14 +139,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "git branch -m/-Mコマンド（ブランチリネーム）をブロックする。",
-      "keywords": [
-        "branch",
-        "git",
-        "guard",
-        "main",
-        "master",
-        "rename"
-      ],
+      "keywords": ["branch", "git", "guard", "main", "master", "rename"],
       "why": "ブランチリネームはmain/masterのgit設定破損、リモートとの不整合、\n他のセッションやCIとの競合を引き起こす可能性がある。",
       "what": "- git branch -m/-M/--moveコマンドを検出\n- 検出時にブロック\n- 意図的なリネーム用のスキップ方法を提示",
       "remarks": "- ブロック型フック（ブランチリネームはブロック）\n- SKIP_BRANCH_RENAME=1で意図的なリネームを許可\n- PreToolUse:Bashで発火",
@@ -210,12 +152,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRスコープの問題に対する別Issue作成をブロックする。",
-      "keywords": [
-        "bug",
-        "creation",
-        "guard",
-        "issue"
-      ],
+      "keywords": ["bug", "creation", "guard", "issue"],
       "why": "PRで導入した問題（バグ、テスト不足、エッジケース等）は同じPRで修正すべき。\n別Issueを作成すると問題が残ったままマージされるリスクがある。",
       "what": "- gh issue createコマンドを検出\n- タイトルからPRスコープのパターン（fix:, test:, バグ等）を検出\n- 現在のブランチにオープンPRがある場合はブロック\n- PR内での修正を案内",
       "remarks": "- ブロック型フック（PRスコープの問題Issue作成はブロック）\n- オープンPRがない場合はスキップ\n- PreToolUse:Bashで発火",
@@ -228,12 +165,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "mainリポジトリでのブランチ操作をブロックする。",
-      "keywords": [
-        "block",
-        "checkout",
-        "main",
-        "worktree"
-      ],
+      "keywords": ["block", "checkout", "main", "worktree"],
       "why": "mainリポジトリで直接ブランチ操作を行うと、worktreeワークフローをバイパスし、\n他のセッションとの競合やクリーンな環境維持が困難になる。",
       "what": "- git checkout/switchでmain/master/develop以外へのcheckoutをブロック\n- git branchで新規ブランチ作成をブロック\n- worktree作成手順を提示",
       "remarks": "- ブロック型フック（worktreeワークフロー強制）\n- worktree内では発火しない（cwdが.worktrees/内ならスキップ）\n- PreToolUse:Bashで発火",
@@ -246,13 +178,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ci_monitor.pyのsession-idオプション指定を検出する。",
-      "keywords": [
-        "claude",
-        "code",
-        "monitor",
-        "ppid",
-        "session"
-      ],
+      "keywords": ["claude", "code", "monitor", "ppid", "session"],
       "why": "session-idが指定されないと、ci_monitor.pyはppidベースのセッション特定に\nフォールバックし、ログがClaude Codeセッションと正しく紐付かなくなる。",
       "what": "- ci_monitor.py呼び出しを検出\n- --session-idオプションの有無を確認\n- 未指定の場合は警告メッセージを表示",
       "remarks": "- 警告型フック（ブロックしない、警告のみ）\n- PreToolUse:Bashで発火\n- AGENTS.mdにsession-id指定が必須と記載されている",
@@ -265,10 +191,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "CI失敗から復旧までの時間を追跡する。",
-      "keywords": [
-        "recovery",
-        "tracker"
-      ],
+      "keywords": ["recovery", "tracker"],
       "why": "CI失敗の復旧時間を計測することで、チームの対応速度を可視化し、\n改善の指標として活用できる。",
       "what": "- CI失敗時にタイムスタンプを記録\n- CI成功時に復旧時間を計算してログ記録\n- 復旧時間をsystemMessageで表示\n\nState:\n- writes: {TMPDIR}/claude-hooks/ci-recovery.json\n- writes: .claude/logs/metrics/ci-recovery-metrics.log",
       "remarks": "- 記録型フック（ブロックしない、メトリクス記録）\n- PostToolUse:Bashで発火（gh pr checks結果を分析）\n- ブランチ別に失敗タイムスタンプを保持",
@@ -281,13 +204,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ci_monitor.pyを使用すべきコマンドをブロックする。",
-      "keywords": [
-        "behind",
-        "checks",
-        "monitor",
-        "wait",
-        "watch"
-      ],
+      "keywords": ["behind", "checks", "monitor", "wait", "watch"],
       "why": "gh pr checks --watch や手動ポーリングは冗長なログでコンテキストを消費し、\nBEHIND検知や自動リベースなどの機能がない。ci_monitor.pyを使用すべき。",
       "what": "- gh pr checks --watchをブロック\n- gh run watchをブロック（冗長ログ）\n- 手動PR状態チェック（gh api /pulls/xxx）をブロック\n- 手動ポーリング（sleep && gh ...）をブロック\n- ci_monitor.pyの使用を案内",
       "remarks": "- ブロック型フック（非推奨コマンドはブロック）\n- PreToolUse:Bashで発火\n- コメント/メッセージ内のパターンは除外（引用符内は検査しない）",
@@ -300,12 +217,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh pr create時にClosesキーワードの有無をチェックし、追加を提案する。",
-      "keywords": [
-        "closes",
-        "create",
-        "issue",
-        "keyword"
-      ],
+      "keywords": ["closes", "create", "issue", "keyword"],
       "why": "PRボディにClosesキーワードがないと、マージ時にIssueが自動クローズされず\n手動でのクローズ忘れにつながる。",
       "what": "- ブランチ名からIssue番号を抽出\n- PRボディにCloses/Fixes/Resolvesキーワードがあるか確認\n- ない場合は追加を提案（ブロックしない）",
       "remarks": "- 提案型フック（ブロックしない、systemMessageで提案）\n- PreToolUse:Bashで発火（gh pr createコマンド）\n- --body-file/-Fオプション使用時はスキップ（ファイル内容は検査不可）",
@@ -318,12 +230,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PR作成時に未完了タスクのあるIssueをCloseしようとしていないかチェックする。",
-      "keywords": [
-        "close",
-        "closes",
-        "issue",
-        "scope"
-      ],
+      "keywords": ["close", "closes", "issue", "scope"],
       "why": "受け入れ条件が未完了のIssueをPRでCloseすると、タスクが未完のままクローズされる。\nPR作成時に検出することで、マージ前に対処できる。",
       "what": "- gh pr createコマンドを検出\n- PRボディからCloses/Fixes #xxxを抽出\n- 対象Issueの受け入れ条件（チェックボックス）を確認\n- 未完了項目がありIssue参照がない場合はブロック",
       "remarks": "- ブロック型フック（未完了タスクClose時はブロック）\n- PreToolUse:Bashで発火（gh pr createコマンド）\n- 取り消し線付き項目は完了扱い（Issue #823）\n- 未完了項目に別Issue参照があれば許可（段階的実装パターン）",
@@ -336,13 +243,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "コミットメッセージのCloses/Fixesキーワードの整合性をチェックする。",
-      "keywords": [
-        "close",
-        "closes",
-        "fixes",
-        "issue",
-        "validation"
-      ],
+      "keywords": ["close", "closes", "fixes", "issue", "validation"],
       "why": "大規模Issueを小さな変更でCloseしようとすると、タスクの一部のみが完了した状態で\nIssueがクローズされる。コミット時にサイズ乖離を警告する。",
       "what": "- git commitコマンドを検出\n- コミットメッセージからCloses/Fixes #xxxを抽出\n- Issue情報（タイトル、ラベル、本文）を取得して表示\n- コミットサイズとIssueサイズの乖離を警告（ブロックはしない）",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで警告）\n- PreToolUse:Bashで発火（git commitコマンド）\n- -a/-amフラグ対応（HEADとの差分を確認）\n- Issue本文/ラベル/タイトルからサイズを推定",
@@ -355,12 +256,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Codex CLIレビュー実行をPR作成・push前に強制する。",
-      "keywords": [
-        "cli",
-        "codex",
-        "push",
-        "review"
-      ],
+      "keywords": ["cli", "codex", "push", "review"],
       "why": "コードレビューなしでPRを作成・pushすると、品質問題がCIやAIレビューで\n初めて発覚し、手戻りが発生する。事前のローカルレビューで品質を担保する。",
       "what": "- gh pr create / git pushコマンドを検出\n- 現在のブランチ・コミットでcodex reviewが実行済みか確認\n- 未実行またはコミット変更後は再レビューを要求\n- リベース後も差分が同一ならスキップ\n\nState:\n- reads: .claude/logs/markers/codex-review-{branch}.done",
       "remarks": "- ブロック型フック（レビュー未実行時はブロック）\n- PreToolUse:Bashで発火（gh pr create/git pushコマンド）\n- main/masterブランチはスキップ\n- SKIP_CODEX_REVIEW=1でバイパス可能\n- codex-review-logger.pyと連携（マーカーファイル読み込み）",
@@ -373,13 +269,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Codex CLIレビュー実行をログ記録する（codex-review-checkと連携）。",
-      "keywords": [
-        "cli",
-        "codex",
-        "logger",
-        "push",
-        "review"
-      ],
+      "keywords": ["cli", "codex", "logger", "push", "review"],
       "why": "codex-review-checkがPR作成/push前にレビュー実行済みかを確認するため、\nレビュー実行時にブランチ・コミット情報を記録しておく必要がある。",
       "what": "- codex reviewコマンドを検出\n- ブランチ名、コミットハッシュ、diffハッシュを記録\n- main/masterブランチでは記録しない\n\nState:\n- writes: .claude/logs/markers/codex-review-{branch}.done",
       "remarks": "- 記録型フック（ブロックしない、マーカーファイル書き込み）\n- PreToolUse:Bashで発火（codex reviewコマンド）\n- codex-review-check.pyと連携（マーカーファイル参照元）\n- diffハッシュ記録によりリベース後のスキップ判定が可能",
@@ -392,13 +282,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Codex CLIレビュー出力をパースしてレビューコメントを記録する。",
-      "keywords": [
-        "cli",
-        "codex",
-        "logger",
-        "output",
-        "review"
-      ],
+      "keywords": ["cli", "codex", "logger", "output", "review"],
       "why": "Codex CLIレビューの結果を分析することで、レビュー品質の追跡や\nよくある指摘パターンの特定ができる。",
       "what": "- codex review出力からレビューコメントを抽出\n- 個別コメントをreview-quality.jsonlに記録\n- 実行メタデータをcodex-reviews.jsonlに記録\n- コメント数ゼロならpass、あればfailとして記録\n\nState:\n- writes: .claude/logs/metrics/review-quality.jsonl\n- writes: .claude/logs/metrics/codex-reviews.jsonl",
       "remarks": "- 記録型フック（ブロックしない、メトリクス記録）\n- PostToolUse:Bashで発火（codex reviewコマンド）\n- JSON出力/行単位出力の両方をパース対応\n- exit_code != 0の場合もerrorとして記録",
@@ -411,14 +295,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "mainリポジトリでのgit commit --amendをブロックする。",
-      "keywords": [
-        "amend",
-        "block",
-        "commit",
-        "git",
-        "main",
-        "worktree"
-      ],
+      "keywords": ["amend", "block", "commit", "git", "main", "worktree"],
       "why": "mainブランチの履歴を変更すると、他のworktreeやリモートと不整合が発生する。\n誤操作を防ぐため、mainリポジトリでの--amendは禁止する。",
       "what": "- git commit --amendコマンドを検出\n- worktree内での実行は許可\n- mainリポジトリでの実行はブロック\n- workteeへの移動手順を提示",
       "remarks": "- ブロック型フック（mainリポジトリでの--amendはブロック）\n- PreToolUse:Bashで発火（git commitコマンド）\n- checkout-block.pyと同様のworktree判定ロジック",
@@ -431,14 +308,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "git commit後にCodexレビューマーカーを更新する。",
-      "keywords": [
-        "codex",
-        "commit",
-        "git",
-        "marker",
-        "review",
-        "update"
-      ],
+      "keywords": ["codex", "commit", "git", "marker", "review", "update"],
       "why": "レビュー済みブランチで追加コミットをした場合、マーカーを更新しないと\ncodex-review-checkが「レビュー後にコミットあり」と誤検知する。\nコミット後にマーカーを更新することで、不要な再レビューを防ぐ。",
       "what": "- git commitコマンドを検出\n- 既存マーカーファイルがあれば新しいコミット情報で更新\n- main/masterブランチでは更新しない\n- HEADが変わっていない場合はスキップ\n\nState:\n- reads: .claude/logs/markers/codex-review-{branch}.done\n- writes: .claude/logs/markers/codex-review-{branch}.done",
       "remarks": "- 記録型フック（ブロックしない、マーカー更新）\n- PostToolUse:Bashで発火（git commitコマンド）\n- 既存マーカーがない場合は何もしない（新規作成しない）\n- codex-review-loggerとの役割分担: loggerはcodex review時、本フックはgit commit時",
@@ -451,15 +321,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "git commit時にコミットメッセージテンプレートを挿入する。",
-      "keywords": [
-        "commit",
-        "git",
-        "message",
-        "refs",
-        "template",
-        "what",
-        "why"
-      ],
+      "keywords": ["commit", "git", "message", "refs", "template", "what", "why"],
       "why": "「なぜ」の背景情報が欠けたコミットメッセージが多い。テンプレートで\nWhy/What/Refsの構造を提示することで、背景を書く習慣を促す。",
       "what": "- git commit（-mオプションなし）時にテンプレートを挿入\n- 既にユーザーコンテンツがある場合はスキップ\n- merge/squash/amend等ではスキップ",
       "remarks": "- lefthook経由でprepare-commit-msgとして実行\n- Claude Codeフックではなく、Gitフック\n- -m/-F/--amend等オプション時は発火しない\n- commit-message-why-check.pyとセットで使用",
@@ -472,13 +334,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "コミットメッセージに「なぜ」の背景が含まれているかをチェックする。",
-      "keywords": [
-        "blame",
-        "commit",
-        "git",
-        "message",
-        "why"
-      ],
+      "keywords": ["blame", "commit", "git", "message", "why"],
       "why": "コードの差分は「何を」変更したかを示すが、「なぜ」その変更が必要だったかは\n時間とともに失われる。git blameで追跡できるよう背景の記録を強制する。",
       "what": "- コミットメッセージから「なぜ」を示すキーワードを検索\n- Issue参照があればコンテキストありと判定\n- 不足の場合はコミットをブロック",
       "remarks": "- lefthook経由でcommit-msgとして実行\n- Claude Codeフックではなく、Gitフック\n- merge/revert/WIP/fixup等は自動スキップ\n- commit-message-template.pyとセットで使用",
@@ -491,15 +347,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "継続セッションを検出し、前セッションのメトリクス記録と開発フローリマインダーを表示する。",
-      "keywords": [
-        "context",
-        "continuation",
-        "hook",
-        "metrics",
-        "resumption",
-        "session",
-        "stop"
-      ],
+      "keywords": ["context", "continuation", "hook", "metrics", "resumption", "session", "stop"],
       "why": "コンテキスト継続（context resumption）時はStop hookが発火しないため、\n前セッションのメトリクスが失われる。また開発フローの意識がリセットされ\n手順スキップによる連続ブロックが発生する。",
       "what": "- handoff-state.jsonの更新時刻で継続セッションを判定\n- 未記録の前セッションメトリクスを収集・記録\n- 開発フローチェックリストを表示\n\nState:\n- reads: .claude/state/handoff-state.json\n- reads: .claude/logs/metrics/session-metrics.log\n- reads: .claude/logs/execution/hook-execution-{session}.jsonl\n- writes: .claude/logs/metrics/session-metrics.log",
       "remarks": "- 情報注入型フック（ブロックしない、systemMessageで情報表示）\n- SessionStartで発火\n- collect_session_metrics.pyスクリプトを呼び出してメトリクス収集\n- 継続判定の時間窓は5分（CONTINUATION_WINDOW_MINUTES）\n- 1回の継続で最大3セッション分のメトリクスを収集",
@@ -512,12 +360,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Copilot reviewの繰り返しエラー時にPR作り直しを提案する。",
-      "keywords": [
-        "copilot",
-        "retry",
-        "review",
-        "suggestion"
-      ],
+      "keywords": ["copilot", "retry", "review", "suggestion"],
       "why": "Copilot reviewは特定の状況でエラーを返し続けることがあり、\nPRを作り直すことで解決する場合がある。無駄なリトライを防ぐ。",
       "what": "- Copilot reviewエラーを検出・カウント\n- 閾値を超えたらPR作り直しを提案\n- PR切り替え時にカウンタをリセット\n\nState:\n- writes: {TMPDIR}/claude-hooks/copilot-review-errors-{session}.json",
       "remarks": "- 提案型フック（ブロックしない、systemMessageで提案）\n- PostToolUse:Bashで発火\n- エラー閾値は3回（ERROR_THRESHOLD）\n- PR切り替え時にカウンタ自動リセット\n- 成功時もカウンタリセット",
@@ -530,10 +373,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "カレントディレクトリの存在を確認し、削除されていればセッションをブロックする。",
-      "keywords": [
-        "cwd",
-        "worktree"
-      ],
+      "keywords": ["cwd", "worktree"],
       "why": "worktree削除などでカレントディレクトリが消失すると、\n以降のファイル操作が予期せず失敗し、データ損失につながる可能性がある。",
       "what": "- カレントディレクトリの存在を確認\n- 存在しない場合はセッションをブロック\n- Claude Code再起動の案内を表示",
       "remarks": "- ブロック型フック（cwd消失時はブロック）\n- PreToolUseで発火（全ツール対象）\n- stop_hook_active時は無限ループ防止のためスキップ\n- worktree削除後のセッション継続防止が主な用途",
@@ -546,13 +386,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時に現在日時とセッションIDをコンテキストに注入する。",
-      "keywords": [
-        "claude",
-        "code",
-        "context",
-        "date",
-        "injector"
-      ],
+      "keywords": ["claude", "code", "context", "date", "injector"],
       "why": "Claude Codeは明示的な日付コンテキストがない場合、知識カットオフ時点の\n日時にデフォルトしやすい。現在日時を注入することで正確な時間認識を保証する。",
       "what": "- 現在日時をISO8601形式で出力\n- セッションIDを出力\n- fork-session検出時はsourceを\"fork\"に設定",
       "remarks": "- TZ環境変数でタイムゾーン設定可能（デフォルト: Asia/Tokyo）\n- 参考: https://www.nathanonn.com/the-claude-code-date-bug-thats-sabotaging-your-web-searches-and-the-3-minute-fix/",
@@ -565,11 +399,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "「後で」キーワードを検出しIssue参照なしの場合に警告する。",
-      "keywords": [
-        "defer",
-        "issue",
-        "keyword"
-      ],
+      "keywords": ["defer", "issue", "keyword"],
       "why": "「後で対応」「スコープ外」等の発言がIssue参照なしだと、対応が忘れられる。\nIssueを作成する習慣を強制することで、先送りの可視化と追跡を保証する。",
       "what": "- Stage 1: 正規表現で明確な「後で」系キーワードを検出\n- Stage 2: 婉曲表現をsystemMessage経由でLLMに評価依頼\n- Issue参照がない場合は警告メッセージを表示",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで警告）\n- Stopで発火（transcript分析）\n- 2段階検出: Stage1=正規表現、Stage2=LLM評価\n- コードブロック内・ドキュメント参照は除外\n- Issue参照が近くにあれば警告しない",
@@ -582,13 +412,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Dependabot PR操作時にdevelopment-workflowスキルの参照を促す。",
-      "keywords": [
-        "dependabot",
-        "development",
-        "reminder",
-        "skill",
-        "workflow"
-      ],
+      "keywords": ["dependabot", "development", "reminder", "skill", "workflow"],
       "why": "Dependabot PRのマージはリスク順序・E2Eテストなど特別な手順が必要。\nスキルを参照せずに操作すると、本番障害につながる可能性がある。",
       "what": "- gh pr merge/rebase/checkout等のDependabot PR操作を検出\n- development-workflowスキルの参照を促す警告を表示\n- ブロックはせず、情報提供のみ",
       "remarks": "- 警告型フック（ブロックしない、stderrで警告）\n- PreToolUse:Bashで発火（gh prコマンド）\n- gh api呼び出しでDependabot PRを判定\n- parse_gh_pr_commandでグローバルフラグ付きコマンドも検出",
@@ -601,13 +425,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "依存関係追加時にContext7/Web検索での最新情報確認を促す。",
-      "keywords": [
-        "api",
-        "context",
-        "dependency",
-        "reminder",
-        "web"
-      ],
+      "keywords": ["api", "context", "dependency", "reminder", "web"],
       "why": "古いAPIや非推奨メソッドの使用を防ぐため、パッケージ追加時に\n最新のドキュメントを確認する習慣を促進する。",
       "what": "- pnpm add, npm install, pip install等を検出\n- Context7やWeb検索での最新情報確認を促すメッセージを表示\n- セッション内で同じパッケージへの重複リマインドを防止\n\nState:\n- writes: .claude/state/session/dependency-check-reminded-{session}.json",
       "remarks": "- 情報提供型フック（ブロックしない、systemMessageでリマインド）\n- PreToolUse:Bashで発火（pnpm/npm/pip/uv等）\n- セッション内で同じパッケージへの重複リマインド防止\n- requirements.txtインストール（-r）は除外",
@@ -620,13 +438,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "開発ワークフローの開始を追跡する。",
-      "keywords": [
-        "development",
-        "issue",
-        "tracker",
-        "workflow",
-        "worktree"
-      ],
+      "keywords": ["development", "issue", "tracker", "workflow", "worktree"],
       "why": "Issue単位の開発ワークフロー（worktree作成→実装→レビュー→マージ）を\n追跡することで、ステップのスキップを検出し、品質を担保できる。",
       "what": "- git worktree addコマンドを検出\n- Issue番号を抽出してワークフローを開始\n- worktree_createdステップを完了としてマーク\n\nState:\nwrites: .claude/state/flow-progress.jsonl",
       "remarks": "- ステップ完了の追跡はflow-progress-tracker.pyが担当",
@@ -639,11 +451,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "仕様ドキュメント編集時に関連コード・Issueの確認を促す。",
-      "keywords": [
-        "doc",
-        "edit",
-        "issue"
-      ],
+      "keywords": ["doc", "edit", "issue"],
       "why": "ドキュメントを根拠なしに編集すると、誤記や実装との矛盾が生じる。\n「状態確認ファースト原則」をドキュメント編集にも適用する。",
       "what": "- .claude/skills/, AGENTS.md等の編集を検出\n- 関連コード・Issue確認を促すメッセージを表示\n- セッション内で同一ファイルへの重複警告を防止\n\nState:\n- writes: {TMPDIR}/claude-hooks/doc-edit-confirmed-{session}.json",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで警告）\n- PreToolUse:Edit/Writeで発火\n- セッション内で同一ファイルへの重複警告防止\n- .claude/skills/, AGENTS.md等を対象",
@@ -656,12 +464,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Bash失敗時にドキュメント参照の古さを検出して警告する。",
-      "keywords": [
-        "bash",
-        "doc",
-        "reference",
-        "warning"
-      ],
+      "keywords": ["bash", "doc", "reference", "warning"],
       "why": "削除されたスクリプトがドキュメントに参照として残っていると、\nそのドキュメントを信じて実行したコマンドが失敗する。早期検知が必要。",
       "what": "- Bashコマンド失敗時にトランスクリプトを分析\n- 最近読み込んだ.mdファイルで失敗コマンドを検索\n- ドキュメントに記載されていた場合は古い可能性を警告",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで警告）\n- PostToolUse:Bashで発火（exit_code != 0時のみ）\n- \"No such file or directory\"エラー時のみ動作\n- .claude/scripts/, .claude/hooks/のパターンを検索",
@@ -674,10 +477,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "スクリプト作成・変更時に実データでのテストを促す（Dogfooding）。",
-      "keywords": [
-        "dogfooding",
-        "reminder"
-      ],
+      "keywords": ["dogfooding", "reminder"],
       "why": "データ処理スクリプトをテストなしでコミットすると、実データで初めて\nバグが発覚する。自分で使って問題を体験してから完了とする習慣を促進。",
       "what": "- .claude/scripts/*.pyへのWrite/Editを検出\n- データ処理パターン（subprocess, json.loads等）を含む場合に警告\n- Dogfoodingチェックリストを表示\n\nState:\n- writes: .claude/logs/dogfooding/reminded-{session}.txt",
       "remarks": "- リマインド型フック（ブロックしない、systemMessageで提案）\n- PreToolUse:Write/Editで発火\n- .claude/scripts/*.pyが対象（tests/は除外）\n- データ処理パターン（subprocess, json.loads等）を含む場合のみ",
@@ -690,10 +490,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Issue作成前に類似Issueを検索して重複を警告する。",
-      "keywords": [
-        "duplicate",
-        "issue"
-      ],
+      "keywords": ["duplicate", "issue"],
       "why": "同じ問題のIssueが重複作成されると、議論が分散し対応が遅れる。\n作成前に類似Issueを表示することで重複を防止する。",
       "what": "- gh issue createコマンドを検出\n- タイトルからキーワードを抽出して類似Issueを検索\n- 類似Issueがあれば警告メッセージを表示",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで警告）\n- PreToolUse:Bashで発火（gh issue createコマンド）\n- ストップワード除外でキーワード抽出精度を向上\n- 最大5件の類似Issueを表示",
@@ -706,10 +503,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "CI E2E失敗後のローカルテスト実行を強制する。",
-      "keywords": [
-        "e2e",
-        "test"
-      ],
+      "keywords": ["e2e", "test"],
       "why": "CI E2Eテストが失敗した状態でプッシュを繰り返すと、CI負荷増加と\n開発効率低下を招く。ローカルでテストを通すことで、高品質な\nコードのみがプッシュされる。",
       "what": "- git pushコマンドを検出\n- E2Eテストファイル（tests/**/*.spec.ts）の変更を確認\n- CI失敗記録があり、ローカルテスト成功記録がない場合はブロック\n\nState:\nreads: .claude/state/markers/ci-e2e-failure-{branch}.log\nreads: .claude/state/markers/e2e-test-{branch}.done",
       "remarks": "- ローカルテスト結果は30分間有効\n- CI失敗記録は4時間で自動的に無効化される",
@@ -722,11 +516,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "E2Eテスト実行結果を記録する。",
-      "keywords": [
-        "e2e",
-        "recorder",
-        "test"
-      ],
+      "keywords": ["e2e", "recorder", "test"],
       "why": "e2e-test-check.pyがプッシュ前にローカルテスト実行を検証するため、\nテスト結果の記録が必要。結果を永続化することで、プッシュ時の\n判定が可能になる。",
       "what": "- npm run test:e2e等のコマンド完了を検出\n- 終了コードと出力からテスト結果（pass/fail）を判定\n- ブランチ・コミット情報とともに結果を記録\n\nState:\n- writes: .claude/state/markers/e2e-test-{branch}.done",
       "remarks": "- 記録型フック（ブロックしない、マーカーファイル書き込み）\n- PostToolUse:Bashで発火（npm/pnpm test:e2e、npx playwrightコマンド）\n- e2e-test-check.pyと連携（マーカーファイル参照元）\n- exit_codeまたは出力パターンでpass/failを判定",
@@ -739,11 +529,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "except内での空コレクション返却アンチパターンを検出する。",
-      "keywords": [
-        "empty",
-        "except",
-        "return"
-      ],
+      "keywords": ["empty", "except", "return"],
       "why": "例外発生時に空リストを返すと、「成功したが結果が空」と「失敗」の\n区別がつかなくなる。呼び出し側が失敗を「データなし」と誤解し、\n不正な処理を続行するバグの原因となる。",
       "what": "- Python ファイルの Write/Edit を検出\n- AST解析で except ブロック内の `return []` や `return {}` を検出\n- 検出時は None を返すことを推奨する警告を表示",
       "remarks": "- テストファイルは意図的なパターンの可能性があるため除外\n- ブロックはせず警告のみ（P2レベル）",
@@ -756,12 +542,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "フック環境の整合性をチェックする。",
-      "keywords": [
-        "environment",
-        "integrity",
-        "json",
-        "settings"
-      ],
+      "keywords": ["environment", "integrity", "json", "settings"],
       "why": "settings.jsonに登録されたフックファイルが存在しないと、\n他のフックが期待通りに動作しない。セッション開始時に\n不足を検出し、早期に問題を認識させる。",
       "what": "- settings.jsonから登録済みスクリプトパスを抽出\n- 各ファイルの存在を確認\n- 不足ファイルがあれば復旧手順を含む警告を表示",
       "remarks": "- ブロックはせず警告のみ（他の作業は継続可能）",
@@ -774,12 +555,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成時に既存実装の存在を警告し、検証を促す。",
-      "keywords": [
-        "existing",
-        "impl",
-        "issue",
-        "worktree"
-      ],
+      "keywords": ["existing", "impl", "issue", "worktree"],
       "why": "「コードが存在する」≠「動作している」。Issueがオープンなのに\n関連コードが存在する場合、そのコードが正常に動作していない\n可能性が高い。検証せずに「実装済み」と判断すると時間を無駄にする。",
       "what": "- git worktree addコマンドからIssue番号を抽出\n- コメント・ファイル名からIssue番号やキーワードで関連コードを検索\n- 関連コードが見つかった場合は検証を促す警告を表示",
       "remarks": "- ブロックせず警告のみ\n- 検索結果は最大5件まで表示",
@@ -814,12 +590,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時に誤検知パターンを検出して警告する。",
-      "keywords": [
-        "detector",
-        "false",
-        "issue",
-        "positive"
-      ],
+      "keywords": ["detector", "false", "issue", "positive"],
       "why": "同じフックが短時間に連続でブロックする場合、誤検知の可能性が高い。\nセッション終了時にパターンを分析し、Issue作成を促すことで\nフックの品質改善につなげる。",
       "what": "- セッションのブロックログを読み込み\n- 30秒以内に同じフックが2回以上ブロックした連続パターンを検出\n- 検出した場合は警告を表示し、Issue作成を促す",
       "remarks": "- Stop hookとして発動（セッション終了時）\n- ブロックはせず警告のみ",
@@ -832,10 +603,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ユーザーフィードバック（問題指摘・懸念）を検出し、セッション状態に記録する。",
-      "keywords": [
-        "detector",
-        "feedback"
-      ],
+      "keywords": ["detector", "feedback"],
       "why": "ユーザーが動作確認や問題を指摘した場合、類似問題を将来検出できるよう\n振り返り観点の追加を促す。また、セッション状態に記録することで、\nセッション終了時に仕組み化の確認を可能にする。",
       "what": "- ユーザー入力から否定的フィードバックパターンを検出\n- 「動いてる？」「おかしい」「バグ」等のパターンをマッチ\n- 検出時はACTION_REQUIREDを出力し、/add-perspective実行を促す\n- セッション状態ファイルに `user_feedback_detected: true` を記録",
       "remarks": "- type: \"command\"を使用（type: \"prompt\"はクラッシュ問題があるため）\n- 1文字入力は誤検知防止のため除外\n- セッション状態はStop hookで仕組み化確認に使用される",
@@ -848,15 +616,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Bashでの既存ファイル上書き時に警告を表示する。",
-      "keywords": [
-        "bash",
-        "cat",
-        "echo",
-        "file",
-        "overwrite",
-        "warning",
-        "write"
-      ],
+      "keywords": ["bash", "cat", "echo", "file", "overwrite", "warning", "write"],
       "why": "`Write`ツールはファイル読み込み必須で保護されているが、\nBashの`cat >`や`echo >`には保護がない。意図せず既存ファイルを\n上書きして重要なコードを失うリスクがある。",
       "what": "- Bashコマンドからリダイレクト先（cat >, echo >, tee等）を抽出\n- 対象ファイルが既存かを確認\n- 既存ファイルへの上書きの場合は警告メッセージを表示",
       "remarks": "- teeの-a/--appendオプションは追記なので除外\n- ブロックはせず警告のみ\n- 新規ファイル作成は警告なし",
@@ -869,11 +629,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "大きすぎるファイルの読み込み時にリファクタリングを促す警告を表示する。",
-      "keywords": [
-        "file",
-        "size",
-        "warning"
-      ],
+      "keywords": ["file", "size", "warning"],
       "why": "AIがファイルを読み込む際、大きすぎるファイルは認知負荷が高く、\n凝集度・結合度・責務の観点から分割を検討すべき場合がある。",
       "what": "- PreToolUse (Read) でファイル読み込み時に行数をチェック\n- 閾値超過時に警告メッセージを表示（ブロックはしない）\n- 言語別の閾値: TS/JS 400行、Python 500行、その他 500行",
       "remarks": "- 警告のみ（approve with systemMessage）でブロックしない\n- テストファイル、型定義、生成ファイル、設定ファイルは除外\n- AGENTS.md, CLAUDE.md等の意図的に長いドキュメントも除外",
@@ -886,15 +642,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "修正主張と検証チェックの関数群（merge-check用モジュール）。",
-      "keywords": [
-        "checker",
-        "claude",
-        "code",
-        "fix",
-        "fixed",
-        "merge",
-        "verification"
-      ],
+      "keywords": ["checker", "claude", "code", "fix", "fixed", "merge", "verification"],
       "why": "Claude Codeが「Fixed:」「修正済み」と主張しても、実際にコードが\n修正されているとは限らない。検証パターンの存在を確認することで、\n未検証の修正主張がマージされることを防ぐ。",
       "what": "- 修正主張キーワード検出（Fixed:, Added, 修正済み等）\n- 検証パターン検出（Verified:, 検証済み等）\n- 数値主張の検証（AIレビュアーの数値誤りを検出）\n- 具体的な修正箇所参照（ファイル:行番号）の検出",
       "remarks": "- review_checker.pyは却下・応答チェック担当\n- ai_review_checker.pyはAIレビュアーステータスチェック担当\n- 本モジュールは修正主張と検証に特化",
@@ -907,10 +655,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Flow関連の共通定数モジュール。",
-      "keywords": [
-        "constants",
-        "flow"
-      ],
+      "keywords": ["constants", "flow"],
       "why": "フロー関連の定数が複数ファイルで重複定義されていると、\n変更時の不整合が発生する。共通定数を一箇所にまとめる。",
       "what": "- OPTIONAL_PHASES: スキップ可能なフェーズ\n- PHASE_DEPENDENCIES: フェーズ間の依存関係\n- REQUIRED_PHASE_TRANSITIONS: 必須フェーズ遷移\n- BLOCKING_PHASE_TRANSITIONS: ブロック対象の遷移",
       "remarks": "- 定数定義のみ（フックではない）\n- flow-state-updater.py、flow-verifier.pyから共有",
@@ -923,13 +668,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Flowの定義モジュール - 全フロー設定の単一真実源。",
-      "keywords": [
-        "definitions",
-        "flow",
-        "ide",
-        "json",
-        "python"
-      ],
+      "keywords": ["definitions", "flow", "ide", "json", "python"],
       "why": "JSONでのフロー定義では動的パターンマッチングや型安全性が得られない。\nPython化することでIDEサポート、テスト容易性、ロジックとの統合を実現。",
       "what": "- FlowDefinitionクラスによる動的パターンマッチング\n- 13フェーズ開発ワークフローのフェーズ定義\n- ワークフロー検証用の期待フック動作定義\n- TaskType列挙によるセッション成果ベース評価",
       "remarks": "- flow-definitions.jsonを置き換え\n- get_flow_definition()、get_phase()、get_expected_hooks_for_phase()が主要API",
@@ -942,12 +681,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "未完了フローがある場合にセッション終了をブロックする。",
-      "keywords": [
-        "effect",
-        "flow",
-        "verifier",
-        "worktree"
-      ],
+      "keywords": ["effect", "flow", "verifier", "worktree"],
       "why": "開発ワークフロー（worktree作成→実装→レビュー→マージ）のステップを\nスキップすると品質問題が発生する。セッション終了時にチェックし、\n未完了フローがあればブロックして完了を促す。",
       "what": "- セッション内のアクティブなフローを取得\n- クローズ済みIssueや期限切れフローを除外\n- blocking_on_session_end=Trueのフローで未完了ステップがあればブロック\n- フロー進捗サマリーとワークフロー検証結果を表示\n\nState:\nreads: .claude/state/flow-progress.jsonl\nreads: .claude/state/flow/state-{session}.json",
       "remarks": "- 24時間以上経過したフローは自動的に期限切れ\n- クローズ済みIssueのフローはブロック対象外",
@@ -960,14 +694,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "フローステップの完了を追跡する。",
-      "keywords": [
-        "effect",
-        "flow",
-        "progress",
-        "tracker",
-        "verifier",
-        "worktree"
-      ],
+      "keywords": ["effect", "flow", "progress", "tracker", "verifier", "worktree"],
       "why": "開発ワークフローの各ステップ（worktree作成、コミット、PR作成等）が\n実際に実行されたことを記録する必要がある。コマンドパターンマッチで\n自動的にステップ完了を検出し、flow-effect-verifierが判断に使用する。",
       "what": "- Bashコマンドの実行を監視\n- flow_definitions.pyのパターンとマッチング\n- マッチした場合はステップを完了としてマーク\n- ステップ順序の妥当性を検証（警告のみ）\n\nState:\nwrites: .claude/state/flow-progress.jsonl",
       "remarks": "- 終了コードが0のコマンドのみ対象\n- 順序違反は警告するが、ステップは完了としてマーク（回復可能）",
@@ -980,29 +707,12 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "開発ワークフローのフェーズ遷移を追跡する。",
-      "keywords": [
-        "cleanup",
-        "flow",
-        "session",
-        "start",
-        "state",
-        "updater"
-      ],
+      "keywords": ["cleanup", "flow", "session", "start", "state", "updater"],
       "why": "ワークフロー（session_start→実装→PR→マージ→cleanup）のフェーズを\n追跡し、スキップや逸脱を検出する。データ分析でボトルネックの特定や\n改善ポイントの発見に活用する。",
       "what": "- 全ツール使用イベントでフェーズ遷移を判定\n- ループ（CI失敗→実装に戻る等）の検出と記録\n- 重大違反（merge後cleanup未実施など）をブロック\n- 軽微な違反は警告のみ\n\nState:\nwrites: .claude/state/flow/state-{session}.json\nwrites: .claude/state/flow/events-{session}.jsonl",
       "remarks": "- フェーズ遷移はPHASE_TRIGGERSのパターンマッチで検出\n- セッション固有のステートファイルで他セッションとの干渉を防止",
-      "trigger": [
-        "SessionStart",
-        "PreToolUse",
-        "PostToolUse",
-        "Stop"
-      ],
-      "matcher": [
-        null,
-        ".*",
-        ".*",
-        null
-      ]
+      "trigger": ["SessionStart", "PreToolUse", "PostToolUse", "Stop"],
+      "matcher": [null, ".*", ".*", null]
     },
     {
       "name": "flow_verifier",
@@ -1010,10 +720,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ワークフロー追跡を検証し、レポートを生成する。",
-      "keywords": [
-        "flow",
-        "verifier"
-      ],
+      "keywords": ["flow", "verifier"],
       "why": "フェーズ追跡が正確に機能しているか検証し、ワークフロー設計の\n問題点を発見する。セッション終了時にサマリーを表示することで、\n改善ポイントを認識できる。",
       "what": "- Level 1: 追跡精度の検証（フェーズ遷移、ループ検出）\n- Level 2: フロー設計レビュー（効率性、順序、粒度、カバレッジ）\n- スキップされたフェーズの理由推定\n- 全セッション統計の集計\n\nState:\nreads: .claude/state/flow/state-{session}.json\nreads: .claude/state/flow/events-{session}.jsonl\nwrites: .claude/state/flow/verification-report.json",
       "remarks": "- Stop hookとして発動（セッション終了時）\n- ブロックせず検証レポートのみ表示",
@@ -1026,11 +733,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Issue参照なしの「フォローアップ」発言をブロックする。",
-      "keywords": [
-        "followup",
-        "guard",
-        "issue"
-      ],
+      "keywords": ["followup", "guard", "issue"],
       "why": "「後で対応します」とコメントしてもIssueを作らないと、フォローアップは\n忘れられて実行されない。コメント投稿前にIssue参照を強制することで、\n約束を形骸化させないようにする。",
       "what": "- gh pr/issue commentコマンドを検出\n- 「後で」「フォローアップ」「スコープ外」等のキーワードを検索\n- Issue参照（#1234等）がない場合はブロック\n- Issue参照がある場合は許可",
       "remarks": "- SKIP_FOLLOWUP_ISSUE_GUARD=1で無効化可能\n- 対象はコメントコマンドのみ（コミットメッセージは対象外）",
@@ -1043,13 +746,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "危険な`git push --force`をブロックし、`--force-with-lease`を推奨する。",
-      "keywords": [
-        "force",
-        "git",
-        "guard",
-        "lease",
-        "push"
-      ],
+      "keywords": ["force", "git", "guard", "lease", "push"],
       "why": "`git push --force`はリモートの状態を確認せずに上書きするため、\n他の変更を消失させる危険がある。`--force-with-lease`は安全に\nforce pushできるため、こちらを推奨する。",
       "what": "- git push --force または -f を検出\n- 検出時はブロックし、--force-with-leaseを推奨\n- --force-with-leaseは許可",
       "remarks": "- コマンドチェーン内の各サブコマンドを個別にチェック\n- クォート内の文字列は無視（echo \"git push --force\"等）",
@@ -1062,13 +759,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Fork-session開始時に独立したIssue候補を提案する。",
-      "keywords": [
-        "advisor",
-        "collaboration",
-        "fork",
-        "issue",
-        "session"
-      ],
+      "keywords": ["advisor", "collaboration", "fork", "issue", "session"],
       "why": "Fork-sessionが親セッションと競合するIssueに着手すると、\nコンフリクトや重複作業が発生する。独立したIssue候補を\n提案することで、効率的な並行作業を実現する。",
       "what": "- Fork-sessionかどうかを検出\n- 親/siblingセッションのworktreeを特定\n- 競合しない独立したIssue候補を提案",
       "remarks": "- 提案のみでブロックはしない\n- 通常セッションでは何も出力しない\n- session-worktree-statusは警告のみ、こちらは積極的な提案",
@@ -1081,13 +772,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "UserPromptSubmit時にsession_idをコンテキストに出力する。",
-      "keywords": [
-        "fork",
-        "session",
-        "sessionstart",
-        "updater",
-        "userpromptsubmit"
-      ],
+      "keywords": ["fork", "session", "sessionstart", "updater", "userpromptsubmit"],
       "why": "Fork-session判定には、SessionStartとUserPromptSubmitのsession_idを\n比較する必要がある。この2つが異なる場合がfork-sessionである。",
       "what": "- UserPromptSubmit時にsession_idを取得\n- タイムスタンプ付きでadditionalContextに出力\n- Claudeがコンテキスト内の2つのIDを比較してfork判定",
       "remarks": "- ファイルベースのステートフルな設計は避ける\n- タイムスタンプで最新のsession_id情報を特定可能\n- SessionStartのSession ID = fork元（古いセッション）\n- USER_PROMPT_SESSION_IDの最新 = 現在のセッション",
@@ -1126,14 +811,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Git操作メトリクスを追跡してログに記録する。",
-      "keywords": [
-        "branch",
-        "conflict",
-        "git",
-        "operations",
-        "tracker",
-        "update"
-      ],
+      "keywords": ["branch", "conflict", "git", "operations", "tracker", "update"],
       "why": "Update branch回数やConflict発生頻度を記録することで、\n開発フローのボトルネック分析や改善ポイントの特定に活用する。",
       "what": "- git pull/merge/rebase, gh pr merge/update-branchコマンドを検出\n- Conflict発生、Update branch、Rebase解決を記録\n- 終了コード、ブランチ名、コンフリクトファイル等をログ出力\n\nState:\nwrites: .claude/state/execution-logs/git-operations.log",
       "remarks": "- 情報収集のみでブロックしない\n- SRP: Git操作のメトリクス追跡のみを担当",
@@ -1146,11 +824,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にGitの状態を確認し、未コミット変更を警告する。",
-      "keywords": [
-        "git",
-        "main",
-        "status"
-      ],
+      "keywords": ["git", "main", "status"],
       "why": "mainブランチに未コミット変更がある状態でセッションを開始すると、\n意図しない変更の混入や競合が発生するリスクがある。",
       "what": "- Gitワーキングツリーの状態を確認\n- mainブランチに未コミット変更がある場合に警告\n- featureブランチの未コミット変更は情報として表示",
       "remarks": "- ブロックはしない（警告のみ）\n- stop_hook_active時はスキップ",
@@ -1163,11 +837,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "フックの期待動作と実際の動作のギャップを自動検知する。",
-      "keywords": [
-        "behavior",
-        "evaluator",
-        "hook"
-      ],
+      "keywords": ["behavior", "evaluator", "hook"],
       "why": "フックが正しく動作しているかを自動検証し、サイレント障害や\n異常な動作パターンを早期発見する。問題のあるフックを放置すると\nワークフロー全体の品質が低下する。",
       "what": "- サイレント障害検出（例外発生したフック）\n- ブロックループ検出（短時間に連続ブロック）\n- 未実行フック検出（登録されているが実行されていない）\n\nState:\nreads: .claude/state/execution-logs/hook-execution-*.jsonl\nreads: .claude/settings.json\nwrites: .claude/state/metrics/behavior-anomalies-*.jsonl",
       "remarks": "- 情報提供のみでブロックしない\n- hook_effectiveness_evaluatorは効率性評価、これは動作評価\n- metadata.json廃止に伴い、settings.jsonから登録フック一覧を取得",
@@ -1180,14 +850,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "フックファイルと非フックファイルが同時にステージされた際に警告する。",
-      "keywords": [
-        "change",
-        "chicken",
-        "detector",
-        "egg",
-        "hook",
-        "main"
-      ],
+      "keywords": ["change", "chicken", "detector", "egg", "hook", "main"],
       "why": "フック変更と対応するコード変更が同一PRにあると、mainのフックが実行され\n誤ブロックが発生する（chicken-and-egg問題）。分割PRを促す警告を出す。",
       "what": "- .claude/hooks/*.py（tests/除く）と他ファイルの混在をチェック\n- パターン検出フック（キーワードリスト含む）の変更時にデータ分析を促す\n- フック修正時にhooks-reference Skill参照をリマインド\n- ブロックせず警告のみ（意図的な混在もあるため）",
       "remarks": "- PreToolUseのため`git add && git commit`はadd前のインデックスをチェック\n- 内部開発ツール警告のためAGENTS.mdには未記載",
@@ -1200,16 +863,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree内でのフック開発時に変更が反映されない問題を警告する。",
-      "keywords": [
-        "claude",
-        "dev",
-        "dir",
-        "hook",
-        "main",
-        "project",
-        "warning",
-        "worktree"
-      ],
+      "keywords": ["claude", "dev", "dir", "hook", "main", "project", "warning", "worktree"],
       "why": "worktree内でフックを修正しても、CLAUDE_PROJECT_DIRがmainリポジトリを\n指すため、修正が反映されない。この問題を開発者に警告する。",
       "what": "- cwdがworktree内かどうかをチェック\n- worktree内で.claude/hooks/や.claude/scripts/に変更があれば警告\n- mainにマージするまで変更が反映されないことを通知",
       "remarks": "- ブロックせず警告のみ\n- CLAUDE_PROJECT_DIRがmainを指す問題に特化",
@@ -1222,11 +876,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション中のフック実行を分析し、改善提案を出力する。",
-      "keywords": [
-        "effectiveness",
-        "evaluator",
-        "hook"
-      ],
+      "keywords": ["effectiveness", "evaluator", "hook"],
       "why": "フックが適切に機能しているかをセッション終了時に評価し、\n過剰発動・無視された警告・繰り返しブロックを検出する。\nフックの品質改善サイクルを回すための情報を提供する。",
       "what": "- 過剰発動検出（発動多数でほぼapprove）\n- 無視された警告検出（警告出力されても対応なし）\n- 繰り返しブロック検出（同じ理由で複数回ブロック）\n- 改善提案を生成・出力\n\nState:\nreads: .claude/state/execution-logs/hook-execution-*.jsonl",
       "remarks": "- 情報提供のみでブロックしない\n- hook-behavior-evaluatorは動作評価、これは効率性評価\n- 自己参照を除外して誤検知を防止",
@@ -1239,12 +889,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "フック種類に応じた返却形式の誤用を検出する。",
-      "keywords": [
-        "format",
-        "hook",
-        "return",
-        "stop"
-      ],
+      "keywords": ["format", "hook", "return", "stop"],
       "why": "フック種類によって期待される返却形式が異なる。誤った形式を使用すると\nフックが正しく動作しない。PR #1632でStop hookに誤った形式を適用した\n問題の再発を防止する。",
       "what": "- Stop hookでprint_continue_and_log_skip使用を検出\n- フック種類と期待される返却形式の対応をチェック\n- 不一致時に警告（ブロックしない）",
       "remarks": "- 非ブロック型（警告のみ）\n- Stop: print_approve_and_log_skip、PostToolUse: print_continue_and_log_skip",
@@ -1257,11 +902,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "フック設計のSRP遵守と品質チェックを行う。",
-      "keywords": [
-        "design",
-        "hooks",
-        "srp"
-      ],
+      "keywords": ["design", "hooks", "srp"],
       "why": "責務が重複するフックが増えると保守性が低下する。新規フック追加時に\n設計チェックを強制し、責務分離を維持する。また、ブロックメッセージに\n対処法セクションがないとユーザーが対処方法を把握できない。",
       "what": "- フック削除時にセッション再起動が必要な可能性を警告\n- make_block_resultに対処法セクションがない場合に警告\n- log_hook_execution()呼び出しの欠如を検出",
       "remarks": "- python-lint-checkはコードスタイル、本フックは設計品質を確認\n- ci-wait-check.pyとci-monitor.pyの責務重複問題を防止",
@@ -1274,11 +915,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRマージ後のreflect実行を強制する。",
-      "keywords": [
-        "action",
-        "immediate",
-        "reflect"
-      ],
+      "keywords": ["action", "immediate", "reflect"],
       "why": "PRマージ後に/reflectを実行しないと、学習機会を逃し、同じ問題を繰り返す。\nトランスクリプトを解析してマージ後のreflect実行を検証する。",
       "what": "- トランスクリプトから成功したgh pr mergeコマンドを検出\n- 各マージ後にSkill(reflect)呼び出しがあるか確認\n- 対応するreflect呼び出しがないマージがあればブロック",
       "remarks": "- post-merge-reflection-enforcerはreflect指示、本フックは実行検証\n- [IMMEDIATE]タグはトランスクリプトに記録されないため直接マージ検出を使用",
@@ -1291,14 +928,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "[IMMEDIATE]タグの実行漏れを早期検出する。",
-      "keywords": [
-        "claude",
-        "hook",
-        "immediate",
-        "pending",
-        "reflect",
-        "stop"
-      ],
+      "keywords": ["claude", "hook", "immediate", "pending", "reflect", "stop"],
       "why": "PRマージ後に[IMMEDIATE: /reflect]が表示されても、ユーザーが次の入力をした場合、\nClaudeが別のタスクに移って振り返りを忘れることがある。\nStop hookのみでは検出が遅く、セッション終了時まで気づかない。",
       "what": "- UserPromptSubmit時にpending状態ファイルを確認\n- 未実行の[IMMEDIATE]アクションがあれば即座にブロック\n- 実行済みなら状態ファイルを削除してフローを継続\n\nState:\n- reads: /tmp/claude-hooks/immediate-pending-{session_id}.json\n- deletes: same (on successful verification)",
       "remarks": "- post-merge-reflection-enforcer.pyがpending状態を書き込み\n- reflection-completion-check.pyはStop hookで最終チェック\n- 本フックはUserPromptSubmitで早期検出\n- lib/reflection.pyの共通関数を使用（Issue #2694）",
@@ -1311,13 +941,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Issue作成後にAIレビュー（Gemini/Codex）を実行し結果を通知する。",
-      "keywords": [
-        "claude",
-        "codex",
-        "gemini",
-        "issue",
-        "review"
-      ],
+      "keywords": ["claude", "codex", "gemini", "issue", "review"],
       "why": "Issue作成時点でAIレビューを実行することで、Issue内容の品質を\n即座に向上させる機会を提供する。レビュー結果をClaudeに通知し、\nIssue内容への反映を促す。",
       "what": "- gh issue createの成功を検出\n- Gemini/Codexによる同期レビューを実行\n- レビュー結果をIssueにコメント投稿\n- systemMessageでClaudeにレビュー結果を通知",
       "remarks": "- 同期実行（レビュー完了まで待機）\n- issue_ai_review.shスクリプトを呼び出し",
@@ -1330,12 +954,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成時にブランチ名からIssue番号を抽出し自動アサイン・競合チェック。",
-      "keywords": [
-        "assign",
-        "auto",
-        "issue",
-        "worktree"
-      ],
+      "keywords": ["assign", "auto", "issue", "worktree"],
       "why": "複数セッションが同じIssueに着手すると作業の重複・競合が発生する。\nworktree作成時点でIssueの状態を確認し、競合を事前に防止する。",
       "what": "- git worktree addコマンドからブランチ名/パスを解析\n- ブランチ名からIssue番号を抽出（issue-123, fix/123-desc等）\n- 以下をブロック: クローズ済み、重複worktree、リモートブランチ存在、\n  オープンPR存在、他者アサイン済み\n- 未アサインなら自動で@meにアサイン\n- 最近マージされたPRがあれば警告",
       "remarks": "- ブロック型フック（競合防止のため厳格）\n- 自分のみアサイン済みは許可（作業継続）\n- worktree-creation-markerはセッション追跡、本フックは競合防止",
@@ -1348,12 +967,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh issue create時にIssue本文の必須項目をチェックする。",
-      "keywords": [
-        "body",
-        "create",
-        "issue",
-        "requirements"
-      ],
+      "keywords": ["body", "create", "issue", "requirements"],
       "why": "調査なしにIssueを作成すると、実装時に問題の把握に時間がかかる。\n必須セクション（なぜ/現状/期待動作）を強制することで、\nIssue作成時点での十分な調査を促す。",
       "what": "- gh issue createコマンドを検出\n- --body オプションから本文を抽出\n- 必須セクション（なぜ/現状/期待動作）の存在を確認\n- 不足している場合はブロック",
       "remarks": "- trivial/documentationラベルでスキップ可能\n- issue-investigation-reminderを置き換えた後継フック",
@@ -1366,11 +980,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成時にブランチ名にIssue番号を含むことを強制。",
-      "keywords": [
-        "branch",
-        "issue",
-        "worktree"
-      ],
+      "keywords": ["branch", "issue", "worktree"],
       "why": "Issueを作成せずにworktreeを作成すると、作業の追跡が困難になる。\nブランチ名にIssue番号を含めることで、作業とIssueを紐付ける。",
       "what": "- `git worktree add` コマンドを検出\n- ブランチ名にIssue番号（issue-123, #123等）が含まれているか確認\n- 含まれていない場合はブロック",
       "remarks": "- ブロック型フック（Issue番号なしはブロック）\n- PreToolUse:Bashで発火",
@@ -1383,12 +993,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "merge-checkフックのIssue・受け入れ基準チェック機能。",
-      "keywords": [
-        "checker",
-        "close",
-        "issue",
-        "merge"
-      ],
+      "keywords": ["checker", "close", "issue", "merge"],
       "why": "未完了の受け入れ基準を持つIssueがCloseされると、品質管理が形骸化する。\nPRからIssue参照を抽出し、受け入れ基準の完了状態を確認する。",
       "what": "- PRボディからIssue参照を抽出（Closes #xxx等）\n- 受け入れ基準の完了チェック\n- レビューコメントからのバグIssue検出",
       "remarks": "- review_checker.py: レビュースレッド確認\n- ai_review_checker.py: AIレビュアーステータス\n- 本モジュールはIssueと受け入れ基準に特化",
@@ -1401,11 +1006,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh issue viewコマンド実行時にコメントを自動表示する。",
-      "keywords": [
-        "comments",
-        "issue",
-        "view"
-      ],
+      "keywords": ["comments", "issue", "view"],
       "why": "Issueコメントに重要な解決策や追加情報があっても見落とされ、\n無駄な時間を費やすことがある。コメントを自動表示して\n情報の見落としを防ぐ。",
       "what": "- gh issue view <number> コマンドを検出\n- --commentsフラグがない場合、自動でコメントを取得\n- systemMessageでコメント内容を表示",
       "remarks": "- 非ブロック型（情報提供のみ）\n- --comments付きのコマンドはそのまま通過",
@@ -1418,11 +1019,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション内で作成されたIssue番号を記録し、実装を促す。",
-      "keywords": [
-        "creation",
-        "issue",
-        "tracker"
-      ],
+      "keywords": ["creation", "issue", "tracker"],
       "why": "セッション内で作成したIssueは同セッションで実装まで完遂する\n必要がある。Issue作成を追跡し、優先度に応じた実装指示を\n出すことで、Issue作成で終わらず実装まで誘導する。",
       "what": "- gh issue createの成功を検出しIssue番号を抽出\n- セッションIDごとのファイルにIssue番号を記録\n- 優先度（P0/P1/P2）を解析し適切なメッセージを表示\n- P0は即時実装、P1/P2は現タスク完遂後の実装を指示\n\nState:\n- writes: .claude/logs/flow/session-created-issues-{session_id}.json\n- writes: .claude/logs/decisions/issue-decisions-{session_id}.jsonl",
       "remarks": "- 非ブロック型（PostToolUse）\n- related-task-checkがセッション終了時に未実装Issueをチェック",
@@ -1435,11 +1032,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh issue close時に未完了チェックボックスを検出してブロック。",
-      "keywords": [
-        "close",
-        "incomplete",
-        "issue"
-      ],
+      "keywords": ["close", "incomplete", "issue"],
       "why": "Issue本文にタスクリスト（チェックボックス）がある場合、\n未完了項目があるままクローズすると作業漏れが発生する。\n部分完了でのクローズを防止する。",
       "what": "- gh issue closeコマンドを検出\n- Issue本文からチェックボックスを解析\n- 未チェック項目があればブロック\n- スキップ環境変数（SKIP_INCOMPLETE_CHECK）で回避可能",
       "remarks": "- ブロック型フック\n- issue-review-response-checkはAIレビュー対応確認、本フックはタスク完了確認",
@@ -1452,13 +1045,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh issue view実行時に別セッションの調査を検知し警告する。",
-      "keywords": [
-        "investigation",
-        "issue",
-        "tracker",
-        "view",
-        "worktree"
-      ],
+      "keywords": ["investigation", "issue", "tracker", "view", "worktree"],
       "why": "worktree/PR作成前の調査フェーズでも並行セッションの競合が発生する。\nIssue閲覧時点で調査開始を記録し、別セッションとの重複を早期検知する。",
       "what": "- gh issue viewコマンドを検出しIssue番号を抽出\n- Issueコメントから他セッションの調査開始マーカーを検索\n- 別セッションが1時間以内に調査中なら警告\n- 自身の調査開始をコメントとして記録（重複防止）\n\nState:\n- writes: GitHub Issueコメント（🔍 調査開始マーカー）",
       "remarks": "- 非ブロック型（警告のみ）\n- issue-auto-assignはworktree作成時の競合防止、本フックは調査フェーズの検知",
@@ -1471,11 +1058,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh issue create時に--labelオプションの指定を強制する。",
-      "keywords": [
-        "create",
-        "issue",
-        "label"
-      ],
+      "keywords": ["create", "issue", "label"],
       "why": "ラベルなしのIssueは分類・検索・優先度管理が困難になる。\nIssue作成時にラベルを強制することで、Issue管理の質を維持する。",
       "what": "- gh issue createコマンドを検出\n- --labelオプションの有無をチェック\n- ラベルがない場合、タイトル/ボディから適切なラベルを自動提案\n- ブロックし、推奨コマンドを表示",
       "remarks": "- ブロック型フック\n- issue-priority-label-checkは優先度ラベル専用、本フックはラベル有無の確認",
@@ -1488,11 +1071,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Issue作成時に複数問題を1Issueにまとめていないかチェックする。",
-      "keywords": [
-        "issue",
-        "multi",
-        "problem"
-      ],
+      "keywords": ["issue", "multi", "problem"],
       "why": "1つのIssueに複数の問題を含めると、議論が分散し解決が遅れる。\n1Issue1問題の原則を強制することで、追跡性と解決速度を向上させる。",
       "what": "- gh issue createコマンドからタイトルを抽出\n- 複数問題パターン（「AとBの実装」等）を検出\n- 検出時はブロックして分離を促す",
       "remarks": "- ブロック型フック（複数問題検出時はブロック）\n- PreToolUse:Bashで発火（gh issue createコマンド）\n- issue-scope-check.pyはIssue編集時のみ対象（責務分離）\n- 除外パターンで「検出と警告」等の関連動作は許可",
@@ -1505,15 +1084,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh issue create時に優先度ラベル（P0-P3）の指定を強制する。",
-      "keywords": [
-        "cli",
-        "create",
-        "dropdown",
-        "github",
-        "issue",
-        "label",
-        "priority"
-      ],
+      "keywords": ["cli", "create", "dropdown", "github", "issue", "label", "priority"],
       "why": "GitHubのIssueテンプレートでdropdownの優先度を必須にしても、\n選択した値はラベルとして自動付与されない。gh CLI経由での\n作成時はテンプレート自体が適用されない。優先度ラベルを\n強制することでIssueの優先順位管理を徹底する。",
       "what": "- gh issue createコマンドを検出\n- --labelオプションから優先度ラベル（P0-P3）を確認\n- 優先度ラベルがない場合はブロック",
       "remarks": "- issue-label-checkはラベル有無のみ確認、これは優先度ラベル専用\n- P0: Critical、P1: High、P2: Medium、P3: Low",
@@ -1526,10 +1097,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "存在しないIssue参照をブロックする。",
-      "keywords": [
-        "issue",
-        "reference"
-      ],
+      "keywords": ["issue", "reference"],
       "why": "存在しないIssue番号を参照すると、後から追跡できなくなり\n誤った情報がコメントに残る。参照前に存在確認を強制する。",
       "what": "- gh pr comment/gh issue comment等のコメント投稿を検出\n- コメント本文から#1234形式のIssue参照を抽出\n- gh issue viewで存在確認、不存在ならブロック",
       "remarks": "- ブロック型フック（存在しないIssue参照時はブロック）\n- PreToolUse:Bashで発火（gh pr/issue comment、gh api replies）\n- Closes/Fixes/Resolvesパターンは除外（Issue作成用途）\n- cross-repoコマンド（--repo）はスキップ（他リポジトリ検証困難）",
@@ -1542,12 +1110,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh issue close時にAIレビューへの対応状況を確認してブロック。",
-      "keywords": [
-        "close",
-        "issue",
-        "response",
-        "review"
-      ],
+      "keywords": ["close", "issue", "response", "review"],
       "why": "Issue作成後のAIレビューで改善提案が出ても、対応せずにクローズすると\nIssue品質が低下する。レビュー対応を強制することでIssue品質を維持する。",
       "what": "- gh issue closeコマンドを検出\n- IssueにAIレビューコメント（🤖 AI Review）があるか確認\n- レビュー後にIssue本文が更新されていなければブロック\n- スキップ環境変数（SKIP_REVIEW_RESPONSE）で回避可能",
       "remarks": "- ブロック型フック\n- issue_ai_review.pyはレビュー実行、本フックはレビュー対応確認\n- コメントでの対応理由説明も有効な対応として扱う",
@@ -1560,10 +1123,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Issue編集時のスコープ確認を強制する。",
-      "keywords": [
-        "issue",
-        "scope"
-      ],
+      "keywords": ["issue", "scope"],
       "why": "1つのIssueに異なるタスクを追加すると追跡性が低下する。\n1Issue1タスクの原則を強制することで、Issueの管理性を向上させる。",
       "what": "- gh issue edit --bodyコマンドを検出\n- チェックボックスのみの変更は許可（進捗更新のため）\n- 内容追加時はスコープ確認を強制しブロック\n- SKIP_ISSUE_SCOPE_CHECK環境変数でバイパス可能",
       "remarks": "- ブロック型フック（内容追加時はブロック）\n- PreToolUse:Bashで発火（gh issue editコマンド）\n- issue-multi-problem-check.pyはIssue作成時のみ対象（責務分離）\n- forkセッションではSKIP環境変数を許可しない",
@@ -1576,10 +1136,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "振り返り時に発見した教訓がIssue化されているか確認する。",
-      "keywords": [
-        "issue",
-        "lesson"
-      ],
+      "keywords": ["issue", "lesson"],
       "why": "振り返りで発見した教訓をIssue化しないと、問題が放置され\n同じ失敗を繰り返す。教訓のIssue化を強制することで改善を促進する。",
       "what": "- 振り返りキーワード（五省、振り返り等）の存在を確認\n- [lesson]タグまたは教訓キーワードを検出\n- Issue参照がない教訓を発見したらブロック",
       "remarks": "- ブロック型フック（[lesson]タグにIssue参照がない場合ブロック）\n- Stopで発火（transcript分析）\n- [lesson]タグ検出は高精度（ブロック）、キーワード検出は警告のみ\n- セッション継続/コードブロック/Read出力等は誤検知防止で除外\n- reflection-completion-checkは振り返り実施を確認（責務分離）",
@@ -1592,13 +1149,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "他セッションが所有するPRとworktreeへの操作をブロックする。",
-      "keywords": [
-        "claude",
-        "code",
-        "guard",
-        "locked",
-        "worktree"
-      ],
+      "keywords": ["claude", "code", "guard", "locked", "worktree"],
       "why": "ロックされたworktreeは別のClaude Codeセッションが作業中であることを示す。\n競合するPR操作やworktree削除をブロックし、セッション間の干渉を防止する。",
       "what": "- gh pr merge/checkout/close等の変更操作を検出\n- git worktree removeコマンドを検出\n- rm コマンドによるworktree削除を検出\n- ロック中worktreeの所有PRへの操作をブロック\n- CWD内のworktree削除をブロック\n- 非ロック中でもアクティブな作業があれば警告",
       "remarks": "- 読み取り専用コマンド（gh pr view等）は許可\n- guard_rules.py、command_parser.py、worktree_manager.pyに分割\n- FORCE_RM_ORPHAN=1で孤立worktree削除チェックをスキップ可能",
@@ -1611,10 +1162,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時にログの健全性を自動検証する。",
-      "keywords": [
-        "health",
-        "log"
-      ],
+      "keywords": ["health", "log"],
       "why": "ログ記録の問題（権限エラー、ディスク不足、セッションID不一致）を\n早期検出することで、メトリクス収集の信頼性を向上させる。",
       "what": "- ログディレクトリ/ファイルの書き込み権限を確認\n- ディスク容量の閾値チェック\n- ログファイルの鮮度（更新日時）チェック\n- メトリクスとログエントリ数の整合性検証\n\nState:\n- reads: .claude/logs/execution/hook-execution-{session}.jsonl\n- reads: .claude/logs/metrics/session-metrics.log",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで警告）\n- Stopで発火\n- session_metrics_collector.pyはメトリクス収集（責務分離）\n- 閾値: 最低100MB空き容量、10分以内の更新、5回以上のフック実行",
@@ -1627,10 +1175,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にローカルmainブランチの同期状態を確認する。",
-      "keywords": [
-        "main",
-        "sync"
-      ],
+      "keywords": ["main", "sync"],
       "why": "ローカルmainがリモートより遅れていると、新しいフック/修正が\n適用されず問題が発生する。同期状態を確認し早期に警告する。",
       "what": "- git fetchでリモート情報を更新\n- ローカルmainとorigin/mainのコミット差分を確認\n- 大きく遅れている場合は警告を出力\n- 不審なコミットパターン（同一メッセージ連続）を検出",
       "remarks": "- 警告型フック（ブロックしない、stderrで警告）\n- SessionStartで発火（セッション毎に1回）\n- 閾値: 5コミット以上遅れで警告、3回以上同一メッセージで不審判定\n- ネットワークエラー時はサイレント（フェッチ失敗は警告しない）",
@@ -1643,13 +1188,7 @@
       "type": "hook",
       "hook_type": "blocking",
       "summary": "マージ前の安全性チェックを強制する。",
-      "keywords": [
-        "admin",
-        "auto",
-        "codex",
-        "copilot",
-        "merge"
-      ],
+      "keywords": ["admin", "auto", "codex", "copilot", "merge"],
       "why": "AIレビュー（Copilot/Codex）を確認せずにマージすると、品質問題を\n見逃す可能性がある。また、--auto/--adminオプションや、未解決の\nレビュースレッド、未完了の受け入れ基準があるままマージすると\n品質管理が形骸化する。",
       "what": "- gh pr merge --auto/--adminをブロック\n- REST APIマージをブロック（フックバイパス防止）\n- AIレビュー進行中/エラー状態でのマージをブロック\n- 未解決レビュースレッド、未検証の修正主張をブロック\n- 未完了の受け入れ基準を持つIssueのCloseをブロック\n- --dry-runモードでマージ前チェックが可能",
       "remarks": "- 複数のブロック理由を一度に収集・表示（Issue #874）\n- モジュール分割: ai_review_checker, issue_checker, review_checker等\n- 後方互換性のため既存テストで使用される関数を__all__で再エクスポート",
@@ -1662,12 +1201,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh pr mergeでの--bodyオプション使用をブロックする。",
-      "keywords": [
-        "body",
-        "commit",
-        "merge",
-        "quality"
-      ],
+      "keywords": ["body", "commit", "merge", "quality"],
       "why": "--bodyオプションはPRの詳細な説明（背景、変更内容等）を短い要約で\n上書きしてしまい、コミット履歴から有用な情報が失われる。",
       "what": "- gh pr mergeコマンドを検出\n- --body/-bオプションが使用されていたらブロック\n- PRボディ更新後にマージする正しい方法を案内",
       "remarks": "- ブロック型フック（--body使用時はブロック）\n- PreToolUse:Bashで発火（gh pr mergeコマンド）\n- pr-body-quality-check.pyはPR作成時（責務分離）\n- 正しい方法: gh pr edit → gh pr merge --squash",
@@ -1680,10 +1214,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "merge-checkフックのマージ条件チェックを集約・オーケストレーションする。",
-      "keywords": [
-        "conditions",
-        "merge"
-      ],
+      "keywords": ["conditions", "merge"],
       "why": "merge-check.pyが肥大化し、各チェックロジックが分散していた。\nチェック条件の追加・変更を容易にするため、条件ロジックを集約する。",
       "what": "- BlockingReasonデータクラスで構造化されたエラー報告\n- run_all_pr_checks関数で全PRチェックを一括実行\n- AIレビュー、dismissal、修正検証、受け入れ基準等のチェックを統合",
       "remarks": "- merge-check.pyから呼び出される補助モジュール\n- dry-runモードにも対応（副作用スキップ）\n- マージ済みPRはスキップ（Issue #890）",
@@ -1696,12 +1227,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "「マージしますか？」パターンを検出し、原則違反を警告する。",
-      "keywords": [
-        "agents",
-        "confirmation",
-        "merge",
-        "warning"
-      ],
+      "keywords": ["agents", "confirmation", "merge", "warning"],
       "why": "AGENTS.mdの「マージまで完遂」原則では、マージ可能になったら\n確認なしに即座にマージすべき。確認パターンは原則違反である。",
       "what": "- Claudeの応答から「マージしますか？」等のパターンを検出\n- 検出したらセッション終了時に警告を表示\n- ルール説明やコードブロック内は誤検知防止で除外",
       "remarks": "- 警告型フック（ブロックしない、事後検出で警告）\n- Stopで発火（transcript分析）\n- AGENTS.md参照や❌例示は誤検知防止で除外\n- 次回からの改善を促すフィードバック",
@@ -1714,10 +1240,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にマージ済みPRのworktreeを検知して警告する。",
-      "keywords": [
-        "merged",
-        "worktree"
-      ],
+      "keywords": ["merged", "worktree"],
       "why": "PRがマージされた後もworktreeが残っているとディスクを圧迫し、\n混乱の原因になる。マージ済みworktreeを検知し削除を促す。",
       "what": "- .worktrees/ディレクトリ内のworktreeを列挙\n- 各worktreeのブランチに関連するPRがマージ済みか確認\n- マージ済みworktreeがあればsystemMessageで警告",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで情報提供）\n- PreToolUse:Bashで発火（セッション毎に1回）\n- orphan-worktree-check.pyはgit未登録worktreeを検出（責務分離）\n- gh pr viewでマージ済み判定（リモートブランチ削除後も動作）",
@@ -1730,11 +1253,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "AskUserQuestionの選択肢にメリット/デメリット分析が含まれているか確認する。",
-      "keywords": [
-        "askuserquestion",
-        "demerit",
-        "merit"
-      ],
+      "keywords": ["askuserquestion", "demerit", "merit"],
       "why": "選択肢を提示する際、メリット/デメリット/コストの説明がないと\nユーザーが適切な判断を下せない。十分な情報提供を強制する。",
       "what": "- AskUserQuestionツールの呼び出しを検出\n- 各選択肢のlabel/descriptionにメリット・デメリット・コストを確認\n- 3つのうち2つ以上がない場合はブロック",
       "remarks": "- ブロック型フック（説明不足時はブロック）\n- PreToolUse:AskUserQuestionで発火\n- [fact-check]/[事実確認]タグで事実確認質問はスキップ可能\n- 2選択肢未満の場合は判定せずスキップ",
@@ -1747,12 +1266,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "1つのworktree/PRで複数Issueを同時に対応しようとした場合に警告する。",
-      "keywords": [
-        "guard",
-        "issue",
-        "multi",
-        "worktree"
-      ],
+      "keywords": ["guard", "issue", "multi", "worktree"],
       "why": "1 worktree = 1 Issue、1 PR = 1 Issueの原則を維持することで、\n変更の追跡性とレビューの容易さを確保する。",
       "what": "- git worktree addのブランチ名/パスから複数Issue番号を検出\n- gh pr createのbodyから複数Closes/Fixes/Resolvesを検出\n- 複数Issueを検出したらsystemMessageで警告",
       "remarks": "- 警告型フック（ブロックしない、正当なケースがあるため）\n- PreToolUse:Bashで発火（git worktree add、gh pr create）\n- issue-auto-assignは単一Issue検出（責務分離）\n- 関連Issue同時修正や親子関係など正当なケースも存在",
@@ -1765,11 +1279,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "操作成功時に動作確認Issueのチェック項目を自動更新する。",
-      "keywords": [
-        "auto",
-        "issue",
-        "observation"
-      ],
+      "keywords": ["auto", "issue", "observation"],
       "why": "作業中に自然と実行される操作（ビルド、テスト等）で動作確認を\n自動検証することで、まとめテストの負担を軽減する。",
       "what": "- ツール実行成功を検出（Bash exit 0、Read成功等）\n- 対応する動作確認項目を特定\n- observation Issueのチェック項目を自動更新\n- 全Claude確認項目チェック時はIssueを自動クローズ",
       "remarks": "- 自動化型フック（ブロックしない、Issue自動更新）\n- PostToolUse:Bash/Readで発火\n- post-merge-observation-issue.pyがIssue作成（補完関係）\n- 人間確認項目（UI表示、モバイル等）は自動チェック対象外",
@@ -1782,11 +1292,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "マージ成功後に未確認の動作確認Issueをリマインドする。",
-      "keywords": [
-        "issue",
-        "observation",
-        "reminder"
-      ],
+      "keywords": ["issue", "observation", "reminder"],
       "why": "マージ後に動作確認を忘れると本番で問題が発生する可能性がある。\nマージ成功のタイミングでリマインドし確認漏れを防止する。",
       "what": "- gh pr mergeの成功を検出\n- オープンな動作確認Issueを一覧表示\n- 確認手順と対応方法を案内",
       "remarks": "- リマインド型フック（ブロックしない、stderrで情報表示）\n- PostToolUse:Bashで発火（gh pr mergeコマンド成功時）\n- post-merge-observation-issue.pyがIssue作成（補完関係）\n- observation-session-reminder.pyはセッション開始時（責務分離）",
@@ -1799,12 +1305,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時に未確認の動作確認Issueをリマインドする。",
-      "keywords": [
-        "issue",
-        "observation",
-        "reminder",
-        "session"
-      ],
+      "keywords": ["issue", "observation", "reminder", "session"],
       "why": "セッション開始時に未確認の動作確認Issueを表示することで、\nCI待ちや関連作業中に自然と確認する機会を提供する。",
       "what": "- オープンな動作確認Issueを一覧取得\n- Issue番号と件数を簡潔に表示\n- 確認方法（gh issue close）を案内",
       "remarks": "- リマインド型フック（ブロックしない、stderrで情報表示）\n- SessionStartで発火\n- observation-reminder.pyはマージ後リマインド（責務分離）\n- 簡潔な表示でセッション開始時の負担を軽減",
@@ -1817,11 +1318,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にオープンIssueをリマインド表示する。",
-      "keywords": [
-        "issue",
-        "open",
-        "reminder"
-      ],
+      "keywords": ["issue", "open", "reminder"],
       "why": "オープンIssueを把握せずに作業を始めると、重複作業や優先度の\n低いタスクに時間を費やしてしまう。セッション開始時にリマインド\nすることで、優先度の高いIssueへの対応を促す。",
       "what": "- セッションの最初のBash実行時にオープンIssueを表示\n- 未アサインのIssueのみを表示\n- 高優先度（P1/P2）のIssueを先頭に表示\n- systemMessageで情報提供（ブロックしない）\n\nState:\nreads/writes: .claude/state/session-marker/*.json（common.pyの共通機構）",
       "remarks": "- task-start-checklistは要件確認、本フックはIssue確認\n- ファイルロックで並行実行時の競合を防止",
@@ -1834,12 +1331,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にオープンPRと関連worktreeを表示し介入を防止する。",
-      "keywords": [
-        "issue",
-        "open",
-        "warning",
-        "worktree"
-      ],
+      "keywords": ["issue", "open", "warning", "worktree"],
       "why": "別セッションが作業中のPR/Issueに介入するとコンフリクトや\n重複作業が発生する。オープンPRを表示し介入を防止する。",
       "what": "- オープンPRの一覧を取得\n- 各PRに関連するworktreeを特定\n- ロックされたworktree（PRなし）も検出\n- セッション開始時に警告メッセージを表示",
       "remarks": "- 警告型フック（ブロックしない、判断はエージェントに委ねる）\n- SessionStartで発火\n- session-handoff-readerは前回セッション引き継ぎ（補完関係）\n- active-worktree-checkはPreToolUseでの確認（タイミング違い）",
@@ -1852,12 +1344,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時に孤立したworktreeディレクトリを検知して警告する。",
-      "keywords": [
-        "git",
-        "orphan",
-        "worktree",
-        "worktrees"
-      ],
+      "keywords": ["git", "orphan", "worktree", "worktrees"],
       "why": ".worktrees/にディレクトリが残っているが.git/worktrees/に\nエントリがない状態は異常。ディスクを圧迫し混乱の原因となる。",
       "what": "- .worktrees/ディレクトリを走査\n- 対応する.git/worktrees/エントリの存在を確認\n- 孤立worktreeがあればsystemMessageで警告\n- 削除コマンドを提示",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで情報提供）\n- PreToolUse:Bashで発火（セッション毎に1回）\n- merged-worktree-check.pyはマージ済みPR検出（責務分離）\n- ファイルロックで競合状態を防止",
@@ -1870,14 +1357,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "sibling fork-session間での同一ファイル編集を警告する。",
-      "keywords": [
-        "conflict",
-        "edit",
-        "fork",
-        "parallel",
-        "session",
-        "sibling"
-      ],
+      "keywords": ["conflict", "edit", "fork", "parallel", "session", "sibling"],
       "why": "複数のfork-sessionが同一ファイルを編集すると、マージ時に\nコンフリクトが発生する。事前に警告し調整を促す。",
       "what": "- 編集対象ファイルを取得\n- sibling fork-sessionの変更ファイル一覧を取得\n- 同一ファイルを編集中のsiblingがあれば警告",
       "remarks": "- 警告型フック（ブロックしない、systemMessageで警告）\n- PreToolUse:Edit/Writeで発火（fork-sessionのみ）\n- session-worktree-statusは起動時のみ（リアルタイム警告との違い）\n- パス正規化でworktree間の比較を可能に",
@@ -1890,12 +1370,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh pr merge成功後に計画ファイルのチェックボックスを自動更新する。",
-      "keywords": [
-        "file",
-        "merge",
-        "plan",
-        "updater"
-      ],
+      "keywords": ["file", "merge", "plan", "updater"],
       "why": "PRマージ後に計画ファイルのチェックボックスが未完了のまま残ると、\n進捗状況が不明確になる。自動更新で一貫性を維持する。",
       "what": "- gh pr mergeの成功を検出\n- PRからブランチ名→Issue番号を抽出\n- 対応する計画ファイルを検索\n- 全チェックボックスを[ ]から[x]に更新",
       "remarks": "- 自動化型フック（ブロックしない、ファイル自動更新）\n- PostToolUse:Bashで発火（gh pr merge成功時）\n- .claude/plans/と~/.claude/plans/の両方を検索\n- コードブロック内のチェックボックスは更新しない",
@@ -1979,12 +1454,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRマージ成功後に振り返りを即時実行させる。",
-      "keywords": [
-        "enforcer",
-        "merge",
-        "post",
-        "reflection"
-      ],
+      "keywords": ["enforcer", "merge", "post", "reflection"],
       "why": "PRマージ後の振り返りを後回しにすると、コンテキストが失われ、\n教訓が得られない。即時実行を促進することで、振り返りの質を高める。",
       "what": "- gh pr mergeの成功を検出\n- decision: \"block\" + continue: trueで即時アクションを誘発\n- [IMMEDIATE: /reflect]をsystemMessageで出力（トランスクリプトに記録）\n- immediate-pending-check.pyが次のユーザー入力時に実行を強制\n- reflection-completion-check.pyがセッション終了時に最終チェック\n\nState:\n- writes: /tmp/claude-hooks/immediate-pending-{session_id}.json",
       "remarks": "- reflection-reminderはリマインド表示、本フックは即時実行促進\n- guard_rules.pyがworktree内マージも同様に処理",
@@ -1997,11 +1467,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRボディに「なぜ」と「参照」が含まれているかチェックする。",
-      "keywords": [
-        "body",
-        "issue",
-        "quality"
-      ],
+      "keywords": ["body", "issue", "quality"],
       "why": "PRの背景・動機が不明なままマージすると、将来の変更履歴追跡が困難になる。\nまた、Issue/PRへの参照がないとトレーサビリティが失われる。",
       "what": "- gh pr create/mergeコマンドを検出\n- PRボディから「なぜ」セクションの存在を確認\n- Issue/PR/ドキュメントへの参照を確認\n- 不足している場合はブロック",
       "remarks": "- closes-keyword-checkはClosesキーワードの提案、これは全体品質チェック\n- --body-file/-F使用時はファイル内容を確認できないため警告のみ\n- 段階的移行PRにはIssue参照強制（Issue #2608）",
@@ -2038,15 +1504,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Hook to check and auto-assign issues referenced in PR body.",
-      "keywords": [
-        "assign",
-        "auto",
-        "body",
-        "hook",
-        "issue",
-        "issues",
-        "referenced"
-      ],
+      "keywords": ["assign", "auto", "body", "hook", "issue", "issues", "referenced"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2059,16 +1517,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PostToolUse hook to auto-pull main after PR merge.",
-      "keywords": [
-        "after",
-        "auto",
-        "hook",
-        "main",
-        "merge",
-        "posttooluse",
-        "pull",
-        "reminder"
-      ],
+      "keywords": ["after", "auto", "hook", "main", "merge", "posttooluse", "pull", "reminder"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2081,11 +1530,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRメトリクス自動収集フック（PostToolUse）",
-      "keywords": [
-        "collector",
-        "metrics",
-        "posttooluse"
-      ],
+      "keywords": ["collector", "metrics", "posttooluse"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2098,12 +1543,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "git push/gh pr create時に他PRとのファイル重複を警告。",
-      "keywords": [
-        "create",
-        "git",
-        "overlap",
-        "push"
-      ],
+      "keywords": ["create", "git", "overlap", "push"],
       "why": "複数PRが同じファイルを変更するとマージ時にコンフリクトが発生する。\npush/PR作成時点で重複を検知し、早期に調整できるようにする。",
       "what": "- git push / gh pr create コマンドを検出\n- 現在のブランチで変更されたファイルを取得\n- オープン中の他PRの変更ファイルと比較\n- 重複があればsystemMessageで警告",
       "remarks": "- 非ブロック型（警告のみ）\n- gh CLI 2.35.0+が必要（files取得のため）\n- 最大50件のPRをチェック",
@@ -2139,11 +1579,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh pr create時に1 Issue = 1 PRルールを強制。",
-      "keywords": [
-        "create",
-        "issue",
-        "scope"
-      ],
+      "keywords": ["create", "issue", "scope"],
       "why": "複数Issueを1つのPRにまとめると、レビューが複雑になり、\n問題発生時のリバートが困難になり、変更履歴が不明確になる。",
       "what": "- gh pr create コマンドを検出\n- PRタイトルからIssue参照を抽出\n- 複数Issue参照がある場合はブロック\n- 単一Issue参照はOKメッセージを表示",
       "remarks": "- ブロック型フック\n- -F/--body-file使用時は--titleも指定するよう警告",
@@ -2156,11 +1592,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "gh pr create時に変更されたフックのテストカバレッジを確認。",
-      "keywords": [
-        "coverage",
-        "create",
-        "test"
-      ],
+      "keywords": ["coverage", "create", "test"],
       "why": "フック変更時にテストがないとエッジケースの見落としが発生する。\nPR作成前にテスト不足を警告し、品質維持を促す。",
       "what": "- gh pr create コマンドを検出\n- mainブランチとの差分から変更ファイルを取得\n- .claude/hooks/*.py に対応する tests/test_{name}.py の存在確認\n- テストがないフックについて警告",
       "remarks": "- 非ブロック型（警告のみ、fail-open設計）\n- __init__.py, common.py はスキップ",
@@ -2173,11 +1605,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時に問題報告とIssue作成の整合性を確認。",
-      "keywords": [
-        "issue",
-        "problem",
-        "report"
-      ],
+      "keywords": ["issue", "problem", "report"],
       "why": "問題を発見してもIssueを作成せずセッションを終了すると、\n問題が放置される。問題報告パターンを検出し、Issue作成を促す。",
       "what": "- セッションのトランスクリプトを解析\n- Claude発言から問題報告パターン（バグ発見、エラー発生等）を検出\n- gh issue createコマンドの実行有無を確認\n- 問題報告ありかつIssue作成なしなら警告",
       "remarks": "- 非ブロック型（誤検知リスクのため警告のみ）\n- Stopフック\n- AGENTS.md「Issue作成が必要なケース」を仕組み化",
@@ -2190,14 +1618,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "本番環境URLへのアクセス前に警告・確認を促す。",
-      "keywords": [
-        "dekita",
-        "dev",
-        "pages",
-        "production",
-        "url",
-        "warning"
-      ],
+      "keywords": ["dekita", "dev", "pages", "production", "url", "warning"],
       "why": "本番環境への誤アクセスは意図しない副作用を起こす可能性がある。\nまた、類似ドメイン（dekita.pages.dev等）への誤アクセスを防ぐ。",
       "what": "- mcp__chrome-devtools__navigate_page/new_page を検出\n- URLが本番環境（dekita.app, api.dekita.app）なら警告表示\n- 間違ったURL（dekita.pages.dev等）の場合はブロック",
       "remarks": "- 本番URL: 警告のみ（approve with systemMessage）\n- 間違ったURL: ブロック\n- CUSTOMIZE: PRODUCTION_HOSTNAMESを自プロジェクトに合わせて変更",
@@ -2210,12 +1631,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "git commit前にPythonコードのフォーマット・lintを自動修正。",
-      "keywords": [
-        "commit",
-        "git",
-        "lint",
-        "python"
-      ],
+      "keywords": ["commit", "git", "lint", "python"],
       "why": "Pythonコードのスタイル違反でCIが失敗すると手戻りが発生する。\nコミット前に自動修正することでCI失敗を未然に防ぐ。",
       "what": "- git commit コマンドを検出\n- ステージングされたPythonファイルを取得\n- ruff format/checkでフォーマット・lint問題を自動修正\n- 修正後にファイルを再ステージング\n- 自動修正不可能な場合のみブロック",
       "remarks": "- ブロック型フック（自動修正失敗時のみ）\n- fail-open設計（エラー時は許可）\n- worktree対応（絶対パス変換）",
@@ -2228,12 +1644,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "繰り返し発生する問題を検出し、Issue作成を強制してからマージを許可。",
-      "keywords": [
-        "block",
-        "issue",
-        "problem",
-        "recurring"
-      ],
+      "keywords": ["block", "issue", "problem", "recurring"],
       "why": "同じフックで何度もブロックされる場合、根本的な改善が必要。\nIssue作成を強制することで、問題を放置せず仕組み化を促す。",
       "what": "- gh pr merge コマンドを検出\n- 過去7日間のフック実行ログを集計\n- 3セッション以上で3回以上ブロックされたフックを検出\n- 該当する[改善]Issueがなければブロック\n\nState:\n- reads: .claude/logs/flow/hook-execution-*.jsonl",
       "remarks": "- ブロック型フック\n- PROTECTIVE_HOOKSは繰り返しブロック対象外\n- WORKFLOW_PROBLEM_HOOKSが対象（現在は空）\n- Issue作成後はブロック解除",
@@ -2246,12 +1657,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Edit時に「〜と同じ」参照スタイルのコメントを検出して警告。",
-      "keywords": [
-        "comment",
-        "copied",
-        "edit",
-        "reference"
-      ],
+      "keywords": ["comment", "copied", "edit", "reference"],
       "why": "「〜と同じ」「copied from 〜」などの参照コメントは、\n参照先が変更されると嘘になりやすい。コードの整合性が崩れる。",
       "what": "- Editツール実行を検出\n- new_stringから参照スタイルのコメントパターンを検索\n- 検出時はsystemMessageで警告（importや理由説明への変更を推奨）",
       "remarks": "- 非ブロック型（警告のみ）\n- PreToolUse:Edit フック\n- .py, .ts, .tsx, .js, .jsx ファイルが対象",
@@ -2264,13 +1670,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRマージ後または/reflect skill invoke後の振り返り完了を検証する。",
-      "keywords": [
-        "completion",
-        "invoke",
-        "reflect",
-        "reflection",
-        "skill"
-      ],
+      "keywords": ["completion", "invoke", "reflect", "reflection", "skill"],
       "why": "PRマージ後に振り返りをせずにセッションを終了すると、学習機会を逃し、\n同じ問題を繰り返す可能性がある。振り返りの完了をブロックで強制する。",
       "what": "- reflection_requiredフラグの確認（post-merge-reflection-enforcerが設定）\n- flow stateからマージ完了フェーズを検知\n- /reflect skillの呼び出し確認\n- 五省分析が実行されたか検証\n- [IMMEDIATE: action]タグの実行検証\n- 要件未達成時はセッション終了をブロック\n\nState:\nreads: /tmp/claude-hooks/reflection-required-{session_id}.json\nreads: .claude/logs/flow/*.jsonl",
       "remarks": "- post-merge-reflection-enforcer.pyがフラグ設定、本フックが検証\n- Issue作成強制はsystematization-check.pyが担当\n- 振り返り完了条件: 五省分析キーワード検出、または「振り返り完了」明示\n- lib/reflection.pyの共通関数を使用（Issue #2694）",
@@ -2283,11 +1683,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "振り返りスキル実行時にセッションログを自動集計して提供。",
-      "keywords": [
-        "collector",
-        "log",
-        "reflection"
-      ],
+      "keywords": ["collector", "log", "reflection"],
       "why": "振り返り時に手動でログを確認するのは手間がかかり、見落としが発生する。\n自動集計することで、客観的データに基づく振り返りを促進する。",
       "what": "- Skill(reflect)ツール呼び出しを検出\n- セッションのブロック回数をhook-errors.logから集計\n- フロー状態（現在フェーズ等）をstate-{session_id}.jsonから取得\n- recurring-problem-block検出情報を取得\n- systemMessageとしてClaudeに提供\n\nState:\n- reads: .claude/logs/flow/hook-errors.log\n- reads: .claude/logs/flow/state-{session_id}.json",
       "remarks": "- 非ブロック型（情報提供のみ）\n- PreToolUse:Skill フック",
@@ -2300,13 +1696,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "振り返り中のIssue作成を検出して進捗を追跡。",
-      "keywords": [
-        "completion",
-        "issue",
-        "progress",
-        "reflection",
-        "tracker"
-      ],
+      "keywords": ["completion", "issue", "progress", "reflection", "tracker"],
       "why": "振り返りで発見した改善点はIssue化が必要。Issue作成を追跡し、\nreflection-completion-checkが振り返り完了を判定できるようにする。",
       "what": "- gh issue create コマンドの成功を検出\n- 作成されたIssue番号を抽出\n- セッション状態ファイルにIssue番号を記録\n\nState:\n- writes: /tmp/claude-hooks/reflection-required-{session_id}.json",
       "remarks": "- 非ブロック型（PostToolUse）\n- post-merge-reflection-enforcerがフラグ設定、本フックは進捗追跡\n- reflection-completion-checkがセッション終了時に検証",
@@ -2319,11 +1709,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "振り返りの形式的評価を防ぐ（ブロック回数との矛盾検出、改善点Issue化強制）。",
-      "keywords": [
-        "issue",
-        "quality",
-        "reflection"
-      ],
+      "keywords": ["issue", "quality", "reflection"],
       "why": "形式的・表面的な振り返りは実質的な改善につながらない。\n客観的メトリクス（ブロック回数）と主観的評価（「問題なし」）の\n矛盾を検出し、根本原因分析を強制する。また、改善点を発見しても\nIssue化しなければ忘れられるため、Issue参照を強制する。",
       "what": "- フック実行ログからブロック回数をカウント\n- トランスクリプトから振り返り内容を分析\n- 矛盾検出（3回以上ブロックなのに「問題なし」）時にブロック\n- 改善点があるのにIssue参照がない場合にブロック",
       "remarks": "- reflection-completion-checkはキーワード存在確認、本フックは品質検証\n- ブロック型フック（警告ではなくブロック）\n- 根本原因パターン（なぜ、根本原因、原因は）があれば通過",
@@ -2336,10 +1722,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRマージや一定アクション後に振り返りをリマインド。",
-      "keywords": [
-        "reflection",
-        "reminder"
-      ],
+      "keywords": ["reflection", "reminder"],
       "why": "タスク完了後やセッションが長時間続いた際に振り返りを促し、\n学習機会を逃さないようにする。",
       "what": "- gh pr merge / git merge 成功を検出しリマインド\n- 10アクションごとに定期リマインド\n- セッション状態ファイルでアクション回数を追跡\n\nState:\n- writes: /tmp/claude-hooks/reflection-state-{session_id}.json",
       "remarks": "- 非ブロック型（リマインダー表示のみ）\n- PostToolUse:Bash フック\n- PRマージリマインドと定期リマインドは排他（マージ優先）",
@@ -2352,10 +1735,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "振り返りの観点網羅性を確認し、抜けがあればブロック。",
-      "keywords": [
-        "reflection",
-        "self"
-      ],
+      "keywords": ["reflection", "self"],
       "why": "振り返りで特定の観点（根本原因分析、見落とし確認等）が抜けると、\n表面的な振り返りになり改善につながらない。観点チェックを強制する。",
       "what": "- トランスクリプトから振り返りキーワードを検出\n- PERSPECTIVESリストの各観点がカバーされているか確認\n- 抜けている観点があればブロック\n- セッション内の繰り返しブロックパターンを提示\n\nState:\n- reads: .claude/logs/metrics/block-patterns-{session_id}.jsonl",
       "remarks": "- ブロック型フック（Stopフック）\n- reflection-quality-checkは矛盾検出、本フックは観点網羅性\n- 振り返りなしの場合はスキップ",
@@ -2368,12 +1748,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "正規表現パターン実装時にAGENTS.mdチェックリストを表示。",
-      "keywords": [
-        "agents",
-        "pattern",
-        "regex",
-        "reminder"
-      ],
+      "keywords": ["agents", "pattern", "regex", "reminder"],
       "why": "正規表現実装でよくあるミス（成功条件確認漏れ、フラグ不一致等）を\n防ぐため、編集時にチェックリストを提示する。",
       "what": "- Edit操作でPythonファイルを検出\n- new_stringに正規表現パターン（re.compile, PATTERN= 等）があるか確認\n- 検出時はAGENTS.mdのチェックリストをsystemMessageで表示\n- 同一ファイルへのリマインドは1セッション1回\n\nState:\n- writes: /tmp/claude-hooks/regex-pattern-reminded-{session_id}.json",
       "remarks": "- 非ブロック型（情報提供のみ）\n- PreToolUse:Edit フック\n- AGENTS.md「パターンマッチング実装（P1）」を仕組み化",
@@ -2386,11 +1761,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時にセッション内作成Issueのステータスを確認し、未完了ならブロック。",
-      "keywords": [
-        "issue",
-        "related",
-        "task"
-      ],
+      "keywords": ["issue", "related", "task"],
       "why": "セッション内で作成したIssueは同セッションで実装まで完遂する必要がある。\nIssue作成だけで終了させず、実装を強制する。",
       "what": "- セッション終了時（Stopフック）に発火\n- session-created-issues-{session_id}.jsonから作成Issue一覧を取得\n- GitHubでIssueステータスを確認\n- 未完了（OPEN）Issueがあればセッション終了をブロック\n- fork-sessionへの委譲（PR/ロック済worktree存在）は許可\n\nState:\n- reads: .claude/logs/flow/session-created-issues-{session_id}.json",
       "remarks": "- ブロック型フック（回数制限なし、完了まで無限ブロック）\n- issue-creation-trackerが記録、本フックが検証\n- 見送る場合は `gh issue close --reason \"not planned\"` で明示",
@@ -2403,12 +1774,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Issue/PR作成前にWeb調査を強制。",
-      "keywords": [
-        "issue",
-        "requirement",
-        "research",
-        "web"
-      ],
+      "keywords": ["issue", "requirement", "research", "web"],
       "why": "十分な調査なしにIssue/PRを作成すると、既存の解決策を見落としたり、\n同様のIssueが既に存在する可能性がある。事前調査を強制する。",
       "what": "- gh issue create / gh pr create コマンドを検出\n- セッション内のWebSearch/WebFetch履歴を確認\n- 調査なしの場合はブロック\n- バイパス条件: documentation/trivialラベル、十分な探索、本文に「調査不要」",
       "remarks": "- ブロック型フック（PreToolUse:Bash）\n- research-trackerがWeb調査を記録、本フックが検証\n- コードベース探索（Grep/Glob 5回以上）もWeb調査の代替として許可",
@@ -2421,14 +1787,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション内のWebSearch/WebFetch使用を追跡。",
-      "keywords": [
-        "issue",
-        "research",
-        "tracker",
-        "web",
-        "webfetch",
-        "websearch"
-      ],
+      "keywords": ["issue", "research", "tracker", "web", "webfetch", "websearch"],
       "why": "Issue/PR作成前に調査が行われたかを検証するため、\nWeb検索活動をセッション単位で記録する必要がある。",
       "what": "- WebSearch/WebFetchツール使用を検出\n- 検索クエリ/URLをセッションマーカーファイルに記録\n- research-requirement-checkが後で参照\n\nState:\n- writes: /tmp/claude-hooks/research-activity-{session_id}.json",
       "remarks": "- 非ブロック型（PostToolUse、記録のみ）\n- research-requirement-checkと連携\n- クエリは200文字に切り詰めて記録",
@@ -2441,11 +1800,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "レビュースレッドResolve時に応答コメントを強制。",
-      "keywords": [
-        "guard",
-        "resolve",
-        "thread"
-      ],
+      "keywords": ["guard", "resolve", "thread"],
       "why": "レビューコメントに返信せずにResolveすると、レビュアーへの説明責任が\n果たされず、対応内容が不明確になる。返信を強制する。",
       "what": "- resolveReviewThread GraphQL mutationを検出\n- スレッド内にClaude Code応答コメントがあるか確認\n- 応答なしの場合はブロック\n- 修正主張には検証内容（Verified:）を要求\n- 範囲外発言にはIssue番号を要求",
       "remarks": "- ブロック型フック（PreToolUse:Bash）\n- batch_resolve_threads.pyの使用を推奨\n- REST APIも併用してコメント取得（GraphQLの遅延対策）\n- fail-open設計（APIエラー時は許可）",
@@ -2458,12 +1813,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "merge-checkフックのレビューコメント・スレッド検証機能。",
-      "keywords": [
-        "checker",
-        "dismissal",
-        "merge",
-        "review"
-      ],
+      "keywords": ["checker", "dismissal", "merge", "review"],
       "why": "PRマージ前にレビューコメントへの対応を検証することで、\n未解決のスレッドや不適切なdismissalを防ぐ。",
       "what": "- Dismissal検証（Issue参照必須）\n- 応答検証（Claude Code応答必須）\n- 未解決スレッド検出\n- セキュリティ指摘のIssue化強制",
       "remarks": "- fix_verification_checker.py: 修正主張の検証\n- ai_review_checker.py: AIレビュアーステータス確認\n- DISMISSAL_KEYWORDS/ACTION_KEYWORDS/DISMISSAL_EXCLUSIONSは意図的に冗長\n  （substring matchingでも網羅性・可読性のため明示的に記載）",
@@ -2476,23 +1826,12 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "レビュー返信で「別Issue対応」と約束した場合のIssue作成追跡フック。",
-      "keywords": [
-        "issue",
-        "promise",
-        "review",
-        "tracker"
-      ],
+      "keywords": ["issue", "promise", "review", "tracker"],
       "why": "",
       "what": "",
       "remarks": "",
-      "trigger": [
-        "PostToolUse",
-        "Stop"
-      ],
-      "matcher": [
-        "Bash",
-        null
-      ]
+      "trigger": ["PostToolUse", "Stop"],
+      "matcher": ["Bash", null]
     },
     {
       "name": "reviewer_removal_check",
@@ -2500,15 +1839,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PreToolUse hook: Block removal of AI reviewers from PRs.",
-      "keywords": [
-        "block",
-        "hook",
-        "pretooluse",
-        "prs",
-        "removal",
-        "reviewer",
-        "reviewers"
-      ],
+      "keywords": ["block", "hook", "pretooluse", "prs", "removal", "reviewer", "reviewers"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2521,10 +1852,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "",
-      "keywords": [
-        "rework",
-        "tracker"
-      ],
+      "keywords": ["rework", "tracker"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2564,16 +1892,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Stop hook to verify frontend secrets have been deployed.",
-      "keywords": [
-        "deploy",
-        "deployed",
-        "frontend",
-        "hook",
-        "secret",
-        "secrets",
-        "stop",
-        "verify"
-      ],
+      "keywords": ["deploy", "deployed", "frontend", "hook", "secret", "secrets", "stop", "verify"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2608,12 +1927,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セキュリティガードファイル編集時にバイパステストの追加を促す。",
-      "keywords": [
-        "bypass",
-        "reminder",
-        "security",
-        "test"
-      ],
+      "keywords": ["bypass", "reminder", "security", "test"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2626,16 +1940,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Stop hook to verify main branch is up-to-date at session end.",
-      "keywords": [
-        "branch",
-        "date",
-        "end",
-        "hook",
-        "main",
-        "session",
-        "stop",
-        "verify"
-      ],
+      "keywords": ["branch", "date", "end", "hook", "main", "session", "stop", "verify"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2648,13 +1953,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Session end worktree cleanup hook.",
-      "keywords": [
-        "cleanup",
-        "end",
-        "hook",
-        "session",
-        "worktree"
-      ],
+      "keywords": ["cleanup", "end", "hook", "session", "worktree"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2667,12 +1966,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション再開時ファイル状態検証フック（SessionStart）",
-      "keywords": [
-        "file",
-        "session",
-        "sessionstart",
-        "state"
-      ],
+      "keywords": ["file", "session", "sessionstart", "state"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2685,13 +1979,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時に前回の引き継ぎメモを読み込み表示。",
-      "keywords": [
-        "claude",
-        "code",
-        "handoff",
-        "reader",
-        "session"
-      ],
+      "keywords": ["claude", "code", "handoff", "reader", "session"],
       "why": "Claude Codeはセッション間で記憶を保持しない。前回の作業状態、\n未対応タスク、教訓を引き継ぐことで、継続性を確保する。",
       "what": "- セッション開始時（SessionStart）に発火\n- .claude/handoff/配下の有効なメモを読み込み\n- 自セッションと他セッションのメモを区別して表示\n- Git状態、オープンPR、ロック中worktreeも表示\n\nState:\n- reads: .claude/handoff/*.json",
       "remarks": "- 非ブロック型（情報表示のみ）\n- session-handoff-writerが生成、本フックが読み込み\n- メモの有効期間は24時間",
@@ -2704,13 +1992,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時に引き継ぎメモを生成。",
-      "keywords": [
-        "claude",
-        "code",
-        "handoff",
-        "session",
-        "writer"
-      ],
+      "keywords": ["claude", "code", "handoff", "session", "writer"],
       "why": "Claude Codeはセッション間で記憶を保持しない。作業状態、\n未対応タスク、教訓を記録して次のセッションに引き継ぐ。",
       "what": "- セッション終了時（Stop）に発火\n- Git状態、worktree、オープンPRを収集\n- セッションサマリー（ブロック回数等）を抽出\n- ブロック理由から教訓を自動生成\n- .claude/handoff/にセッションIDベースで保存\n\nState:\n- reads: .claude/logs/execution/hook-execution-*.jsonl\n- writes: .claude/handoff/{session_id}.json",
       "remarks": "- 非ブロック型（情報保存のみ）\n- session-handoff-readerが読み込み、本フックが生成\n- 古いファイルは10個まで保持（自動クリーンアップ）",
@@ -2723,13 +2005,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション別Issue追跡データの整合性を検証。",
-      "keywords": [
-        "creation",
-        "integrity",
-        "issue",
-        "session",
-        "tracker"
-      ],
+      "keywords": ["creation", "integrity", "issue", "session", "tracker"],
       "why": "issue-creation-trackerで記録したIssueが正しくファイルに保存されているか\n検証する必要がある。データ損失を早期に検出し、警告する。",
       "what": "- セッション開始時（SessionStart）に発火\n- 過去5セッションのログとファイルを照合\n- 実行ログに記録されたIssueがファイルにも存在するか確認\n- 不一致があればsystemMessageで警告\n\nState:\n- reads: .claude/logs/execution/hook-execution-*.jsonl\n- reads: .claude/logs/flow/session-created-issues-*.json\n- reads: .claude/logs/flow/state-*.json",
       "remarks": "- 非ブロック型（警告のみ）\n- Issue #2003の修正適用前のデータで不整合が発生する可能性",
@@ -2742,12 +2018,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時にローテート済みログを圧縮。",
-      "keywords": [
-        "compressor",
-        "gzip",
-        "log",
-        "session"
-      ],
+      "keywords": ["compressor", "gzip", "log", "session"],
       "why": "ログファイルのローテート後、古いファイル（.log.1, .log.2等）が\nディスクを圧迫する。gzip圧縮してストレージを節約する。",
       "what": "- セッション終了時（Stop）に発火\n- execution/とmetrics/のローテート済みログを検索\n- .log.N形式のファイルをgzip圧縮\n- 圧縮した件数をログに記録",
       "remarks": "- 非ブロック型（Stopフック）\n- ローテーション自体はcommon.pyが担当\n- 既に圧縮済み（.gz）のファイルはスキップ",
@@ -2760,14 +2031,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree内のセッションマーカーのmtimeを定期更新。",
-      "keywords": [
-        "marker",
-        "mtime",
-        "refresh",
-        "removal",
-        "session",
-        "worktree"
-      ],
+      "keywords": ["marker", "mtime", "refresh", "removal", "session", "worktree"],
       "why": "長時間セッション（30分以上）でマーカーのmtimeが古くなると、\nworktree-removal-checkが「古いセッション」と判断してしまう。\n定期的にmtimeを更新してセッション活性を示す。",
       "what": "- PostToolUse時に発火\n- CWDがworktree内かどうか確認\n- マーカーのmtimeが10分以上古ければtouchで更新\n- 更新が不要なら何もしない（パフォーマンス最適化）\n\nState:\n- writes: .worktrees/*/.claude-session（mtimeのみ更新）",
       "remarks": "- 非ブロック型（マーカーのtouchのみ）\n- session-marker-updaterはSessionStart時、本フックはPostToolUse\n- 10分間隔でのみ更新（REFRESH_INTERVAL）",
@@ -2780,14 +2044,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にworktree内のセッションマーカーを更新。",
-      "keywords": [
-        "guard",
-        "locked",
-        "marker",
-        "session",
-        "updater",
-        "worktree"
-      ],
+      "keywords": ["guard", "locked", "marker", "session", "updater", "worktree"],
       "why": "既存worktree内でセッションを開始した場合、マーカーが古いセッションIDのまま\nだとlocked-worktree-guardの自己セッションバイパスが機能しない。\n現在のセッションIDで更新する必要がある。",
       "what": "- セッション開始時（SessionStart）に発火\n- CWDがworktree内かどうか確認\n- .claude-sessionファイルを現在のセッションIDで上書き\n\nState:\n- writes: .worktrees/*/.claude-session",
       "remarks": "- 非ブロック型（情報書き込みのみ）\n- worktree-creation-markerは新規作成時、本フックは既存worktreeでのセッション開始時\n- session-marker-refreshと連携してマーカーを維持",
@@ -2800,12 +2057,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッションメトリクス収集フック（Stop）",
-      "keywords": [
-        "collector",
-        "metrics",
-        "session",
-        "stop"
-      ],
+      "keywords": ["collector", "metrics", "session", "stop"],
       "why": "",
       "what": "",
       "remarks": "",
@@ -2818,12 +2070,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時に成果物（PR、Issue、コミット）を収集。",
-      "keywords": [
-        "collector",
-        "issue",
-        "outcome",
-        "session"
-      ],
+      "keywords": ["collector", "issue", "outcome", "session"],
       "why": "セッションの成果を定量的に記録することで、フック有効性の測定や\n事後分析が可能になる。リアルタイム追跡ではなく結果ベースで評価する。",
       "what": "- セッション終了時（Stop）に発火\n- セッション開始時刻以降のPR作成・マージを収集\n- Issue作成、コミット数を収集\n- 成果物からタスクタイプを推定\n- outcomes/にセッション別で保存\n\nState:\n- reads: .claude/logs/flow/state-*.json（セッション開始時刻）\n- writes: .claude/logs/outcomes/session-outcomes-*.jsonl",
       "remarks": "- 非ブロック型（Stopフック）\n- GitHub API経由でPR/Issueを取得\n- flow_definitions.pyのestimate_task_type()でタスクタイプ推定",
@@ -2836,14 +2083,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション再開時に競合状況警告を表示。",
-      "keywords": [
-        "continue",
-        "fork",
-        "resume",
-        "session",
-        "warning",
-        "worktree"
-      ],
+      "keywords": ["continue", "fork", "resume", "session", "warning", "worktree"],
       "why": "--resume/--continue/--fork-sessionでセッションを再開すると、\n元セッションと重複作業してしまうリスクがある。既存worktreeや\nオープンPRの一覧を表示して、競合を早期に認識させる。",
       "what": "- セッション開始時（SessionStart）に発火\n- sourceがresume/compactの場合のみ処理\n- 既存worktree一覧を取得\n- オープンPR一覧を取得\n- 競合リスクの警告メッセージを表示",
       "remarks": "- 非ブロック型（情報表示のみ）\n- session-handoff-readerは引き継ぎ情報、本フックは競合警告\n- fork-session判定はClaudeがコンテキスト内で実施",
@@ -2856,11 +2096,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時に未完了TODOを検出して警告。",
-      "keywords": [
-        "issue",
-        "session",
-        "todo"
-      ],
+      "keywords": ["issue", "session", "todo"],
       "why": "未完了のTODOがIssue化されないままセッションが終了すると、\nタスクが忘れられる。セッション終了時に警告することで対応漏れを防ぐ。",
       "what": "- セッション終了時（Stop）に発火\n- transcriptからTodoWriteツール呼び出しを解析\n- 未完了かつIssue参照（#xxx）のないTODOを抽出\n- 該当TODOがあれば警告メッセージを表示",
       "remarks": "- 非ブロック型（警告のみ、セッション終了は許可）\n- Issue参照があるTODOはスキップ（Issue化済みと判断）\n- 5件まで表示し、残りは件数のみ表示",
@@ -2873,11 +2109,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時に既存worktreeの状況を確認し警告する。",
-      "keywords": [
-        "session",
-        "status",
-        "worktree"
-      ],
+      "keywords": ["session", "status", "worktree"],
       "why": "別セッションが作業中のworktreeに介入すると、競合やコンフリクトが発生する。\nセッション開始時に既存worktreeの状況を把握することで、問題を未然に防ぐ。",
       "what": "- CWDがworktree内かどうかをチェック\n- 既存worktreeの一覧を取得（git worktree list）\n- 各worktreeの.claude-sessionマーカーを確認\n- 別セッションIDのマーカーがある場合、警告表示\n- 直近1時間以内のコミットがあるworktreeも警告\n- fork-sessionの場合、祖先セッションのworktreeへの介入を禁止警告\n\nState:\nreads: .worktrees/*/.claude-session\nreads: .claude/logs/flow/session-created-issues-*.json",
       "remarks": "- ブロックせず警告のみ（実際のブロックはworktree-session-guard.pyが担当）\n- fork-session-collaboration-advisorは提案、これは警告",
@@ -2890,13 +2122,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "locked-worktree-guard用の低レベルシェルトークン化ユーティリティ。",
-      "keywords": [
-        "guard",
-        "locked",
-        "shell",
-        "tokenizer",
-        "worktree"
-      ],
+      "keywords": ["guard", "locked", "shell", "tokenizer", "worktree"],
       "why": "シェルコマンドを正確に解析するには、シェル演算子やリダイレクト、\n引用符を適切に処理する必要がある。低レベルのトークン化を一箇所に\nまとめることで、コマンド解析の信頼性を向上させる。",
       "what": "- シェル演算子の正規化（&&, ||, ;, |）\n- シェルリダイレクト検出\n- cdターゲット抽出\n- rmコマンドパス抽出\n- gitグローバルフラグからのベースディレクトリ抽出",
       "remarks": "- command_parser.py: 高レベルのコマンド固有解析を担当\n- 本モジュールは汎用的なシェルトークン化に特化\n- 引用符内の演算子処理は妥協（検出のみで実行はしないため許容）",
@@ -2909,11 +2135,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Pythonの関数シグネチャ変更時にテスト更新漏れを検出。",
-      "keywords": [
-        "change",
-        "python",
-        "signature"
-      ],
+      "keywords": ["change", "python", "signature"],
       "why": "関数の引数や戻り値の型を変更した場合、対応するテストも更新する必要がある。\nテスト更新漏れがあると、CI通過後に実際の動作で問題が発生する。",
       "what": "- git diff でPython関数シグネチャ（引数、戻り値）の変更を検出\n- 対応するテストファイル（test_xxx.py）がコミットに含まれているか確認\n- テストファイル更新がない場合に警告を表示\n- .claude/hooks/ と .claude/scripts/ 配下のファイルを対象",
       "remarks": "- 非ブロック型（警告のみ、pushは許可）\n- pre-pushフックとして使用可能\n- ファイル名のハイフンはアンダースコアに変換してテストファイル名を推定",
@@ -2926,10 +2148,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "新規フック作成時に類似コードを検索して参考情報を提供。",
-      "keywords": [
-        "code",
-        "similar"
-      ],
+      "keywords": ["code", "similar"],
       "why": "フック実装時に既存のパターンを知らずに独自実装すると、一貫性が失われ\nレビューで指摘される。類似コードを事前に提示することで品質を向上させる。",
       "what": "- フックファイル（.claude/hooks/*.py）へのWrite/Edit時に発火\n- 新しい関数定義（def xxx）を抽出\n- 既存フックから類似パターン（has_skip_, check_, get_等）を検索\n- 見つかった場合はsystemMessageで参照ファイルを提示",
       "remarks": "- 非ブロック型（情報提供のみ）\n- existing-impl-checkはworktree作成時、本フックはWrite/Edit時\n- 検索パターンは SEARCH_PATTERNS で定義",
@@ -2942,13 +2161,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRマージ後にコードベース内の類似パターンを検索し修正漏れを防ぐ。",
-      "keywords": [
-        "dumps",
-        "json",
-        "pattern",
-        "search",
-        "similar"
-      ],
+      "keywords": ["dumps", "json", "pattern", "search", "similar"],
       "why": "共通パターン（json.dumps等）を修正する際、同様のパターンが他ファイルに\n存在すると修正漏れが発生する。マージ後に自動検索して警告する。",
       "what": "- PRマージ成功後（PostToolUse:Bash）に発火\n- PR diffから関数呼び出しパターンを抽出\n- 変更されたファイル以外で同パターンを検索\n- 見つかった場合はsystemMessageで通知",
       "remarks": "- 非ブロック型（情報提供のみ）\n- duplicate-issue-checkはIssue重複、本フックはコードパターン重複\n- 一般的すぎる関数（print, len等）はCOMMON_FUNCTIONSで除外",
@@ -2961,12 +2174,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Skill呼び出し失敗を検出して調査・Issue化を促す。",
-      "keywords": [
-        "detector",
-        "failure",
-        "issue",
-        "skill"
-      ],
+      "keywords": ["detector", "failure", "issue", "skill"],
       "why": "Skillツールが失敗した場合（ファイル不在等）、手動で回避するだけでは\n根本問題が解決されない。失敗を検出して問題のIssue化を強制する。",
       "what": "- Skillツール実行後（PostToolUse:Skill）に発火\n- ツール結果からエラーパターンを検出\n- 失敗検出時は警告メッセージを表示し、Issue作成を促す\n- worktree削除後の失敗ケースへのヒントも提供",
       "remarks": "- 警告型（ブロックせず、情報提供と行動促進）\n- エラーパターンは _is_skill_failure() で定義\n- 問題を手動回避せず、必ずIssue化することを要求",
@@ -2979,12 +2187,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "特定操作の前にSkill使用を強制。",
-      "keywords": [
-        "reminder",
-        "skill",
-        "usage",
-        "worktree"
-      ],
+      "keywords": ["reminder", "skill", "usage", "worktree"],
       "why": "worktree作成やPR作成時にSkillの手順を確認せずに進めると、\n推奨手順を見落とす。操作前にSkill使用を強制することで品質を担保する。",
       "what": "- 特定コマンド実行前（PreToolUse:Bash）に発火\n- OPERATION_SKILL_MAPで定義されたコマンドパターンを検出\n- transcriptから当該Skillの使用履歴を確認\n- Skill未使用の場合はブロック",
       "remarks": "- ブロック型フック（Skill未使用時はブロック）\n- development-workflow: worktree add, gh pr create, gh pr merge\n- code-review: レビューコメント操作, スレッド解決",
@@ -2997,11 +2200,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時に未レビューの変更を検出しレビュー実行を促す。",
-      "keywords": [
-        "auto",
-        "review",
-        "stop"
-      ],
+      "keywords": ["auto", "review", "stop"],
       "why": "実装完了後にレビューせずセッションを終了すると、動作不備を見逃す。\nセッション終了時に未レビューを検出してレビュー実行を強制する。",
       "what": "- セッション終了時（Stop）に発火\n- main以外のブランチで未プッシュコミットまたは未コミット変更を検出\n- codex reviewの実行履歴を確認\n- 未レビューの場合はセッション終了をブロック\n\nState:\n- reads: .claude/logs/markers/codex-review-*.done\n- writes: /tmp/claude-hooks/stop-auto-review-*.json（リトライカウント）",
       "remarks": "- ブロック型フック（未レビュー時はセッション終了をブロック）\n- MAX_REVIEW_RETRIES（2回）を超えると自動許可\n- SKIP_STOP_AUTO_REVIEW=1でスキップ可能",
@@ -3014,13 +2213,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Pythonフック内の問題のあるsubprocess使用パターンを検出。",
-      "keywords": [
-        "lint",
-        "python",
-        "shell",
-        "subprocess",
-        "true"
-      ],
+      "keywords": ["lint", "python", "shell", "subprocess", "true"],
       "why": "shell=Trueはセキュリティリスク、リスト引数でのシェル演算子は動作しない。\nコミット前にこれらの問題を検出して修正を強制する。",
       "what": "- git commit時（PreToolUse:Bash）に発火\n- .claude/hooks/配下のステージ済みPythonファイルを解析\n- shell=True使用、リスト引数内のシェル演算子を検出\n- 問題がある場合はコミットをブロック",
       "remarks": "- ブロック型フック（問題検出時はコミットをブロック）\n- AST解析でsubprocess.run/call/Popenを検出\n- --jq引数やgit --format内の|はスキップ（Issue #1226）",
@@ -3033,9 +2226,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時に教訓が仕組み化されたか確認する。",
-      "keywords": [
-        "systematization"
-      ],
+      "keywords": ["systematization"],
       "why": "教訓をドキュメント化しただけでは、同じ問題が再発する。\nフック/CI/ツールによる仕組み化を強制することで、再発を防止する。",
       "what": "- 教訓パターン検出（教訓、反省点、学び、気づき、lesson learned等）\n- 仕組み化ファイル変更検出（.claude/hooks/*.py、.github/workflows/*.yml等）\n- 教訓あり＆仕組み化なしの場合にブロック\n- 誤検知緩和（複数インジケータ要求、明示的スキップ許可）",
       "remarks": "- problem-report-checkはIssue作成を確認、本フックは仕組み化を確認\n- 強パターン（「仕組み化が必要」等）は単独でもトリガー\n- 「仕組み化しました」等の完了パターンは誤検知として除外",
@@ -3048,11 +2239,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "仕組み化Issueクローズ時にフック/ツール実装を検証。",
-      "keywords": [
-        "close",
-        "issue",
-        "systematization"
-      ],
+      "keywords": ["close", "issue", "systematization"],
       "why": "「仕組み化」を謳うIssueがドキュメント追加のみでクローズされると、\n強制機構がなく問題が再発する。クローズ前に実装を確認する。",
       "what": "- gh issue close時（PreToolUse:Bash）に発火\n- Issue内容から「仕組み化」系キーワードを検出\n- 関連PRで強制機構ファイル（hooks/workflows/scripts）の変更を確認\n- 強制機構がない場合はクローズをブロック",
       "remarks": "- ブロック型フック（強制機構なしの場合はブロック）\n- systematization-checkはセッション終了時、本フックはIssueクローズ時\n- SKIP_SYSTEMATIZATION_CHECK=1でスキップ可能",
@@ -3065,11 +2252,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "タスク開始時に確認チェックリストをリマインド表示する。",
-      "keywords": [
-        "checklist",
-        "start",
-        "task"
-      ],
+      "keywords": ["checklist", "start", "task"],
       "why": "タスク開始時に要件・設計の確認を怠ると、実装後の手戻りが発生する。\nチェックリストをリマインドすることで、確認漏れを防ぐ。",
       "what": "- セッションの最初のツール実行時にチェックリストを表示\n- 要件確認、設計判断、影響範囲、前提条件のチェック項目を提示\n- systemMessageで情報提供（ブロックしない）\n\nState:\nreads/writes: .claude/state/session-marker/*.json（common.pyの共通機構）",
       "remarks": "- open-issue-reminderはIssue確認、本フックは要件・設計確認\n- common.pyの統一セッションマーカー機構を使用（排他制御付き）",
@@ -3082,11 +2265,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "Python関数/クラス削除時のテスト参照漏れを検出。",
-      "keywords": [
-        "deletion",
-        "python",
-        "test"
-      ],
+      "keywords": ["deletion", "python", "test"],
       "why": "関数やクラスを削除しても、テストファイルに参照が残っているとCIで失敗する。\nコミット前に参照漏れを検出してブロックすることで、CI失敗を防止する。",
       "what": "- git diffでステージ済みの関数/クラス削除を検出\n- 削除されたシンボルへのテストファイル参照をgit grepで検索\n- 参照が残っている場合はコミットをブロック",
       "remarks": "- pre-commitフックとして使用\n- リファクタリング（同名追加）や移動は除外\n- プライベート関数（_prefix）はスキップ\n- 削除元モジュールからインポートしているテストのみ対象（Issue #1958）",
@@ -3099,11 +2278,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ツール呼び出しパターンを追跡し非効率なパターンを検出。",
-      "keywords": [
-        "efficiency",
-        "tool",
-        "tracker"
-      ],
+      "keywords": ["efficiency", "tool", "tracker"],
       "why": "同じファイルの繰り返し読み書きや、同じ検索パターンの重複実行は非効率。\nこれらのパターンを検出して警告することで、作業効率を向上させる。",
       "what": "- 全ツール実行後（PostToolUse）に発火\n- ツール呼び出し履歴をセッション単位で記録\n- 非効率パターンを検出して警告（Read→Edit繰り返し、検索重複等）\n- 検出結果をメトリクスログに記録\n\nState:\n- reads/writes: /tmp/claude-hooks/tool-sequence.json（呼び出し履歴）\n- writes: .claude/logs/metrics/tool-efficiency-metrics.log",
       "remarks": "- 非ブロック型（警告のみ）\n- 10分ウィンドウ内のパターンを検出\n- セッション変更時に履歴リセット",
@@ -3116,11 +2291,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "パッケージマネージャの実行とツール代替パターンを追跡。",
-      "keywords": [
-        "detector",
-        "substitution",
-        "tool"
-      ],
+      "keywords": ["detector", "substitution", "tool"],
       "why": "ツールが失敗した際に、原因調査せずに別ツールに切り替えると根本問題が\n解決されない。パターンを記録して振り返りで分析できるようにする。",
       "what": "- パッケージマネージャコマンド実行後（PostToolUse:Bash）に発火\n- uvx/npm/pip/brew/cargo等のコマンドを検出\n- 実行結果（成功/失敗）をセッション別ログに記録\n- 振り返り時に代替パターンを分析可能に\n\nState:\n- writes: .claude/logs/metrics/tool-substitution-*.jsonl",
       "remarks": "- 非ブロック型（記録のみ、振り返りで分析）\n- 検出対象はTOOL_PATTERNSで定義",
@@ -3133,9 +2304,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "フロントエンド変更時にブラウザ確認を強制。",
-      "keywords": [
-        "reminder"
-      ],
+      "keywords": ["reminder"],
       "why": "フロントエンドファイル変更後にブラウザ確認せずコミットすると、\nランタイムエラーやUI崩れに気づかないまま本番に反映される。",
       "what": "- git commit時（PreToolUse:Bash）に発火\n- frontend/src/配下のTS/TSX/JSON/CSS変更を検出\n- ブラウザ確認マーカーファイルがなければブロック\n- confirm_ui_check.py実行後にコミット可能\n\nState:\n- reads: .claude/logs/markers/ui-check-*.done",
       "remarks": "- ブロック型フック（確認なしはコミット不可）\n- main/masterブランチはスキップ\n- .ts/.tsxはlib/hooks/workersも含む（Issue #209）",
@@ -3148,11 +2317,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ユーザーフィードバック検出時の仕組み化を確認する。",
-      "keywords": [
-        "feedback",
-        "systematization",
-        "user"
-      ],
+      "keywords": ["feedback", "systematization", "user"],
       "why": "ユーザーが問題を指摘した場合、その問題の修正だけでなく、\n類似問題を将来検出できる仕組み化が必要。セッション終了時に\n仕組み化されていなければ警告する。",
       "what": "- セッション状態から `user_feedback_detected` フラグを確認\n- フィードバック検出時、仕組み化ファイル変更を検出\n- 仕組み化なしの場合にACTION_REQUIREDを出力",
       "remarks": "- feedback_detector.py がセッション状態に記録\n- systematization_check.py とは別の観点（ユーザー指摘への対応）\n- ブロックではなく警告（exit 0）",
@@ -3165,13 +2330,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree内でのuv run使用を防止。",
-      "keywords": [
-        "guard",
-        "pyproject",
-        "run",
-        "toml",
-        "worktree"
-      ],
+      "keywords": ["guard", "pyproject", "run", "toml", "worktree"],
       "why": "worktreeにはpyproject.tomlがシンボリックリンクされないため、\nuv runはエラーになる。事前にブロックして代替コマンドを提示する。",
       "what": "- Bashコマンド実行前（PreToolUse:Bash）に発火\n- cwdが.worktrees/内かを確認\n- uv runコマンドを検出したらブロック\n- 代替としてuvxコマンドを提案",
       "remarks": "- ブロック型フック（worktree内のuv runはブロック）\n- ツール名を抽出してuvx推奨コマンドを提示",
@@ -3184,11 +2343,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "曖昧な対策表現（精神論）を検出してブロック。",
-      "keywords": [
-        "action",
-        "block",
-        "vague"
-      ],
+      "keywords": ["action", "block", "vague"],
       "why": "「注意する」「気をつける」「徹底する」といった精神論は再発防止策にならない。\n具体的な仕組み化（フック/CI/スクリプト）を強制することで実効性を担保する。",
       "what": "- セッション終了時（Stop）に発火\n- transcriptから対策文脈の曖昧表現を検出\n- 「守る」「注意」「心がけ」等のパターンをマッチング\n- 曖昧表現があればACTION_REQUIREDで警告",
       "remarks": "- 警告型フック（ACTION_REQUIRED、ブロックはしない）\n- 具体的アクション（Issue作成、フック実装等）があればスキップ\n- systematization-checkは教訓→仕組み化要求、本hookは表現自体を検出",
@@ -3201,13 +2356,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成・PR作成時にdevelopment-workflow Skillを参照するようリマインド。",
-      "keywords": [
-        "development",
-        "reminder",
-        "skill",
-        "workflow",
-        "worktree"
-      ],
+      "keywords": ["development", "reminder", "skill", "workflow", "worktree"],
       "why": "AIエージェントはセッション間で学習しないため「手順は身についている」は誤り。\n常にSkillを参照することで、手順の見落としを防ぐ。",
       "what": "- Bashコマンド実行前（PreToolUse:Bash）に発火\n- git worktree add / gh pr create を検出\n- development-workflow Skill参照のリマインダーを表示\n- チェックリスト付きのメッセージで確認事項を提示",
       "remarks": "- 警告型フック（systemMessage、ブロックしない）\n- hook-change-detectorはフックファイル変更、本フックはワークフロー操作\n- Issue #2387: 「手順が身についている」思考を防止",
@@ -3220,10 +2369,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "ワークフロー実行を検証するユーティリティモジュール。",
-      "keywords": [
-        "verifier",
-        "workflow"
-      ],
+      "keywords": ["verifier", "workflow"],
       "why": "期待されるフック動作と実際の実行結果を比較することで、\nワークフローの進行状況や問題を可視化できる。",
       "what": "- flow_definitions.pyの期待動作とhook-execution.logを比較\n- フェーズごとの進捗状況を算出\n- 予期せぬブロック/承認を検出\n- レポート生成（テキスト/辞書形式）\n\nState:\n- reads: .claude/logs/execution/hook-execution-*.jsonl",
       "remarks": "- フックではなくユーティリティモジュール\n- WorkflowVerifierクラスとverify_current_session関数を提供\n- CLIからも実行可能（--session-id, --since, --verbose）",
@@ -3236,11 +2382,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "PRマージ成功後にworktreeを自動削除。",
-      "keywords": [
-        "auto",
-        "cleanup",
-        "worktree"
-      ],
+      "keywords": ["auto", "cleanup", "worktree"],
       "why": "PRマージ後にworktreeが残るとディスク容量を消費し、管理が煩雑になる。\nマージ成功時に自動削除することで、worktree蓄積を防ぐ。",
       "what": "- gh pr merge成功後（PostToolUse:Bash）に発火\n- コマンドまたは出力からPR番号を抽出\n- 対応するブランチのworktreeを検索\n- ロック解除後にworktreeを削除",
       "remarks": "- 自動化型フック（マージ成功後に即座に実行）\n- cwdがworktree内の場合はスキップ（削除不可）\n- merged-worktree-checkはセッション開始時、本フックはマージ直後",
@@ -3253,13 +2395,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成成功後にsetup_worktree.shを自動実行。",
-      "keywords": [
-        "auto",
-        "pre",
-        "push",
-        "setup",
-        "worktree"
-      ],
+      "keywords": ["auto", "pre", "push", "setup", "worktree"],
       "why": "worktree作成後に依存インストールを忘れると、pre-pushフック等が失敗する。\n自動実行することで、依存インストール漏れを防ぐ。",
       "what": "- git worktree add成功後（PostToolUse:Bash）に発火\n- コマンドからworktreeパスを抽出\n- .claude/scripts/setup_worktree.shを実行\n- 結果をsystemMessageで通知",
       "remarks": "- 自動化型フック（worktree作成成功後に即座に実行）\n- setup_worktree.shがプロジェクト種別を自動検出（pnpm/npm等）\n- 失敗時は警告のみ（ブロックしない）",
@@ -3272,11 +2408,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション終了時にマージ/クローズ済みPRのworktreeクリーンアップを提案。",
-      "keywords": [
-        "cleanup",
-        "suggester",
-        "worktree"
-      ],
+      "keywords": ["cleanup", "suggester", "worktree"],
       "why": "PRがマージ/クローズされた後もworktreeが残ると管理が煩雑になる。\nセッション終了時に提案することで、不要なworktreeの蓄積を防ぐ。",
       "what": "- セッション終了時（Stop）に発火\n- cwdがworktree内かを確認\n- 関連PRの状態（MERGED/CLOSED）をチェック\n- マージ/クローズ済みならクリーンアップ手順を提案",
       "remarks": "- 提案型フック（ブロックせず、systemMessageで案内）\n- ロック中のworktreeはスキップ（別セッション使用中の可能性）\n- worktree-auto-cleanupはマージ直後、本フックはセッション終了時",
@@ -3289,12 +2421,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "セッション開始時にworktree内のコミット整合性をチェック。",
-      "keywords": [
-        "commit",
-        "integrity",
-        "issue",
-        "worktree"
-      ],
+      "keywords": ["commit", "integrity", "issue", "worktree"],
       "why": "セッション引き継ぎ時、worktreeに複数Issueの変更が混在していると\n状態が混乱する。開始時にチェックして問題を早期に警告する。",
       "what": "- セッション開始時（SessionStart）に発火\n- main..HEADのコミット履歴を取得\n- コミットメッセージからIssue番号を抽出\n- 複数Issue混在やマージ済みコミットがあれば警告\n\nState:\n- writes: .claude/logs/flow/worktree-integrity-*.jsonl",
       "remarks": "- 警告型フック（ブロックしない）\n- cwdがworktree外ならスキップ\n- session-worktree-statusは一般警告、本フックはコミット内容分析",
@@ -3307,11 +2434,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成時にセッションIDをマーカーファイルとして記録する。",
-      "keywords": [
-        "creation",
-        "marker",
-        "worktree"
-      ],
+      "keywords": ["creation", "marker", "worktree"],
       "why": "worktreeの所有者（作成セッション）を記録することで、\n別セッションによる誤介入を防止できる。",
       "what": "- git worktree addコマンドの成功を検出\n- 作成されたworktreeにセッションIDを.claude-sessionとして記録\n- worktree-session-guard.pyがこのマーカーを参照\n\nState:\nwrites: .worktrees/*/.claude-session",
       "remarks": "- ブロックせず情報記録のみ\n- worktree-session-guard.pyと連携（マーカー作成→マーカー検証）\n- JSON形式でsession_idとcreated_atを記録",
@@ -3324,12 +2447,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成前にmainブランチが最新か確認。",
-      "keywords": [
-        "freshness",
-        "main",
-        "pull",
-        "worktree"
-      ],
+      "keywords": ["freshness", "main", "pull", "worktree"],
       "why": "PRマージ後にローカルmainをpullし忘れると、古いコードをベースに\nworktreeが作成される。事前チェックで最新化を強制する。",
       "what": "- git worktree add ... main コマンド実行前（PreToolUse:Bash）に発火\n- worktree内からのworktree作成を検出してブロック（ネスト防止）\n- origin/mainをfetchしてローカルmainと比較\n- 遅れている場合は自動pull、失敗時はブロック",
       "remarks": "- ブロック型フック（mainが古い場合はブロック）\n- git -Cオプションをサポート（worktree内からメインリポジトリ指定可）\n- 自動pullを試行、失敗時のみ手動対応を要求",
@@ -3342,12 +2460,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree状態管理のユーティリティモジュール。",
-      "keywords": [
-        "guard",
-        "locked",
-        "manager",
-        "worktree"
-      ],
+      "keywords": ["guard", "locked", "manager", "worktree"],
       "why": "locked-worktree-guard等の複数フックでworktree操作が必要。\n共通のworktree操作関数を提供することで、重複実装を避ける。",
       "what": "- worktree一覧取得（パス、ブランチ、ロック状態）\n- セッション所有権チェック（SESSION_MARKER_FILE）\n- アクティブな作業の兆候検出（未コミット変更、最近のコミット）\n- rm対象のworktree検出",
       "remarks": "- フックではなくユーティリティモジュール\n- locked-worktree-guard, worktree-auto-cleanup等から使用\n- fail-open設計（エラー時はブロックしない）",
@@ -3360,12 +2473,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree作成先が.worktrees/内かを検証。",
-      "keywords": [
-        "guard",
-        "path",
-        "worktree",
-        "worktrees"
-      ],
+      "keywords": ["guard", "path", "worktree", "worktrees"],
       "why": "worktreeがファイルシステム全体に散らばると管理が困難になる。\n.worktrees/に集約することで一覧確認が容易になり、他エージェントとの競合も避けられる。",
       "what": "- git worktree addコマンド実行前（PreToolUse:Bash）に発火\n- パス引数を抽出して.worktrees/配下かを検証\n- 絶対パスや..を使った迂回パスもブロック\n- 正しい使い方を提示",
       "remarks": "- ブロック型フック（.worktrees/外への作成はブロック）\n- worktree-main-freshness-checkはmain最新確認、本フックはパス検証",
@@ -3378,12 +2486,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "worktree削除前にアクティブな作業やcwd衝突を検出。",
-      "keywords": [
-        "cwd",
-        "enoent",
-        "removal",
-        "worktree"
-      ],
+      "keywords": ["cwd", "enoent", "removal", "worktree"],
       "why": "別セッション作業中や、cwdが削除対象内にある状態でworktreeを削除すると、\nセッション破損（ENOENT）や作業消失が発生する。削除前に検出してブロックする。",
       "what": "- git worktree remove実行前（PreToolUse:Bash）に発火\n- コマンドからworktreeパスを抽出\n- 別セッションのマーカーファイルを確認（30分以内なら作業中）\n- マージ済みPRがあればcwd/作業チェックをスキップ\n- cwdが削除対象内ならブロック\n- 未コミット変更・最近のコミット・stashがあれば警告\n\nState:\n- reads: .worktrees/*/.claude-session",
       "remarks": "- ブロック型フック（危険な削除はブロック）\n- 別セッションチェックは--forceでもバイパス不可\n- マージ済みPRならcwdチェックをスキップ（Issue #1809）\n- SKIP_WORKTREE_CHECK=1で全チェックをバイパス可能",
@@ -3396,11 +2499,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "別セッションが作業中のworktreeへの誤介入を防止する。",
-      "keywords": [
-        "guard",
-        "session",
-        "worktree"
-      ],
+      "keywords": ["guard", "session", "worktree"],
       "why": "別セッションが作業中のworktreeを編集すると、競合やコンフリクトが発生し、\n両セッションの作業が無駄になる。セッションマーカーで所有権を確認し、\n別セッションのworktreeへの編集をブロックする。",
       "what": "- Edit対象ファイルが.worktrees/配下かチェック\n- 該当worktreeの.claude-sessionマーカーを読む\n- 現在のセッションIDと比較\n- 不一致ならブロック（別セッションが作業中）\n- 一致またはマーカーなしなら許可\n\nState:\nreads: .worktrees/*/.claude-session",
       "remarks": "- worktree-creation-marker.pyがマーカー作成、本フックがマーカー検証\n- session-worktree-status.pyは警告、本フックはブロック",
@@ -3413,11 +2512,7 @@
       "type": "hook",
       "hook_type": "unknown",
       "summary": "mainブランチでの編集をブロックし、worktreeでの作業を強制する。",
-      "keywords": [
-        "main",
-        "warning",
-        "worktree"
-      ],
+      "keywords": ["main", "warning", "worktree"],
       "why": "mainで直接編集すると競合やレビューなしの変更が発生するリスクがある。\nロック中のworktreeは別セッションが作業中の可能性がある。",
       "what": "- main/masterブランチでEdit/Write時にブロック\n- ロック中worktreeでの編集時に警告\n- worktree作成手順を提示",
       "remarks": "- ブロック型フック（mainでの編集はブロック）\n- .claude/plans/は例外として許可（Issue #844）\n- worktree-session-guardはセッション間競合、本フックはブランチ保護",
@@ -3703,7 +2798,7 @@
       "language": "python",
       "summary": "開発フローファイルからインデックスを自動生成し、.fdp/に出力する。",
       "why": "FDPの移植性向上のため、各プロジェクトが自己完結したドキュメントを生成する。\ndocstring/Markdown/YAMLから自動的にインデックス情報を抽出し、\nフロー図やカタログも同時に生成する。",
-      "what": "1. hooks/*.py - docstringからWhy/What/Remarksを抽出\n2. scripts/*.py - docstringからWhy/What/Remarksを抽出\n3. skills/*/SKILL.md - Markdownから説明を抽出\n4. flow_definitions.py - 開発フェーズ情報を抽出\n5. .fdp/に以下を出力:\n   - index.json（機械処理用）\n   - README.md（機能カタログ）\n   - flows.md（Mermaidフロー図）\n   - prompts/（生成・参照用プロンプト）",
+      "what": "1. hooks/*.py - docstringからWhy/What/Remarksを抽出\n2. scripts/*.py - docstringからWhy/What/Remarksを抽出\n3. skills/*/SKILL.md - Markdownから説明を抽出\n4. flow_definitions.py - 開発フェーズ情報を抽出\n5. .fdp/に以下を出力:\n   - index.json（機械処理用）\n   - README.md（機能カタログ）\n   - prompts/（生成・参照用プロンプト）",
       "remarks": "- ASTでPython docstringを抽出\n- 正規表現でMarkdownセクションを抽出\n- settings.jsonからhookトリガー情報を追加\n- flow_definitions.pyからDEVELOPMENT_PHASESを抽出"
     },
     {
@@ -4039,10 +3134,7 @@
       "name": "ローカルAIレビュー",
       "description": "codex reviewの実行",
       "order": 5,
-      "expected_hooks": [
-        "codex_review_logger",
-        "codex_review_output_logger"
-      ],
+      "expected_hooks": ["codex_review_logger", "codex_review_output_logger"],
       "trigger_step": "committed",
       "completion_step": "pushed"
     },
@@ -4117,9 +3209,7 @@
       "name": "クリーンアップ",
       "description": "worktree削除とmain pull",
       "order": 10,
-      "expected_hooks": [
-        "worktree_removal_check"
-      ],
+      "expected_hooks": ["worktree_removal_check"],
       "trigger_step": "merged",
       "completion_step": "cleaned_up"
     },
@@ -4128,10 +3218,7 @@
       "name": "本番確認",
       "description": "本番環境でのデプロイ確認",
       "order": 11,
-      "expected_hooks": [
-        "production_url_warning",
-        "secret_deploy_trigger"
-      ],
+      "expected_hooks": ["production_url_warning", "secret_deploy_trigger"],
       "trigger_step": "merged",
       "completion_step": null
     },

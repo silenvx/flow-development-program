@@ -18,7 +18,6 @@ python3 .claude/scripts/generate_index.py
 |---------|------|
 | `.fdp/index.json` | 機械処理用インデックス |
 | `.fdp/README.md` | 機能カタログ |
-| `.fdp/flows.md` | Mermaidフロー図 |
 
 ---
 
