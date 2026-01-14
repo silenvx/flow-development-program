@@ -27,6 +27,8 @@ Changelog:
     - silenvx/dekita#2289: already_handled_check観点を追加
     - silenvx/dekita#2290: meta_reflection観点を追加
     - silenvx/dekita#2582: implementation_verification観点を追加
+    - silenvx/dekita#2771: inconsistency_reality_check観点を追加
+    - silenvx/dekita#2779: followup_issue_check観点を追加
 """
 
 from __future__ import annotations
@@ -123,6 +125,42 @@ PERSPECTIVES = [
             r"実際.*テスト",
             r"実データ.*確認",
             r"動作確認.*不要",  # "動作確認不要"（ドキュメント変更など）も許容
+        ],
+    },
+    # Issue #2771: 不整合発見時に実態を確認して正解を判断する
+    {
+        "id": "inconsistency_reality_check",
+        "name": "不整合発見時の実態確認",
+        "description": "不整合・矛盾を発見した際、テストや既存コードの期待値を鵜呑みにせず、実態（ファイル名、過去のリファクタリング等）を確認して正解を判断したか",
+        "keywords": [
+            r"不整合.*実態",
+            r"矛盾.*確認",
+            r"ファイル名.*確認",
+            r"過去.*変更.*確認",
+            r"リファクタ.*確認",
+            r"正しい.*状態",
+            r"実態.*判断",
+            r"実際.*ファイル",
+            r"不整合.*なし",  # "不整合なし" も許容
+        ],
+    },
+    # Issue #2779: セッション中の「後で対応」発言がIssue化されているか確認
+    {
+        "id": "followup_issue_check",
+        "name": "「後で対応」発言のIssue化確認",
+        "description": "セッション中に「別途対応」「後で」「将来的に」等と発言した問題が、Issue化されているか確認したか",
+        "keywords": [
+            r"別途対応.*Issue",
+            r"後で.*Issue",
+            r"将来.*Issue",
+            r"フォローアップ.*#\d+",
+            r"スコープ外.*#\d+",
+            r"別途.*#\d+",
+            r"後で.*#\d+",  # "後で #123 で対応" も許容
+            r"将来.*#\d+",  # "将来 #456 で対応" も許容
+            r"後で.*なし",  # "「後で」発言なし" も許容
+            r"フォローアップ.*なし",
+            r"別途対応.*なし",
         ],
     },
 ]

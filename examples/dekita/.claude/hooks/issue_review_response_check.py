@@ -13,7 +13,7 @@ What:
 
 Remarks:
     - ブロック型フック
-    - issue-ai-review.pyはレビュー実行、本フックはレビュー対応確認
+    - issue_ai_review.pyはレビュー実行、本フックはレビュー対応確認
     - コメントでの対応理由説明も有効な対応として扱う
 
 Changelog:

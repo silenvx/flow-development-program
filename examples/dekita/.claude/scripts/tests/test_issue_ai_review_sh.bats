@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Tests for issue-ai-review.sh
+# Tests for issue_ai_review.sh
 #
 # Requirements:
 #   - bats-core: brew install bats-core
@@ -16,7 +16,7 @@ setup() {
     # Source the script directory
     SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
     export SCRIPT_DIR
-    SCRIPT_PATH="$SCRIPT_DIR/issue-ai-review.sh"
+    SCRIPT_PATH="$SCRIPT_DIR/issue_ai_review.sh"
     export SCRIPT_PATH
 }
 

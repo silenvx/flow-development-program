@@ -23,13 +23,16 @@ FDP関連ファイル（`.claude/`、`AGENTS.md`等）のみを含み、アプ�
 ```text
 flow-development-program/
 ├── README.md
-├── prompts/                  # Claudeに実行させるプロンプト
-│   ├── explain-all.md        # 全ファイル説明
-│   ├── export-to-fdp.md      # FDPへの同期（公開用）
-│   └── import-from-fdp.md    # 参照リポジトリからのインポート
-├── examples/
-│   └── <project>/            # 実装例（公開対象）
-└── generated/                # 生成された説明ファイル
+├── prompts/                  # FDP操作用プロンプト
+│   └── export-to-fdp.md      # プロジェクト → FDPへの同期
+└── examples/
+    └── <project>/            # 実装例（公開対象）
+        └── .fdp/             # 各プロジェクトのFDP設定
+            ├── index.json    # フック/スクリプト/スキル一覧
+            ├── flows.md      # 開発フロー図（Mermaid）
+            ├── README.md     # フック詳細説明
+            └── prompts/      # プロジェクト固有プロンプト
+                └── generate-flows.md  # flows.md生成用
 ```
 
 ## 使い方
@@ -45,21 +48,12 @@ flow-development-program/
 - **セキュリティ**: 外部コードをそのまま実行するのは危険
 - **適応**: プロジェクト固有の要件に最適化
 
-参照リポジトリのパターンを再実装するには：
+参照手順：
 
-```text
-prompts/import-from-fdp.md を読んで、worktree保護のパターンを再実装してください
-```
-
-### ファイル説明の生成
-
-ファイルの説明を生成するには：
-
-```text
-prompts/explain-all.md を読んで、examples/<project>/ の全ファイルを説明してください
-```
-
-[generated/explain-all/](generated/explain-all/) に説明ファイルが生成されます。
+1. [examples/](examples/) で目的のパターンを探す
+2. `.fdp/flows.md` でフローを確認
+3. `.fdp/README.md` でフック詳細を確認
+4. 自プロジェクトに合わせて再実装
 
 ### FDPへの同期
 

@@ -14,7 +14,7 @@ What:
 
 Remarks:
     - 同期実行（レビュー完了まで待機）
-    - issue-ai-review.shスクリプトを呼び出し
+    - issue_ai_review.shスクリプトを呼び出し
 
 Changelog:
     - silenvx/dekita#xxx: フック追加
@@ -55,7 +55,7 @@ def extract_issue_number(output: str) -> int | None:
 def run_ai_review(issue_number: int) -> str | None:
     """Run AI reviews synchronously and return the review content.
 
-    Calls issue-ai-review.sh which runs Gemini and Codex reviews,
+    Calls issue_ai_review.sh which runs Gemini and Codex reviews,
     then fetches the review comment from the issue.
 
     Returns:
@@ -63,7 +63,7 @@ def run_ai_review(issue_number: int) -> str | None:
     """
     project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
     scripts_dir = Path(project_dir) / ".claude" / "scripts"
-    review_script = scripts_dir / "issue-ai-review.sh"
+    review_script = scripts_dir / "issue_ai_review.sh"
 
     if not review_script.exists():
         log_hook_execution(

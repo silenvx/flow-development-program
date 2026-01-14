@@ -12,7 +12,7 @@ Git Worktreeを使用した開発フローの詳細手順。
 ## 基本フロー
 
 1. `git worktree add --lock .worktrees/<name> -b <branch>` - Worktree作成
-2. `.claude/scripts/setup-worktree.sh .worktrees/<name>` - 依存インストール（自動検出）
+2. `.claude/scripts/setup_worktree.sh .worktrees/<name>` - 依存インストール（自動検出）
 3. `cd .worktrees/<name>` - worktreeに移動
 4. `git fetch origin main && git diff HEAD..origin/main -- <変更予定ファイル>` - **main最新確認**
 5. 作業・コミット

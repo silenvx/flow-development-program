@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Tests for setup-agent-cli.sh
+# Tests for setup_agent_cli.sh
 #
 # Requirements:
 #   - bats-core: brew install bats-core
@@ -41,7 +41,7 @@ load_script() {
     tmp_script=$(mktemp)
     # Ensure cleanup on failure
     trap '/bin/rm -f "$tmp_script"' RETURN
-    sed -e '/^set -euo pipefail$/d' -e '/^main "\$@"$/d' "$SCRIPT_DIR/setup-agent-cli.sh" > "$tmp_script"
+    sed -e '/^set -euo pipefail$/d' -e '/^main "\$@"$/d' "$SCRIPT_DIR/setup_agent_cli.sh" > "$tmp_script"
     # shellcheck disable=SC1090
     source "$tmp_script"
 }
@@ -281,7 +281,7 @@ MOCK
 @test "main runs without --verify flag" {
     SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 
-    run bash "$SCRIPT_DIR/setup-agent-cli.sh"
+    run bash "$SCRIPT_DIR/setup_agent_cli.sh"
 
     # Should complete successfully (even if codex/gemini not installed)
     [ "$status" -eq 0 ]
@@ -290,7 +290,7 @@ MOCK
 @test "main shows usage information" {
     SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 
-    run bash "$SCRIPT_DIR/setup-agent-cli.sh"
+    run bash "$SCRIPT_DIR/setup_agent_cli.sh"
 
     # Should show usage info (Japanese)
     [[ "$output" == *"使用方法"* ]]

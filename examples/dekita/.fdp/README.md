@@ -1,12 +1,10 @@
 # dekita 機能カタログ
 
-生成日時: 2026-01-12
+生成日時: 2026-01-14
 
 ## 概要
 
-dekita! - ハンズオン・ワークショップ向けのリアルタイム進捗共有ツール
-
-AIエージェント（Claude Code）による開発フローを186個のフックで制御。
+このプロジェクトの開発フロー構成要素。
 
 ## 統計
 
@@ -15,7 +13,7 @@ AIエージェント（Claude Code）による開発フローを186個のフッ�
 | フック | 186 |
 | スクリプト | 47 |
 | スキル | 9 |
-| ドキュメント | 2 |
+| フェーズ | 13 |
 
 ---
 
@@ -159,7 +157,7 @@ AIエージェント（Claude Code）による開発フローを186個のフッ�
 | `review_checker` | merge-checkフックのレビューコメント・スレッド検証機能。 |
 | `review_promise_tracker` | レビュー返信で「別Issue対応」と約束した場合のIssue作成追跡フック。 |
 | `reviewer_removal_check` | PreToolUse hook: Block removal of AI reviewers from PRs. |
-| `rework_tracker` |  |
+| `rework_tracker` | （説明なし） |
 | `script_test_reminder` | PostToolUse hook: Remind to add tests when new functions are added to scripts. |
 | `secret_deploy_check` | Stop hook to verify frontend secrets have been deployed. |
 | `secret_deploy_trigger` | PostToolUse hook to track frontend secret updates. |
@@ -199,7 +197,7 @@ AIエージェント（Claude Code）による開発フローを186個のフッ�
 | `workflow_skill_reminder` | worktree作成・PR作成時にdevelopment-workflow Skillを参照するようリマインド。 |
 | `workflow_verifier` | ワークフロー実行を検証するユーティリティモジュール。 |
 | `worktree_auto_cleanup` | PRマージ成功後にworktreeを自動削除。 |
-| `worktree_auto_setup` | worktree作成成功後にsetup-worktree.shを自動実行。 |
+| `worktree_auto_setup` | worktree作成成功後にsetup_worktree.shを自動実行。 |
 | `worktree_cleanup_suggester` | セッション終了時にマージ/クローズ済みPRのworktreeクリーンアップを提案。 |
 | `worktree_commit_integrity_check` | セッション開始時にworktree内のコミット整合性をチェック。 |
 | `worktree_creation_marker` | worktree作成時にセッションIDをマーカーファイルとして記録する。 |
@@ -243,7 +241,7 @@ AIエージェント（Claude Code）による開発フローを186個のフッ�
 | `evaluate-issue-decisions` | Issue判定の妥当性を評価する。 |
 | `flow_status` | セッション内のフロー進捗状況を表示する。 |
 | `generate_dashboard` | 開発フローログからHTMLダッシュボードを生成する。 |
-| `generate_index` | 開発フローファイルからインデックスを自動生成する。 |
+| `generate_index` | 開発フローファイルからインデックスを自動生成し、.fdp/に出力する。 |
 | `hook_lint` | フック専用のカスタムLintルールを適用する。 |
 | `migrate_hook_context` | フックをHookContextパターンに移行する。 |
 | `pr_merge_workflow` | PRライフサイクル全体を自動化する統合ワークフロー。 |
@@ -257,12 +255,12 @@ AIエージェント（Claude Code）による開発フローを186個のフッ�
 | `update_secret` | GitHub Secretを更新し本番デプロイを実行する。 |
 | `validate_hooks_settings` | settings.json内のフックファイル参照を検証する。 |
 | `validate_lefthook` | lefthook.yml設定を検証する。 |
-| `codex-design-review` | Codex CLIで設計品質重視のコードレビューを実行する。 |
-| `issue-ai-review` | GeminiとCodexでIssueをレビューし結果をコメント投稿する。 |
-| `setup-agent-cli` | Agent CLI（Gemini/Codex）の初期セットアップ。 |
-| `setup-worktree` | Worktree作成後の自動セットアップ。 |
+| `codex_design_review` | Codex CLIで設計品質重視のコードレビューを実行する。 |
+| `issue_ai_review` | GeminiとCodexでIssueをレビューし結果をコメント投稿する。 |
+| `setup_agent_cli` | Agent CLI（Gemini/Codex）の初期セットアップ。 |
+| `setup_worktree` | Worktree作成後の自動セットアップ。 |
 | `statusline` | Claude Codeステータスラインの動的生成。 |
-| `update-codex-marker-on-rebase` | リベース/amend後にCodexレビューマーカーを自動更新する。 |
+| `update_codex_marker_on_rebase` | リベース/amend後にCodexレビューマーカーを自動更新する。 |
 
 ---
 
@@ -287,5 +285,5 @@ AIエージェント（Claude Code）による開発フローを186個のフッ�
 各フックの詳細（Why/What/keywords）は `index.json` を参照:
 
 ```bash
-jq '.hooks[] | select(.name == "merge_check")' .claude/index.json
+jq '.hooks[] | select(.name == "merge_check")' .fdp/index.json
 ```

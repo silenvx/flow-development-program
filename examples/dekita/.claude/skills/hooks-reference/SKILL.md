@@ -502,7 +502,7 @@ except OSError:
 
 - **目的**: worktree作成後の依存関係自動インストール
 - **トリガー**: `git worktree add` 成功後
-- **動作**: `setup-worktree.sh` を自動実行（pnpm install等）
+- **動作**: `setup_worktree.sh` を自動実行（pnpm install等）
 - **ブロック**: しない（PostToolUseで非ブロッキング実行）
 
 ### ブロック改善リマインダー (`block_improvement_reminder.py`)

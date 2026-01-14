@@ -11,7 +11,7 @@
 #     - setup_codex_cli(): Codex CLIの存在確認
 #
 # Remarks:
-#     - Usage: .claude/scripts/setup-agent-cli.sh [--verify]
+#     - Usage: .claude/scripts/setup_agent_cli.sh [--verify]
 #     - ~/.gemini/settings.jsonにモデル設定を書き込む
 #     - jqがある場合は既存設定を保持して更新
 #

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""worktree作成成功後にsetup-worktree.shを自動実行。
+"""worktree作成成功後にsetup_worktree.shを自動実行。
 
 Why:
     worktree作成後に依存インストールを忘れると、pre-pushフック等が失敗する。
@@ -8,12 +8,12 @@ Why:
 What:
     - git worktree add成功後（PostToolUse:Bash）に発火
     - コマンドからworktreeパスを抽出
-    - .claude/scripts/setup-worktree.shを実行
+    - .claude/scripts/setup_worktree.shを実行
     - 結果をsystemMessageで通知
 
 Remarks:
     - 自動化型フック（worktree作成成功後に即座に実行）
-    - setup-worktree.shがプロジェクト種別を自動検出（pnpm/npm等）
+    - setup_worktree.shがプロジェクト種別を自動検出（pnpm/npm等）
     - 失敗時は警告のみ（ブロックしない）
 
 Changelog:
@@ -57,7 +57,7 @@ def extract_worktree_path(command: str, cwd: Path) -> Path | None:
 
 
 def run_setup_worktree(worktree_path: Path) -> tuple[bool, str]:
-    """Run setup-worktree.sh for the given worktree.
+    """Run setup_worktree.sh for the given worktree.
 
     Args:
         worktree_path: Absolute path to the worktree
@@ -65,14 +65,14 @@ def run_setup_worktree(worktree_path: Path) -> tuple[bool, str]:
     Returns:
         Tuple of (success, message)
     """
-    # Find setup-worktree.sh script
+    # Find setup_worktree.sh script
     project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
     if not project_dir:
         return False, "CLAUDE_PROJECT_DIR not set"
 
-    script_path = Path(project_dir) / ".claude" / "scripts" / "setup-worktree.sh"
+    script_path = Path(project_dir) / ".claude" / "scripts" / "setup_worktree.sh"
     if not script_path.exists():
-        return False, f"setup-worktree.sh not found at {script_path}"
+        return False, f"setup_worktree.sh not found at {script_path}"
 
     try:
         result = subprocess.run(
@@ -86,18 +86,18 @@ def run_setup_worktree(worktree_path: Path) -> tuple[bool, str]:
         if result.returncode == 0:
             return True, "Dependencies installed successfully"
         error_output = result.stderr.strip() or result.stdout.strip() or "Unknown error"
-        return False, f"setup-worktree.sh failed: {error_output[:200]}"
+        return False, f"setup_worktree.sh failed: {error_output[:200]}"
 
     except subprocess.TimeoutExpired:
-        return False, "setup-worktree.sh timed out"
+        return False, "setup_worktree.sh timed out"
     except Exception as e:
-        return False, f"Failed to run setup-worktree.sh: {e}"
+        return False, f"Failed to run setup_worktree.sh: {e}"
 
 
 def main():
     """PostToolUse hook for Bash commands.
 
-    Automatically run setup-worktree.sh after successful worktree creation.
+    Automatically run setup_worktree.sh after successful worktree creation.
     """
     result = {"continue": True}
 
@@ -142,8 +142,8 @@ def main():
             print(json.dumps(result))
             return
 
-        # Run setup-worktree.sh
-        # Note: setup-worktree.sh handles project type detection (package.json, pyproject.toml)
+        # Run setup_worktree.sh
+        # Note: setup_worktree.sh handles project type detection (package.json, pyproject.toml)
         # so we don't duplicate that check here
         success, message = run_setup_worktree(worktree_path)
 
@@ -163,7 +163,7 @@ def main():
             result["systemMessage"] = (
                 f"⚠️ worktree自動セットアップ失敗: {worktree_path.name}\n"
                 f"   {message}\n"
-                f"   手動で実行してください: .claude/scripts/setup-worktree.sh .worktrees/{worktree_path.name}"
+                f"   手動で実行してください: .claude/scripts/setup_worktree.sh .worktrees/{worktree_path.name}"
             )
             log_hook_execution(
                 "worktree-auto-setup",

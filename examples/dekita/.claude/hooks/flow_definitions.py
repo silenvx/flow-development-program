@@ -142,10 +142,10 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="セッション開始時の自動フック発動",
         order=0,
         expected_hooks=[
-            "date-context-injector",
+            "date_context_injector",
             "check-lefthook.sh",
-            "session-handoff-reader",
-            "open-pr-warning",
+            "session_handoff_reader",
+            "open_pr_warning",
             "branch_check",
         ],
         trigger_step=None,
@@ -157,11 +157,11 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="Issue/worktree/PRの確認",
         order=1,
         expected_hooks=[
-            "open-issue-reminder",
-            "task-start-checklist",
-            "research-requirement-check",
-            "planning-enforcement",
-            "locked-worktree-guard",
+            "open_issue_reminder",
+            "task_start_checklist",
+            "research_requirement_check",
+            "planning_enforcement",
+            "locked_worktree_guard",
         ],
         trigger_step=None,
         completion_step="worktree_created",
@@ -172,15 +172,15 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="Issue用worktreeの作成",
         order=2,
         expected_hooks=[
-            "worktree-path-guard",
-            "orphan-worktree-check",
-            "merged-worktree-check",
-            "active-worktree-check",
-            "issue-auto-assign",
-            "development-workflow-tracker",
-            "git-operations-tracker",
-            "flow-progress-tracker",
-            "worktree-main-freshness-check",  # Issue #931
+            "worktree_path_guard",
+            "orphan_worktree_check",
+            "merged_worktree_check",
+            "active_worktree_check",
+            "issue_auto_assign",
+            "development_workflow_tracker",
+            "git_operations_tracker",
+            "flow_progress_tracker",
+            "worktree_main_freshness_check",  # Issue #931
         ],
         trigger_step="worktree_created",
         completion_step="worktree_created",
@@ -191,15 +191,15 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="コード編集・変更",
         order=3,
         expected_hooks=[
-            "worktree-warning",
-            "empty-return-check",
-            "ui-check-reminder",
-            "dependency-check-reminder",
-            "hooks-design-check",
-            "rework-tracker",
-            "tool-efficiency-tracker",
-            "exploration-tracker",
-            "research-tracker",
+            "worktree_warning",
+            "empty_return_check",
+            "ui_check_reminder",
+            "dependency_check_reminder",
+            "hooks_design_check",
+            "rework_tracker",
+            "tool_efficiency_tracker",
+            "exploration_tracker",
+            "research_tracker",
         ],
         trigger_step="worktree_created",
         completion_step="committed",
@@ -210,11 +210,11 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="lint/test/typecheckの実行",
         order=4,
         expected_hooks=[
-            "python-lint-check",
-            "existing-impl-check",
-            "bash-failure-tracker",
-            "e2e-test-check",
-            "e2e-test-recorder",
+            "python_lint_check",
+            "existing_impl_check",
+            "bash_failure_tracker",
+            "e2e_test_check",
+            "e2e_test_recorder",
         ],
         trigger_step="implementation",
         completion_step="committed",
@@ -225,8 +225,8 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="codex reviewの実行",
         order=5,
         expected_hooks=[
-            "codex-review-logger",
-            "codex-review-output-logger",
+            "codex_review_logger",
+            "codex_review_output_logger",
         ],
         trigger_step="committed",
         completion_step="pushed",
@@ -237,13 +237,13 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="PRの作成とレビュー依頼",
         order=6,
         expected_hooks=[
-            "codex-review-check",
-            "pr-scope-check",
-            "closes-keyword-check",
-            "closes-validation",
-            "pr-issue-assign-check",
-            "pr-overlap-check",
-            "pr-issue-alignment-check",
+            "codex_review_check",
+            "pr_scope_check",
+            "closes_keyword_check",
+            "closes_validation",
+            "pr_issue_assign_check",
+            "pr_overlap_check",
+            "pr_issue_alignment_check",
             "pr_metrics_collector",
         ],
         trigger_step="pushed",
@@ -255,10 +255,10 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="問題発見時のIssue作成",
         order=7,
         expected_hooks=[
-            "issue-label-check",
-            "issue-scope-check",
-            "issue-creation-tracker",
-            "issue-ai-review",
+            "issue_label_check",
+            "issue_scope_check",
+            "issue_creation_tracker",
+            "issue_ai_review",
         ],
         trigger_step=None,  # Can happen at any time
         completion_step=None,
@@ -269,13 +269,13 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="CI完了待ちとレビューコメント対応",
         order=8,
         expected_hooks=[
-            "ci-wait-check",
-            "ci-recovery-tracker",
-            "copilot-review-retry-suggestion",
-            "issue-comments-check",
-            "issue-review-response-check",
-            "recurring-problem-block",
-            "reflection-reminder",
+            "ci_wait_check",
+            "ci_recovery_tracker",
+            "copilot_review_retry_suggestion",
+            "issue_comments_check",
+            "issue_review_response_check",
+            "recurring_problem_block",
+            "reflection_reminder",
         ],
         trigger_step="pr_created",
         completion_step="ci_passed",
@@ -286,13 +286,13 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="PRのマージ",
         order=9,
         expected_hooks=[
-            "merge-check",
-            "reviewer-removal-check",
-            "force-push-guard",
-            "issue-incomplete-close-check",
-            "worktree-auto-cleanup",
-            "pr-merge-pull-reminder",
-            "resolve-thread-guard",  # Issue #931
+            "merge_check",
+            "reviewer_removal_check",
+            "force_push_guard",
+            "issue_incomplete_close_check",
+            "worktree_auto_cleanup",
+            "pr_merge_pull_reminder",
+            "resolve_thread_guard",  # Issue #931
         ],
         trigger_step="ci_passed",
         completion_step="merged",
@@ -303,7 +303,7 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="worktree削除とmain pull",
         order=10,
         expected_hooks=[
-            "worktree-removal-check",
+            "worktree_removal_check",
         ],
         trigger_step="merged",
         completion_step="cleaned_up",
@@ -314,8 +314,8 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="本番環境でのデプロイ確認",
         order=11,
         expected_hooks=[
-            "production-url-warning",
-            "secret-deploy-trigger",
+            "production_url_warning",
+            "secret_deploy_trigger",
         ],
         trigger_step="merged",
         completion_step=None,
@@ -326,20 +326,20 @@ DEVELOPMENT_PHASES: list[Phase] = [
         description="セッション終了時の評価・振り返り",
         order=12,
         expected_hooks=[
-            "hook-effectiveness-evaluator",
-            "hook-behavior-evaluator",
+            "hook_effectiveness_evaluator",
+            "hook_behavior_evaluator",
             "session_metrics_collector",
-            "session-handoff-writer",
-            "secret-deploy-check",
-            "cwd-check",
-            "git-status-check",
-            "related-task-check",
-            "problem-report-check",
-            "systematization-check",
-            "flow-effect-verifier",
-            "reflection-prompt",
-            "worktree-cleanup-suggester",  # Issue #931
-            "session-end-worktree-cleanup",  # Issue #931
+            "session_handoff_writer",
+            "secret_deploy_check",
+            "cwd_check",
+            "git_status_check",
+            "related_task_check",
+            "problem_report_check",
+            "systematization_check",
+            "flow_effect_verifier",
+            "reflection_prompt",
+            "worktree_cleanup_suggester",  # Issue #931
+            "session_end_worktree_cleanup",  # Issue #931
         ],
         trigger_step=None,
         completion_step=None,
@@ -397,8 +397,8 @@ class ExpectedHookBehavior:
 # All hooks from settings.json with their expected behaviors
 EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
     # SessionStart hooks
-    "date-context-injector": ExpectedHookBehavior(
-        hook_name="date-context-injector",
+    "date_context_injector": ExpectedHookBehavior(
+        hook_name="date_context_injector",
         phase_id="session_start",
         trigger_type="SessionStart",
         expected_decision="approve",
@@ -413,16 +413,16 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="lefthookインストール状態確認",
         can_block=False,
     ),
-    "session-handoff-reader": ExpectedHookBehavior(
-        hook_name="session-handoff-reader",
+    "session_handoff_reader": ExpectedHookBehavior(
+        hook_name="session_handoff_reader",
         phase_id="session_start",
         trigger_type="SessionStart",
         expected_decision="approve",
         description="前セッションの引き継ぎ情報読み取り",
         can_block=False,
     ),
-    "open-pr-warning": ExpectedHookBehavior(
-        hook_name="open-pr-warning",
+    "open_pr_warning": ExpectedHookBehavior(
+        hook_name="open_pr_warning",
         phase_id="session_start",
         trigger_type="SessionStart",
         expected_decision="approve",
@@ -438,8 +438,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         can_block=False,
     ),
     # PreToolUse - Navigation
-    "production-url-warning": ExpectedHookBehavior(
-        hook_name="production-url-warning",
+    "production_url_warning": ExpectedHookBehavior(
+        hook_name="production_url_warning",
         phase_id="production",
         trigger_type="PreToolUse",
         trigger_tool="mcp__chrome-devtools__navigate_page|new_page",
@@ -447,8 +447,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="本番URL操作時に警告",
     ),
     # PreToolUse - Edit/Write
-    "task-start-checklist": ExpectedHookBehavior(
-        hook_name="task-start-checklist",
+    "task_start_checklist": ExpectedHookBehavior(
+        hook_name="task_start_checklist",
         phase_id="pre_check",
         trigger_type="PreToolUse",
         trigger_tool="Edit|Write|Bash",
@@ -456,16 +456,16 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="タスク開始時の要件確認チェックリスト",
         can_block=False,
     ),
-    "worktree-warning": ExpectedHookBehavior(
-        hook_name="worktree-warning",
+    "worktree_warning": ExpectedHookBehavior(
+        hook_name="worktree_warning",
         phase_id="implementation",
         trigger_type="PreToolUse",
         trigger_tool="Edit|Write",
         expected_decision="either",
         description="mainブランチでの編集をブロック、worktree外を警告",
     ),
-    "empty-return-check": ExpectedHookBehavior(
-        hook_name="empty-return-check",
+    "empty_return_check": ExpectedHookBehavior(
+        hook_name="empty_return_check",
         phase_id="implementation",
         trigger_type="PreToolUse",
         trigger_tool="Edit|Write",
@@ -473,8 +473,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="空文字列返却をブロック",
     ),
     # PreToolUse - Bash (alphabetical order)
-    "active-worktree-check": ExpectedHookBehavior(
-        hook_name="active-worktree-check",
+    "active_worktree_check": ExpectedHookBehavior(
+        hook_name="active_worktree_check",
         phase_id="worktree_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -482,40 +482,40 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="アクティブworktreeの状態確認",
         can_block=False,
     ),
-    "ci-wait-check": ExpectedHookBehavior(
-        hook_name="ci-wait-check",
+    "ci_wait_check": ExpectedHookBehavior(
+        hook_name="ci_wait_check",
         phase_id="ci_review",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="CI監視をci-monitor.pyに一元化",
     ),
-    "closes-keyword-check": ExpectedHookBehavior(
-        hook_name="closes-keyword-check",
+    "closes_keyword_check": ExpectedHookBehavior(
+        hook_name="closes_keyword_check",
         phase_id="pr_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="Closes/Fixes記法の確認",
     ),
-    "closes-validation": ExpectedHookBehavior(
-        hook_name="closes-validation",
+    "closes_validation": ExpectedHookBehavior(
+        hook_name="closes_validation",
         phase_id="pr_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="Closes参照先の妥当性検証",
     ),
-    "codex-review-check": ExpectedHookBehavior(
-        hook_name="codex-review-check",
+    "codex_review_check": ExpectedHookBehavior(
+        hook_name="codex_review_check",
         phase_id="pr_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="PR作成時にレビュー済みか確認",
     ),
-    "codex-review-logger": ExpectedHookBehavior(
-        hook_name="codex-review-logger",
+    "codex_review_logger": ExpectedHookBehavior(
+        hook_name="codex_review_logger",
         phase_id="local_ai_review",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -523,8 +523,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="codex review実行をログ記録",
         can_block=False,
     ),
-    "dependency-check-reminder": ExpectedHookBehavior(
-        hook_name="dependency-check-reminder",
+    "dependency_check_reminder": ExpectedHookBehavior(
+        hook_name="dependency_check_reminder",
         phase_id="implementation",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -532,8 +532,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="依存関係追加時にContext7確認を促す",
         can_block=False,
     ),
-    "e2e-test-check": ExpectedHookBehavior(
-        hook_name="e2e-test-check",
+    "e2e_test_check": ExpectedHookBehavior(
+        hook_name="e2e_test_check",
         phase_id="pre_commit_check",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -541,40 +541,40 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="E2Eテスト実行必要性チェック",
         can_block=False,
     ),
-    "existing-impl-check": ExpectedHookBehavior(
-        hook_name="existing-impl-check",
+    "existing_impl_check": ExpectedHookBehavior(
+        hook_name="existing_impl_check",
         phase_id="pre_commit_check",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="既存実装との重複チェック",
     ),
-    "force-push-guard": ExpectedHookBehavior(
-        hook_name="force-push-guard",
+    "force_push_guard": ExpectedHookBehavior(
+        hook_name="force_push_guard",
         phase_id="merge",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="強制pushをブロック/警告",
     ),
-    "hooks-design-check": ExpectedHookBehavior(
-        hook_name="hooks-design-check",
+    "hooks_design_check": ExpectedHookBehavior(
+        hook_name="hooks_design_check",
         phase_id="implementation",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="新規フックに設計レビュー日付があるか確認",
     ),
-    "issue-auto-assign": ExpectedHookBehavior(
-        hook_name="issue-auto-assign",
+    "issue_auto_assign": ExpectedHookBehavior(
+        hook_name="issue_auto_assign",
         phase_id="worktree_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="worktree作成時にIssue自動assign（クローズ済み/重複/オープンPR時ブロック）",
     ),
-    "issue-comments-check": ExpectedHookBehavior(
-        hook_name="issue-comments-check",
+    "issue_comments_check": ExpectedHookBehavior(
+        hook_name="issue_comments_check",
         phase_id="ci_review",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -582,56 +582,56 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="Issueコメントの確認促進",
         can_block=False,
     ),
-    "issue-label-check": ExpectedHookBehavior(
-        hook_name="issue-label-check",
+    "issue_label_check": ExpectedHookBehavior(
+        hook_name="issue_label_check",
         phase_id="issue_work",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="Issue作成時のラベル付与確認",
     ),
-    "issue-review-response-check": ExpectedHookBehavior(
-        hook_name="issue-review-response-check",
+    "issue_review_response_check": ExpectedHookBehavior(
+        hook_name="issue_review_response_check",
         phase_id="ci_review",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="Issueレビューへの返答確認（未対応時ブロック）",
     ),
-    "issue-incomplete-close-check": ExpectedHookBehavior(
-        hook_name="issue-incomplete-close-check",
+    "issue_incomplete_close_check": ExpectedHookBehavior(
+        hook_name="issue_incomplete_close_check",
         phase_id="merge",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="Issue部分完了でのクローズ防止（未完了チェックボックス検出）",
     ),
-    "issue-scope-check": ExpectedHookBehavior(
-        hook_name="issue-scope-check",
+    "issue_scope_check": ExpectedHookBehavior(
+        hook_name="issue_scope_check",
         phase_id="issue_work",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="Issueスコープの適切性確認",
     ),
-    "locked-worktree-guard": ExpectedHookBehavior(
-        hook_name="locked-worktree-guard",
+    "locked_worktree_guard": ExpectedHookBehavior(
+        hook_name="locked_worktree_guard",
         phase_id="pre_check",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="ロック中worktreeへの操作ブロック",
     ),
-    "merge-check": ExpectedHookBehavior(
-        hook_name="merge-check",
+    "merge_check": ExpectedHookBehavior(
+        hook_name="merge_check",
         phase_id="merge",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="マージ安全性チェック",
     ),
-    "merged-worktree-check": ExpectedHookBehavior(
-        hook_name="merged-worktree-check",
+    "merged_worktree_check": ExpectedHookBehavior(
+        hook_name="merged_worktree_check",
         phase_id="worktree_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -639,8 +639,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="マージ済みworktree検出→削除促進",
         can_block=False,
     ),
-    "open-issue-reminder": ExpectedHookBehavior(
-        hook_name="open-issue-reminder",
+    "open_issue_reminder": ExpectedHookBehavior(
+        hook_name="open_issue_reminder",
         phase_id="pre_check",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -648,8 +648,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="未アサインIssue表示",
         can_block=False,
     ),
-    "orphan-worktree-check": ExpectedHookBehavior(
-        hook_name="orphan-worktree-check",
+    "orphan_worktree_check": ExpectedHookBehavior(
+        hook_name="orphan_worktree_check",
         phase_id="worktree_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -657,64 +657,64 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="ブランチ削除済みworktree検出",
         can_block=False,
     ),
-    "planning-enforcement": ExpectedHookBehavior(
-        hook_name="planning-enforcement",
+    "planning_enforcement": ExpectedHookBehavior(
+        hook_name="planning_enforcement",
         phase_id="pre_check",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="計画が必要なタスクのプランニング強制",
     ),
-    "pr-issue-alignment-check": ExpectedHookBehavior(
-        hook_name="pr-issue-alignment-check",
+    "pr_issue_alignment_check": ExpectedHookBehavior(
+        hook_name="pr_issue_alignment_check",
         phase_id="pr_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="PRとIssueの整合性確認",
     ),
-    "pr-issue-assign-check": ExpectedHookBehavior(
-        hook_name="pr-issue-assign-check",
+    "pr_issue_assign_check": ExpectedHookBehavior(
+        hook_name="pr_issue_assign_check",
         phase_id="pr_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="参照Issueがアサインされているか確認",
     ),
-    "pr-overlap-check": ExpectedHookBehavior(
-        hook_name="pr-overlap-check",
+    "pr_overlap_check": ExpectedHookBehavior(
+        hook_name="pr_overlap_check",
         phase_id="pr_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="同一Issueに対する複数PR検出",
     ),
-    "pr-scope-check": ExpectedHookBehavior(
-        hook_name="pr-scope-check",
+    "pr_scope_check": ExpectedHookBehavior(
+        hook_name="pr_scope_check",
         phase_id="pr_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="1 Issue = 1 PRルール強制",
     ),
-    "python-lint-check": ExpectedHookBehavior(
-        hook_name="python-lint-check",
+    "python_lint_check": ExpectedHookBehavior(
+        hook_name="python_lint_check",
         phase_id="pre_commit_check",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="git commitでPythonファイルをruffチェック",
     ),
-    "recurring-problem-block": ExpectedHookBehavior(
-        hook_name="recurring-problem-block",
+    "recurring_problem_block": ExpectedHookBehavior(
+        hook_name="recurring_problem_block",
         phase_id="ci_review",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="繰り返し発生する問題をブロック",
     ),
-    "research-requirement-check": ExpectedHookBehavior(
-        hook_name="research-requirement-check",
+    "research_requirement_check": ExpectedHookBehavior(
+        hook_name="research_requirement_check",
         phase_id="pre_check",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -722,24 +722,24 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="調査が必要なタスクの事前調査確認",
     ),
     # Issue #931: Moved to alphabetical position
-    "resolve-thread-guard": ExpectedHookBehavior(
-        hook_name="resolve-thread-guard",
+    "resolve_thread_guard": ExpectedHookBehavior(
+        hook_name="resolve_thread_guard",
         phase_id="merge",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="マージ前に未解決レビュースレッドをチェック",
     ),
-    "reviewer-removal-check": ExpectedHookBehavior(
-        hook_name="reviewer-removal-check",
+    "reviewer_removal_check": ExpectedHookBehavior(
+        hook_name="reviewer_removal_check",
         phase_id="merge",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="レビュアー削除操作を検出・警告",
     ),
-    "ui-check-reminder": ExpectedHookBehavior(
-        hook_name="ui-check-reminder",
+    "ui_check_reminder": ExpectedHookBehavior(
+        hook_name="ui_check_reminder",
         phase_id="implementation",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -748,24 +748,24 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         can_block=False,
     ),
     # Issue #931: Moved to alphabetical position
-    "worktree-main-freshness-check": ExpectedHookBehavior(
-        hook_name="worktree-main-freshness-check",
+    "worktree_main_freshness_check": ExpectedHookBehavior(
+        hook_name="worktree_main_freshness_check",
         phase_id="worktree_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="git worktree add時にmainブランチの新鮮さをチェック",
     ),
-    "worktree-path-guard": ExpectedHookBehavior(
-        hook_name="worktree-path-guard",
+    "worktree_path_guard": ExpectedHookBehavior(
+        hook_name="worktree_path_guard",
         phase_id="worktree_create",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
         expected_decision="either",
         description="worktreeパスの妥当性確認",
     ),
-    "worktree-removal-check": ExpectedHookBehavior(
-        hook_name="worktree-removal-check",
+    "worktree_removal_check": ExpectedHookBehavior(
+        hook_name="worktree_removal_check",
         phase_id="cleanup",
         trigger_type="PreToolUse",
         trigger_tool="Bash",
@@ -773,8 +773,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="worktree削除前のアクティブ作業検出",
     ),
     # PostToolUse - Bash
-    "bash-failure-tracker": ExpectedHookBehavior(
-        hook_name="bash-failure-tracker",
+    "bash_failure_tracker": ExpectedHookBehavior(
+        hook_name="bash_failure_tracker",
         phase_id="pre_commit_check",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -782,8 +782,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="コマンド失敗を追跡",
         can_block=False,
     ),
-    "ci-recovery-tracker": ExpectedHookBehavior(
-        hook_name="ci-recovery-tracker",
+    "ci_recovery_tracker": ExpectedHookBehavior(
+        hook_name="ci_recovery_tracker",
         phase_id="ci_review",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -791,8 +791,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="CI失敗→復旧の追跡",
         can_block=False,
     ),
-    "codex-review-output-logger": ExpectedHookBehavior(
-        hook_name="codex-review-output-logger",
+    "codex_review_output_logger": ExpectedHookBehavior(
+        hook_name="codex_review_output_logger",
         phase_id="local_ai_review",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -800,8 +800,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="Codex CLIレビュー結果をログ記録",
         can_block=False,
     ),
-    "copilot-review-retry-suggestion": ExpectedHookBehavior(
-        hook_name="copilot-review-retry-suggestion",
+    "copilot_review_retry_suggestion": ExpectedHookBehavior(
+        hook_name="copilot_review_retry_suggestion",
         phase_id="ci_review",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -809,8 +809,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="Copilotレビュー失敗時リトライ提案",
         can_block=False,
     ),
-    "development-workflow-tracker": ExpectedHookBehavior(
-        hook_name="development-workflow-tracker",
+    "development_workflow_tracker": ExpectedHookBehavior(
+        hook_name="development_workflow_tracker",
         phase_id="worktree_create",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -818,8 +818,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="ワークフロー進捗記録",
         can_block=False,
     ),
-    "e2e-test-recorder": ExpectedHookBehavior(
-        hook_name="e2e-test-recorder",
+    "e2e_test_recorder": ExpectedHookBehavior(
+        hook_name="e2e_test_recorder",
         phase_id="pre_commit_check",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -827,8 +827,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="E2Eテスト実行を記録",
         can_block=False,
     ),
-    "flow-progress-tracker": ExpectedHookBehavior(
-        hook_name="flow-progress-tracker",
+    "flow_progress_tracker": ExpectedHookBehavior(
+        hook_name="flow_progress_tracker",
         phase_id="worktree_create",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -836,8 +836,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="フロー進捗追跡",
         can_block=False,
     ),
-    "git-operations-tracker": ExpectedHookBehavior(
-        hook_name="git-operations-tracker",
+    "git_operations_tracker": ExpectedHookBehavior(
+        hook_name="git_operations_tracker",
         phase_id="worktree_create",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -845,8 +845,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="Git操作を記録",
         can_block=False,
     ),
-    "issue-ai-review": ExpectedHookBehavior(
-        hook_name="issue-ai-review",
+    "issue_ai_review": ExpectedHookBehavior(
+        hook_name="issue_ai_review",
         phase_id="issue_work",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -854,8 +854,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="Issue作成後にAIレビュー自動実行",
         can_block=False,
     ),
-    "issue-creation-tracker": ExpectedHookBehavior(
-        hook_name="issue-creation-tracker",
+    "issue_creation_tracker": ExpectedHookBehavior(
+        hook_name="issue_creation_tracker",
         phase_id="issue_work",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -872,8 +872,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="PRメトリクス収集",
         can_block=False,
     ),
-    "pr-merge-pull-reminder": ExpectedHookBehavior(
-        hook_name="pr-merge-pull-reminder",
+    "pr_merge_pull_reminder": ExpectedHookBehavior(
+        hook_name="pr_merge_pull_reminder",
         phase_id="merge",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -881,8 +881,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="マージ後のpullリマインダー",
         can_block=False,
     ),
-    "reflection-reminder": ExpectedHookBehavior(
-        hook_name="reflection-reminder",
+    "reflection_reminder": ExpectedHookBehavior(
+        hook_name="reflection_reminder",
         phase_id="ci_review",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -890,8 +890,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="振り返りリマインダー",
         can_block=False,
     ),
-    "secret-deploy-trigger": ExpectedHookBehavior(
-        hook_name="secret-deploy-trigger",
+    "secret_deploy_trigger": ExpectedHookBehavior(
+        hook_name="secret_deploy_trigger",
         phase_id="production",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -899,8 +899,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="秘密情報デプロイのトリガー検出",
         can_block=False,
     ),
-    "worktree-auto-cleanup": ExpectedHookBehavior(
-        hook_name="worktree-auto-cleanup",
+    "worktree_auto_cleanup": ExpectedHookBehavior(
+        hook_name="worktree_auto_cleanup",
         phase_id="merge",
         trigger_type="PostToolUse",
         trigger_tool="Bash",
@@ -909,8 +909,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         can_block=False,
     ),
     # PostToolUse - Edit
-    "rework-tracker": ExpectedHookBehavior(
-        hook_name="rework-tracker",
+    "rework_tracker": ExpectedHookBehavior(
+        hook_name="rework_tracker",
         phase_id="implementation",
         trigger_type="PostToolUse",
         trigger_tool="Edit",
@@ -918,8 +918,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="同一ファイル再編集（手戻り）追跡",
         can_block=False,
     ),
-    "tool-efficiency-tracker": ExpectedHookBehavior(
-        hook_name="tool-efficiency-tracker",
+    "tool_efficiency_tracker": ExpectedHookBehavior(
+        hook_name="tool_efficiency_tracker",
         phase_id="implementation",
         trigger_type="PostToolUse",
         trigger_tool="Bash|Edit|Read|Glob|Grep",
@@ -928,8 +928,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         can_block=False,
     ),
     # PostToolUse - Read/Glob/Grep
-    "exploration-tracker": ExpectedHookBehavior(
-        hook_name="exploration-tracker",
+    "exploration_tracker": ExpectedHookBehavior(
+        hook_name="exploration_tracker",
         phase_id="implementation",
         trigger_type="PostToolUse",
         trigger_tool="Read|Glob|Grep",
@@ -938,8 +938,8 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         can_block=False,
     ),
     # PostToolUse - WebSearch/WebFetch
-    "research-tracker": ExpectedHookBehavior(
-        hook_name="research-tracker",
+    "research_tracker": ExpectedHookBehavior(
+        hook_name="research_tracker",
         phase_id="implementation",
         trigger_type="PostToolUse",
         trigger_tool="WebSearch|WebFetch",
@@ -948,66 +948,66 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         can_block=False,
     ),
     # Stop hooks
-    "cwd-check": ExpectedHookBehavior(
-        hook_name="cwd-check",
+    "cwd_check": ExpectedHookBehavior(
+        hook_name="cwd_check",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
         description="カレントディレクトリ消失検知",
     ),
-    "flow-effect-verifier": ExpectedHookBehavior(
-        hook_name="flow-effect-verifier",
+    "flow_effect_verifier": ExpectedHookBehavior(
+        hook_name="flow_effect_verifier",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
         description="フロー効果検証",
     ),
-    "git-status-check": ExpectedHookBehavior(
-        hook_name="git-status-check",
+    "git_status_check": ExpectedHookBehavior(
+        hook_name="git_status_check",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
         description="mainの未コミット変更検知",
     ),
-    "hook-behavior-evaluator": ExpectedHookBehavior(
-        hook_name="hook-behavior-evaluator",
+    "hook_behavior_evaluator": ExpectedHookBehavior(
+        hook_name="hook_behavior_evaluator",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="approve",
         description="期待動作と実際の動作のギャップ検知",
         can_block=False,
     ),
-    "hook-effectiveness-evaluator": ExpectedHookBehavior(
-        hook_name="hook-effectiveness-evaluator",
+    "hook_effectiveness_evaluator": ExpectedHookBehavior(
+        hook_name="hook_effectiveness_evaluator",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="approve",
         description="フック有効性の評価",
         can_block=False,
     ),
-    "problem-report-check": ExpectedHookBehavior(
-        hook_name="problem-report-check",
+    "problem_report_check": ExpectedHookBehavior(
+        hook_name="problem_report_check",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
         description="発見した問題のIssue化確認",
     ),
-    "related-task-check": ExpectedHookBehavior(
-        hook_name="related-task-check",
+    "related_task_check": ExpectedHookBehavior(
+        hook_name="related_task_check",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
         description="関連タスク検知",
     ),
-    "reflection-prompt": ExpectedHookBehavior(
-        hook_name="reflection-prompt",
+    "reflection_prompt": ExpectedHookBehavior(
+        hook_name="reflection_prompt",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
         description="五省ベースの自己評価",
     ),
-    "secret-deploy-check": ExpectedHookBehavior(
-        hook_name="secret-deploy-check",
+    "secret_deploy_check": ExpectedHookBehavior(
+        hook_name="secret_deploy_check",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
@@ -1021,32 +1021,32 @@ EXPECTED_HOOK_BEHAVIORS: dict[str, ExpectedHookBehavior] = {
         description="セッションメトリクス収集",
         can_block=False,
     ),
-    "session-handoff-writer": ExpectedHookBehavior(
-        hook_name="session-handoff-writer",
+    "session_handoff_writer": ExpectedHookBehavior(
+        hook_name="session_handoff_writer",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="approve",
         description="次セッションへの引き継ぎ情報記録",
         can_block=False,
     ),
-    "systematization-check": ExpectedHookBehavior(
-        hook_name="systematization-check",
+    "systematization_check": ExpectedHookBehavior(
+        hook_name="systematization_check",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="either",
         description="教訓の仕組み化確認",
     ),
     # Issue #931: Add missing Stop hooks
-    "worktree-cleanup-suggester": ExpectedHookBehavior(
-        hook_name="worktree-cleanup-suggester",
+    "worktree_cleanup_suggester": ExpectedHookBehavior(
+        hook_name="worktree_cleanup_suggester",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="approve",
         description="マージ済みworktreeのクリーンアップ提案",
         can_block=False,
     ),
-    "session-end-worktree-cleanup": ExpectedHookBehavior(
-        hook_name="session-end-worktree-cleanup",
+    "session_end_worktree_cleanup": ExpectedHookBehavior(
+        hook_name="session_end_worktree_cleanup",
         phase_id="session_end",
         trigger_type="Stop",
         expected_decision="approve",
@@ -1195,7 +1195,7 @@ class IssueAIReviewFlow(FlowDefinition):
     def __init__(self) -> None:
         """Initialize the IssueAIReviewFlow with predefined configuration."""
         super().__init__(
-            id="issue-ai-review",
+            id="issue_ai_review",
             name="Issue AIレビューフロー",
             description="AIレビュー投稿後、Claudeがレビュー内容を確認してIssueに反映するフロー",
             steps=[
@@ -1447,7 +1447,7 @@ class DevelopmentWorkflow(FlowDefinition):
 
 # Registry of all flow definitions
 FLOW_REGISTRY: dict[str, FlowDefinition] = {
-    "issue-ai-review": IssueAIReviewFlow(),
+    "issue_ai_review": IssueAIReviewFlow(),
     "development-workflow": DevelopmentWorkflow(),
 }
 

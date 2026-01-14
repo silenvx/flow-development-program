@@ -1,24 +1,30 @@
 #!/usr/bin/env python3
-"""開発フローファイルからインデックスを自動生成する。
+"""開発フローファイルからインデックスを自動生成し、.fdp/に出力する。
 
 Why:
-    explain-all.mdの全探索コストを削減するため、
-    docstring/Markdown/YAMLから自動的にインデックス情報を抽出する。
-    手動でドキュメントを更新する手間を省く。
+    FDPの移植性向上のため、各プロジェクトが自己完結したドキュメントを生成する。
+    docstring/Markdown/YAMLから自動的にインデックス情報を抽出し、
+    フロー図やカタログも同時に生成する。
 
 What:
     1. hooks/*.py - docstringからWhy/What/Remarksを抽出
     2. scripts/*.py - docstringからWhy/What/Remarksを抽出
     3. skills/*/SKILL.md - Markdownから説明を抽出
-    4. AGENTS.md, lefthook.yml等 - 構造情報を抽出
-    5. index.jsonに統合出力
+    4. flow_definitions.py - 開発フェーズ情報を抽出
+    5. .fdp/に以下を出力:
+       - index.json（機械処理用）
+       - README.md（機能カタログ）
+       - flows.md（Mermaidフロー図）
+       - prompts/（生成・参照用プロンプト）
 
 Remarks:
     - ASTでPython docstringを抽出
     - 正規表現でMarkdownセクションを抽出
     - settings.jsonからhookトリガー情報を追加
+    - flow_definitions.pyからDEVELOPMENT_PHASESを抽出
 
 Changelog:
+    - silenvx/dekita#2771: .fdp/出力、phases抽出、README/flows/prompts生成
     - silenvx/dekita#2765: hook_type, keywordsフィールド追加
     - silenvx/dekita#2762: 全開発フローファイル対応、metadata.json依存削除
 """
@@ -27,6 +33,7 @@ import argparse
 import ast
 import json
 import re
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -37,8 +44,12 @@ CLAUDE_DIR = PROJECT_ROOT / ".claude"
 HOOKS_DIR = CLAUDE_DIR / "hooks"
 SCRIPTS_DIR = CLAUDE_DIR / "scripts"
 SKILLS_DIR = CLAUDE_DIR / "skills"
-INDEX_PATH = CLAUDE_DIR / "index.json"
+FDP_DIR = PROJECT_ROOT / ".fdp"
+INDEX_PATH = FDP_DIR / "index.json"
 SETTINGS_PATH = CLAUDE_DIR / "settings.json"
+
+# flow_definitions.pyをインポートするためにパスを追加
+sys.path.insert(0, str(HOOKS_DIR))
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -449,17 +460,300 @@ def process_docs() -> list[dict[str, Any]]:
     return entries
 
 
+def process_phases() -> list[dict[str, Any]]:
+    """flow_definitions.pyからDEVELOPMENT_PHASESを抽出する。"""
+    try:
+        from flow_definitions import DEVELOPMENT_PHASES
+    except ImportError:
+        return []
+
+    phases = []
+    for phase in DEVELOPMENT_PHASES:
+        phases.append(
+            {
+                "id": phase.id,
+                "name": phase.name,
+                "description": phase.description,
+                "order": phase.order,
+                "expected_hooks": phase.expected_hooks,
+                "trigger_step": phase.trigger_step,
+                "completion_step": phase.completion_step,
+            }
+        )
+
+    return phases
+
+
+def generate_readme(index: dict[str, Any]) -> str:
+    """index.jsonから機能カタログ（README.md）を生成する。"""
+    generated_at = index.get("generated_at", "")[:10]  # YYYY-MM-DD
+    project = index.get("project", "unknown")
+
+    lines = [
+        f"# {project} 機能カタログ",
+        "",
+        f"生成日時: {generated_at}",
+        "",
+        "## 概要",
+        "",
+        "このプロジェクトの開発フロー構成要素。",
+        "",
+        "## 統計",
+        "",
+        "| カテゴリ | 数 |",
+        "|---------|---|",
+        f"| フック | {len(index.get('hooks', []))} |",
+        f"| スクリプト | {len(index.get('scripts', []))} |",
+        f"| スキル | {len(index.get('skills', []))} |",
+        f"| フェーズ | {len(index.get('phases', []))} |",
+        "",
+        "---",
+        "",
+        f"## フック一覧（全{len(index.get('hooks', []))}件）",
+        "",
+        "| フック | 説明 |",
+        "|-------|------|",
+    ]
+
+    for hook in index.get("hooks", []):
+        name = hook.get("name", "")
+        summary = hook.get("summary", "").replace("\n", " ")
+        lines.append(f"| `{name}` | {summary or '（説明なし）'} |")
+
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            f"## スクリプト一覧（全{len(index.get('scripts', []))}件）",
+            "",
+            "| スクリプト | 説明 |",
+            "|----------|------|",
+        ]
+    )
+
+    for script in index.get("scripts", []):
+        name = script.get("name", "")
+        summary = script.get("summary", "").replace("\n", " ")
+        lines.append(f"| `{name}` | {summary or '（説明なし）'} |")
+
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            f"## スキル一覧（全{len(index.get('skills', []))}件）",
+            "",
+            "| スキル | 説明 |",
+            "|-------|------|",
+        ]
+    )
+
+    for skill in index.get("skills", []):
+        name = skill.get("name", "")
+        summary = skill.get("summary", "").replace("\n", " ")
+        lines.append(f"| `{name}` | {summary or '（説明なし）'} |")
+
+    lines.extend(
+        [
+            "",
+            "---",
+            "",
+            "## 詳細情報",
+            "",
+            "各フックの詳細（Why/What/keywords）は `index.json` を参照:",
+            "",
+            "```bash",
+            "jq '.hooks[] | select(.name == \"merge_check\")' .fdp/index.json",
+            "```",
+        ]
+    )
+
+    return "\n".join(lines) + "\n"
+
+
+def generate_flows(index: dict[str, Any]) -> str:
+    """index.jsonのphasesから開発フロー図（flows.md）を生成する。"""
+    project = index.get("project", "unknown")
+    phases = index.get("phases", [])
+
+    lines = [
+        f"# {project} 開発フロー図",
+        "",
+        "## 開発ワークフロー全体像",
+        "",
+        "```mermaid",
+        "flowchart TD",
+    ]
+
+    # フェーズノードを生成
+    for i, phase in enumerate(phases):
+        phase_id = phase.get("id", f"phase_{i}")
+        phase_name = phase.get("name", phase_id)
+        hook_count = len(phase.get("expected_hooks", []))
+
+        # ノード形状を決定
+        if i == 0:
+            lines.append(f"    {phase_id}([{phase_name}])")
+        elif i == len(phases) - 1:
+            lines.append(f"    {phase_id}([{phase_name}])")
+        else:
+            lines.append(f"    {phase_id}[{phase_name}<br/>{hook_count}フック]")
+
+    lines.append("")
+
+    # 接続を生成
+    for i in range(len(phases) - 1):
+        current = phases[i].get("id", f"phase_{i}")
+        next_phase = phases[i + 1].get("id", f"phase_{i + 1}")
+        lines.append(f"    {current} --> {next_phase}")
+
+    lines.extend(
+        [
+            "```",
+            "",
+            "---",
+            "",
+            "## フェーズ詳細",
+            "",
+        ]
+    )
+
+    # 各フェーズの詳細
+    for phase in phases:
+        phase_id = phase.get("id", "")
+        phase_name = phase.get("name", phase_id)
+        description = phase.get("description", "")
+        expected_hooks = phase.get("expected_hooks", [])
+
+        lines.extend(
+            [
+                f"### {phase_name}",
+                "",
+                f"{description}",
+                "",
+                "**期待されるフック:**",
+                "",
+            ]
+        )
+
+        for hook in expected_hooks:
+            lines.append(f"- `{hook}`")
+
+        lines.append("")
+
+    return "\n".join(lines) + "\n"
+
+
+def generate_prompts() -> dict[str, str]:
+    """プロンプトファイルの内容を生成する。"""
+    prompts = {}
+
+    # generate-index.md
+    prompts["generate-index.md"] = """# インデックス再生成
+
+.fdp/のインデックスとドキュメントを再生成する。
+
+---
+
+## 使い方
+
+```bash
+python3 .claude/scripts/generate_index.py
+```
+
+---
+
+## 出力
+
+| ファイル | 内容 |
+|---------|------|
+| `.fdp/index.json` | 機械処理用インデックス |
+| `.fdp/README.md` | 機能カタログ |
+| `.fdp/flows.md` | Mermaidフロー図 |
+
+---
+
+## オプション
+
+```bash
+# 詳細出力
+python3 .claude/scripts/generate_index.py --verbose
+
+# ドライラン（ファイル出力なし）
+python3 .claude/scripts/generate_index.py --dry-run
+```
+"""
+
+    # import-pattern.md
+    prompts["import-pattern.md"] = """# パターン参照・移植ガイド
+
+このプロジェクトから開発フローパターンを参照・移植する方法。
+
+---
+
+## 1. パターン検索
+
+```bash
+# キーワードで検索
+jq '.hooks[] | select(.keywords[] | contains("worktree"))' .fdp/index.json
+
+# フックタイプで検索
+jq '.hooks[] | select(.hook_type == "blocking")' .fdp/index.json
+
+# サマリーで検索
+jq '.hooks[] | select(.summary | contains("PR"))' .fdp/index.json
+```
+
+---
+
+## 2. パターン理解
+
+```bash
+# 詳細を確認
+jq '.hooks[] | select(.name == "merge_check")' .fdp/index.json
+```
+
+**確認ポイント:**
+- `why`: なぜこのフックが必要か
+- `what`: 何をするか
+- `trigger`: いつ発火するか
+- `hook_type`: blocking/warning/info/logging
+
+---
+
+## 3. ソースコード参照
+
+```bash
+# pathフィールドからソースコードを確認
+cat $(jq -r '.hooks[] | select(.name == "merge_check") | .path' .fdp/index.json)
+```
+
+---
+
+## 4. 移植
+
+1. ソースコードをコピー
+2. プロジェクト固有の設定を調整（パス、コマンド等）
+3. settings.jsonにフックを登録
+4. テスト実行
+"""
+
+    return prompts
+
+
 def generate_index(verbose: bool = False) -> dict[str, Any]:
     """全開発フローファイルのインデックスを生成する。"""
     settings = load_json(SETTINGS_PATH)
 
     index = {
-        "version": "2.0",
+        "version": "3.0",
         "generated_at": datetime.now(UTC).isoformat(),
         "project": "dekita",
         "hooks": [],
         "scripts": [],
         "skills": [],
+        "phases": [],
         "docs": [],
     }
 
@@ -484,6 +778,13 @@ def generate_index(verbose: bool = False) -> dict[str, Any]:
     if verbose:
         print(f"  Found {len(index['skills'])} skills")
 
+    # Phases
+    if verbose:
+        print("Processing phases...")
+    index["phases"] = process_phases()
+    if verbose:
+        print(f"  Found {len(index['phases'])} phases")
+
     # Docs
     if verbose:
         print("Processing docs...")
@@ -496,12 +797,12 @@ def generate_index(verbose: bool = False) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generate development flow index from source files"
+        description="Generate development flow index and documentation to .fdp/"
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Print index without writing files",
+        help="Print output without writing files",
     )
     parser.add_argument(
         "--verbose",
@@ -509,33 +810,59 @@ def main() -> None:
         action="store_true",
         help="Print detailed progress",
     )
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=Path,
-        default=INDEX_PATH,
-        help=f"Output file path (default: {INDEX_PATH})",
-    )
     args = parser.parse_args()
 
     index = generate_index(verbose=args.verbose)
 
     # サマリー出力
-    total = len(index["hooks"]) + len(index["scripts"]) + len(index["skills"]) + len(index["docs"])
+    total = (
+        len(index["hooks"])
+        + len(index["scripts"])
+        + len(index["skills"])
+        + len(index["phases"])
+        + len(index["docs"])
+    )
     print(f"\nTotal entries: {total}")
     print(f"  Hooks: {len(index['hooks'])}")
     print(f"  Scripts: {len(index['scripts'])}")
     print(f"  Skills: {len(index['skills'])}")
+    print(f"  Phases: {len(index['phases'])}")
     print(f"  Docs: {len(index['docs'])}")
 
     if args.dry_run:
-        print("\n(dry-run mode, file not saved)")
+        print("\n(dry-run mode, files not saved)")
         if args.verbose:
             print("\nGenerated index:")
             print(json.dumps(index, indent=2, ensure_ascii=False))
-    else:
-        save_json(args.output, index)
-        print(f"\nSaved: {args.output}")
+        return
+
+    # .fdp/ディレクトリを作成
+    FDP_DIR.mkdir(parents=True, exist_ok=True)
+    prompts_dir = FDP_DIR / "prompts"
+    prompts_dir.mkdir(parents=True, exist_ok=True)
+
+    # index.jsonを保存
+    save_json(INDEX_PATH, index)
+    print(f"\nSaved: {INDEX_PATH}")
+
+    # README.mdを生成・保存
+    readme_content = generate_readme(index)
+    readme_path = FDP_DIR / "README.md"
+    readme_path.write_text(readme_content, encoding="utf-8")
+    print(f"Saved: {readme_path}")
+
+    # flows.mdを生成・保存
+    flows_content = generate_flows(index)
+    flows_path = FDP_DIR / "flows.md"
+    flows_path.write_text(flows_content, encoding="utf-8")
+    print(f"Saved: {flows_path}")
+
+    # プロンプトを生成・保存
+    prompts = generate_prompts()
+    for name, content in prompts.items():
+        prompt_path = prompts_dir / name
+        prompt_path.write_text(content, encoding="utf-8")
+        print(f"Saved: {prompt_path}")
 
 
 if __name__ == "__main__":

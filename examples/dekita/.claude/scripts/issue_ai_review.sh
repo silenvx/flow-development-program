@@ -11,7 +11,7 @@
 #     - gh issue comment: レビュー結果を投稿
 #
 # Remarks:
-#     - Usage: issue-ai-review.sh <issue_number>
+#     - Usage: issue_ai_review.sh <issue_number>
 #     - 並列実行で両方のレビューを取得
 #     - CLIが無い場合はスキップ（graceful degradation）
 #     - set -eを使用しないのはエラーハンドリングのため

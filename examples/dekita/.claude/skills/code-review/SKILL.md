@@ -50,19 +50,19 @@ codex review --base main --instructions "セキュリティを重点チェック
 
 ```bash
 # 設計品質レビュー（結合度・凝集度・SRP含む）
-.claude/scripts/codex-design-review.sh
+.claude/scripts/codex_design_review.sh
 
 # セキュリティ重点レビュー
-.claude/scripts/codex-design-review.sh --security
+.claude/scripts/codex_design_review.sh --security
 
 # 結合度重点レビュー
-.claude/scripts/codex-design-review.sh --coupling
+.claude/scripts/codex_design_review.sh --coupling
 
 # 凝集度重点レビュー
-.claude/scripts/codex-design-review.sh --cohesion
+.claude/scripts/codex_design_review.sh --cohesion
 
 # 未コミット変更のレビュー
-.claude/scripts/codex-design-review.sh --uncommitted
+.claude/scripts/codex_design_review.sh --uncommitted
 ```
 
 プロンプトは `.claude/docs/design-review-prompt.txt` で定義。

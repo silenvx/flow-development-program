@@ -122,6 +122,34 @@ def extract_pr_body(command: str) -> str | None:
     return None
 
 
+def is_dependabot_pr(pr_number: str | None) -> bool:
+    """Check if PR is created by Dependabot.
+
+    Dependabot PRs have detailed auto-generated descriptions and don't need
+    manual "why" sections - the reason is clear (dependency update).
+    """
+    try:
+        cmd = ["gh", "pr", "view"]
+        if pr_number:
+            cmd.append(pr_number)
+        cmd.extend(["--json", "author", "--jq", ".author.login"])
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        if result.returncode == 0:
+            author = result.stdout.strip()
+            # Dependabot can appear as "dependabot[bot]" or "app/dependabot"
+            return author in {"dependabot[bot]", "app/dependabot"}
+    except Exception:
+        # gh command failure is not critical - return False to apply normal checks
+        pass
+    return False
+
+
 def get_pr_body_from_api(pr_number: str | None) -> str | None:
     """Get PR body from GitHub API.
 
@@ -222,9 +250,11 @@ def main():
         elif is_gh_pr_merge_command(command):
             # Check PR body before merge
             pr_number = extract_pr_number_from_merge(command)
-            body = get_pr_body_from_api(pr_number)
 
-            if body is None:
+            # Skip quality check for Dependabot PRs (Issue #2773)
+            if is_dependabot_pr(pr_number):
+                result["systemMessage"] = "✅ pr-body-quality-check: Dependabot PRのためスキップ"
+            elif (body := get_pr_body_from_api(pr_number)) is None:
                 # Failed to get PR body - approve but warn
                 result["systemMessage"] = (
                     "⚠️ pr-body-quality-check: PRボディの取得に失敗しました。"

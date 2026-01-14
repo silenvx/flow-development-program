@@ -92,6 +92,7 @@ rsync -avh --dry-run --delete --itemize-changes \
   --filter='- **/*.pyc' \
   --filter='- .codex-reviewed-commit' \
   --filter='+ .claude/***' \
+  --filter='+ .fdp/***' \
   --filter='+ scripts/***' \
   --filter='+ README.md' \
   --filter='+ AGENTS.md' \

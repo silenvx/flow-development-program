@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Tests for setup-worktree.sh
+# Tests for setup_worktree.sh
 #
 # Requirements:
 #   - bats-core: brew install bats-core
@@ -22,7 +22,7 @@ setup() {
     export SCRIPT_DIR
     SCRIPT_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
     export SCRIPT_PATH
-    SCRIPT_PATH="$SCRIPT_DIR/setup-worktree.sh"
+    SCRIPT_PATH="$SCRIPT_DIR/setup_worktree.sh"
 }
 
 teardown() {

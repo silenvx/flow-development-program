@@ -599,7 +599,7 @@ class TestRebasePrFunction:
             assert calls[2][0][0] == ["git", "reset", "--hard", "origin/feat/test-branch"]
 
             # Fourth call: marker update script
-            assert "update-codex-marker-on-rebase.sh" in str(calls[3][0][0])
+            assert "update_codex_marker_on_rebase.sh" in str(calls[3][0][0])
 
     def test_rebase_success_skips_sync_when_branch_not_found(self):
         """Issue #1795: Should skip sync if branch name cannot be determined."""

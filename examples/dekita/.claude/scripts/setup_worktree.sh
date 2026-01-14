@@ -10,7 +10,7 @@
 #     - uvx連携: pyproject.toml存在時はuvxに委譲
 #
 # Remarks:
-#     - Usage: .claude/scripts/setup-worktree.sh <worktree-path>
+#     - Usage: .claude/scripts/setup_worktree.sh <worktree-path>
 #     - CI環境変数を自動設定（対話プロンプト抑制）
 #     - 相対パスは自動で絶対パスに変換
 #

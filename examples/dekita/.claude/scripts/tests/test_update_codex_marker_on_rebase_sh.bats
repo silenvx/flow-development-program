@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Tests for update-codex-marker-on-rebase.sh
+# Tests for update_codex_marker_on_rebase.sh
 #
 # Requirements:
 #   - bats-core: brew install bats-core
@@ -53,7 +53,7 @@ load_sanitize_function() {
 
     # Extract the sanitize_branch_name function from the actual script
     # Pattern: from "sanitize_branch_name() {" to next "^}" (function end)
-    sed -n '/^sanitize_branch_name() {$/,/^}$/p' "$SCRIPT_DIR/update-codex-marker-on-rebase.sh" > "$tmp_script"
+    sed -n '/^sanitize_branch_name() {$/,/^}$/p' "$SCRIPT_DIR/update_codex_marker_on_rebase.sh" > "$tmp_script"
 
     # Verify extraction succeeded
     if [ ! -s "$tmp_script" ]; then
@@ -130,7 +130,7 @@ load_sanitize_function() {
 
     # We're on the default branch (main or master depending on git config)
     # The script should exit silently
-    run bash "$SCRIPT_DIR/update-codex-marker-on-rebase.sh"
+    run bash "$SCRIPT_DIR/update_codex_marker_on_rebase.sh"
     [ "$status" -eq 0 ]
 }
 
@@ -141,7 +141,7 @@ load_sanitize_function() {
     git checkout -q -b feature/test-branch
 
     # No marker file exists
-    run bash "$SCRIPT_DIR/update-codex-marker-on-rebase.sh"
+    run bash "$SCRIPT_DIR/update_codex_marker_on_rebase.sh"
     [ "$status" -eq 0 ]
 
     # Marker file should not be created
@@ -158,7 +158,7 @@ load_sanitize_function() {
     echo "feature/test-update:oldcommit123" > .claude/logs/markers/codex-review-feature-test-update.done
 
     # Run the script
-    run bash "$SCRIPT_DIR/update-codex-marker-on-rebase.sh"
+    run bash "$SCRIPT_DIR/update_codex_marker_on_rebase.sh"
     [ "$status" -eq 0 ]
 
     # Verify marker was updated (format: branch:commit:diff_hash per Issue #841)
@@ -180,7 +180,7 @@ load_sanitize_function() {
     echo "feature/test-output:oldcommit" > .claude/logs/markers/codex-review-feature-test-output.done
 
     # Run the script and capture stdout and stderr separately
-    stdout_output=$(bash "$SCRIPT_DIR/update-codex-marker-on-rebase.sh" 2>/dev/null)
+    stdout_output=$(bash "$SCRIPT_DIR/update_codex_marker_on_rebase.sh" 2>/dev/null)
 
     # stdout should be empty
     [ -z "$stdout_output" ]

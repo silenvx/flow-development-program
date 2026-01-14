@@ -24,6 +24,7 @@ Changelog:
     - silenvx/dekita#2457: 残タスクパターン検出追加
     - silenvx/dekita#2463: 完了率表示追加
     - silenvx/dekita#2710: Geminiセキュリティ指摘のIssue化強制チェック追加
+    - silenvx/dekita#2775: Dependabot PRのボディ品質チェックスキップ追加
 """
 
 import sys
@@ -48,6 +49,7 @@ from issue_checker import (
     get_pr_body,
 )
 from lib.github import is_pr_merged
+from pr_body_quality_check import is_dependabot_pr
 from review_checker import (
     check_dismissal_without_issue,
     check_resolved_without_response,
@@ -395,35 +397,37 @@ def run_all_pr_checks(
     # Check 11: PR body quality (Issue #2439)
     # This check runs in CI regardless of Claude Code session state,
     # providing a safety net when the pr-body-quality-check hook is not loaded.
-    pr_body = get_pr_body(pr_number)
-    if pr_body is not None:
-        is_valid, missing = check_body_quality(pr_body)
-        if not is_valid:
-            missing_details = "\n".join(f"  - {item}" for item in missing)
-            blocking_reasons.append(
-                BlockingReason(
-                    check_name="pr_body_quality",
-                    title="PRボディに必須項目がありません",
-                    details=(
-                        f"不足している項目:\n{missing_details}\n\n"
-                        "**PRボディの推奨フォーマット:**\n"
-                        "```markdown\n"
-                        "## なぜ\n"
-                        "この変更が必要になった背景・動機を記述\n"
-                        "\n"
-                        "## 何を\n"
-                        "変更内容の概要\n"
-                        "\n"
-                        "Closes #XXX\n"
-                        "```\n\n"
-                        "対処方法:\n"
-                        f'1. `gh pr edit {pr_number} --body "..."` でPRボディを更新\n'
-                        "2. 再度マージを実行\n\n"
-                        "背景: Issue #2439 - フックのセッション依存性を回避するため、\n"
-                        "CIでもPRボディ品質チェックを実行。"
-                    ),
+    # Skip for Dependabot PRs (Issue #2775) - they have auto-generated descriptions
+    if not is_dependabot_pr(pr_number):
+        pr_body = get_pr_body(pr_number)
+        if pr_body is not None:
+            is_valid, missing = check_body_quality(pr_body)
+            if not is_valid:
+                missing_details = "\n".join(f"  - {item}" for item in missing)
+                blocking_reasons.append(
+                    BlockingReason(
+                        check_name="pr_body_quality",
+                        title="PRボディに必須項目がありません",
+                        details=(
+                            f"不足している項目:\n{missing_details}\n\n"
+                            "**PRボディの推奨フォーマット:**\n"
+                            "```markdown\n"
+                            "## なぜ\n"
+                            "この変更が必要になった背景・動機を記述\n"
+                            "\n"
+                            "## 何を\n"
+                            "変更内容の概要\n"
+                            "\n"
+                            "Closes #XXX\n"
+                            "```\n\n"
+                            "対処方法:\n"
+                            f'1. `gh pr edit {pr_number} --body "..."` でPRボディを更新\n'
+                            "2. 再度マージを実行\n\n"
+                            "背景: Issue #2439 - フックのセッション依存性を回避するため、\n"
+                            "CIでもPRボディ品質チェックを実行。"
+                        ),
+                    )
                 )
-            )
 
     # Check 12: Remaining task patterns without Issue references (Issue #2457)
     remaining_tasks = check_remaining_task_patterns(pr_number, commit_issue_numbers)

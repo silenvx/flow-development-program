@@ -70,7 +70,7 @@ def build_worktree_skill_reminder() -> str:
         "□ worktree作成直後のチェック（main最新との差分確認）\n"
         "□ `--lock` オプションの使用（他エージェントの削除防止）\n"
         "□ ブランチ命名規則（`feat/issue-123-desc`）\n"
-        "□ setup-worktree.sh の実行\n\n"
+        "□ setup_worktree.sh の実行\n\n"
         "**Skill呼び出し方法:**\n"
         "  /development-workflow\n\n"
         "💡 「単純な作業だからSkill不要」は誤った判断です。\n"
