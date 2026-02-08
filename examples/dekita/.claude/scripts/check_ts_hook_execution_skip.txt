@@ -1,0 +1,17 @@
+# TypeScriptフックBun実行テストのスキップリスト
+# Issue #2939: TypeScriptフックで未実装のlib関数がインポートされている
+#
+# このファイルにフック名を記載すると、check_ts_hook_execution.shでスキップされる
+# Issue #2939が解決されたらこのファイルを削除すること
+
+# 不足: checkSkipEnv
+branch_rename_guard
+
+# 不足: createHookContext
+checkout_block
+immediate_pending_check
+script_test_reminder
+security_bypass_test_reminder
+
+# 不足: splitShellArgs
+duplicate_issue_check

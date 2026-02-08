@@ -25,6 +25,7 @@
 
 - Node.js 24+
 - pnpm（corepack経由で自動インストール）
+- [Bun 1.2+](https://bun.sh/docs/installation)（TypeScriptフック実行用、CI環境では自動セットアップ）
 - Cloudflare アカウント（デプロイ時）
 
 ### インストール

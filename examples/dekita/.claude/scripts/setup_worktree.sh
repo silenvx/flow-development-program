@@ -62,6 +62,21 @@ if [ -f "pyproject.toml" ]; then
     echo "Python project detected. Dependencies managed by uvx."
 fi
 
+# Issue #2814: Install TypeScript hooks dependencies
+# Required for bun-based hooks (date_context_injector.ts, scope_check.ts, etc.)
+if [ -f ".claude/hooks/package.json" ]; then
+    if ! command -v bun &> /dev/null; then
+        echo "Warning: bun is not installed. TypeScript hooks (date_context_injector.ts, scope_check.ts) will not work. Install bun from https://bun.sh" >&2
+    else
+        echo "Installing TypeScript hooks dependencies..."
+        if (cd .claude/hooks && bun install --frozen-lockfile); then
+            echo "TypeScript hooks dependencies installed."
+        else
+            echo "Error: Failed to install TypeScript hooks dependencies." >&2
+        fi
+    fi
+fi
+
 echo ""
 echo "Worktree setup complete: $WORKTREE_PATH"
 echo "You can now work in this worktree."

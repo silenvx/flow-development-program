@@ -119,7 +119,7 @@ graph TD
 
 ```bash
 # 依存関係を確認
-python3 .claude/scripts/analyze_hook_dependencies.py --stats-only
+bun run .claude/scripts/analyze_hook_dependencies.ts --stats-only
 
 # 特定モジュールの依存元を確認
 grep -r "from lib.{module}" .claude/hooks/*.py
@@ -173,7 +173,7 @@ grep -r "from lib.{module}" .claude/hooks/*.py
 このドキュメントの依存関係図は以下のコマンドで更新できます:
 
 ```bash
-python3 .claude/scripts/analyze_hook_dependencies.py
+bun run .claude/scripts/analyze_hook_dependencies.ts
 ```
 
 出力されたMermaid図でこのファイルの図を更新してください。

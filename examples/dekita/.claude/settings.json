@@ -1,9 +1,11 @@
 {
+  "plansDirectory": ".claude/plans",
   "statusLine": {
     "type": "command",
-    "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/scripts/statusline.sh"
+    "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/scripts/statusline.ts"
   },
   "permissions": {
+    "allow": ["Edit", "Write"],
     "deny": ["Bash(git commit --no-verify:*)", "Bash(git push --no-verify:*)"]
   },
   "hooks": {
@@ -12,19 +14,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/environment_integrity_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/environment_integrity_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/git_config_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/git_config_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/flow_state_updater.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/flow_state_updater.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/date_context_injector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/date_context_injector.ts"
           },
           {
             "type": "command",
@@ -32,59 +34,55 @@
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_handoff_reader.py"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/scripts/check-ts-hooks-deps.sh"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_resume_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_handoff_reader.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_file_state_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_resume_warning.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/open_pr_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_file_state_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_worktree_status.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_worktree_status.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/branch_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/branch_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/main_sync_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/main_sync_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook_dev_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/hook_dev_warning.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/continuation_session_metrics.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/continuation_session_metrics.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_marker_updater.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_marker_updater.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_commit_integrity_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_commit_integrity_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_issue_integrity_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_issue_integrity_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/fork_session_collaboration_advisor.py"
-          },
-          {
-            "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observation_session_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/fork_session_collaboration_advisor.ts"
           }
         ]
       }
@@ -94,15 +92,27 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/fork_session_id_updater.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/open_pr_warning.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/feedback_detector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/observation_session_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/immediate_pending_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/fork_session_id_updater.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/feedback_detector.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/immediate_pending_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_creation_detector.ts"
           }
         ]
       }
@@ -113,7 +123,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/flow_state_updater.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/flow_state_updater.ts"
           }
         ]
       },
@@ -122,7 +132,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/production_url_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/production_url_warning.ts"
           }
         ]
       },
@@ -131,7 +141,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reflection_log_collector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reflection_log_collector.ts"
           }
         ]
       },
@@ -140,7 +150,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/merit_demerit_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/merit_demerit_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/closed_issue_in_options_check.ts"
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/plan_ai_review_iterative.ts"
           }
         ]
       },
@@ -149,43 +172,67 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_session_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/python_hook_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/task_start_checklist.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/new_python_hook_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_session_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/empty_return_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/task_start_checklist.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/similar_code_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_warning.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/security_bypass_test_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/empty_return_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook_return_format_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/similar_code_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/doc_edit_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/security_bypass_test_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reference_comment_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/hook_return_format_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/parallel_edit_conflict_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/doc_edit_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reference_comment_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/parallel_edit_conflict_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_existence_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/env_undefined_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_first_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/fork_session_pr_guard.ts"
           }
         ]
       },
@@ -194,267 +241,319 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/task_start_checklist.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/task_start_checklist.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_branch_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_branch_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/dependency_check_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/dependency_check_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/open_issue_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/open_issue_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/orphan_worktree_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/orphan_worktree_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/merged_worktree_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/merged_worktree_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/active_worktree_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_resume_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/merge_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/active_worktree_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/locked_worktree_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/migration_bug_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/recurring_problem_block.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/merge_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reviewer_removal_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/locked_worktree_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ci_wait_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/recurring_problem_block.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ci_monitor_session_id_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reviewer_removal_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/dependabot_skill_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/ci_wait_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/skill_usage_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/ci_monitor_session_id_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/codex_review_logger.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/dependabot_skill_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/codex_review_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/skill_usage_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_scope_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/skip_review_env_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/multi_issue_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/codex_review_logger.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/closes_keyword_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/codex_review_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/closes_scope_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/gemini_review_logger.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_test_coverage_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/gemini_review_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/python_lint_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/review_response_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/subprocess_lint_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/ai_review_followup_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook_change_detector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_scope_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hooks_design_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/multi_issue_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ui_check_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/closes_keyword_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_auto_assign.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/closes_scope_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/existing_impl_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_test_coverage_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_issue_assign_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/subprocess_lint_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_overlap_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/hook_change_detector.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/e2e_test_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/hooks_design_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/force_push_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/ui_check_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/closes_validation.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_auto_assign.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_label_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/existing_impl_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_priority_label_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_issue_assign_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_body_requirements_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_overlap_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_scope_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/e2e_test_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_multi_problem_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/force_push_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_path_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/closes_validation.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_removal_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_label_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_main_freshness_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_priority_label_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/checkout_block.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_body_requirements_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/commit_amend_block.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_scope_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/branch_rename_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_multi_problem_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_comments_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_path_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_issue_alignment_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_removal_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/research_requirement_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_main_freshness_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/planning_enforcement.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/checkout_block.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_incomplete_close_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/commit_amend_block.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/systematization_issue_close_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/branch_rename_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_review_response_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_comments_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/resolve_thread_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_issue_alignment_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/file_overwrite_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/research_requirement_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_reference_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/planning_enforcement.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bug_issue_creation_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_incomplete_close_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/followup_issue_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/systematization_issue_close_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/api_operation_timer.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_review_response_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/acceptance_criteria_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/resolve_thread_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_investigation_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/file_overwrite_warning.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_related_issue_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_reference_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/duplicate_issue_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/bug_issue_creation_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/uv_run_guard.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/followup_issue_guard.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/workflow_skill_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/api_operation_timer.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_body_quality_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/acceptance_criteria_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/merge_commit_quality_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_requirements_reminder.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_investigation_tracker.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_related_issue_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/duplicate_issue_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/duplicate_pr_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/uv_run_guard.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/workflow_skill_reminder.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_body_quality_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_defer_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/merge_commit_quality_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/coderabbit_review_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/code_simplifier_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/fork_session_pr_guard.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reply_resolve_enforcer.ts"
           }
         ]
       }
@@ -465,11 +564,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/flow_state_updater.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/flow_state_updater.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_marker_refresh.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_marker_refresh.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/code_simplifier_logger.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/script_error_ignore_warning.ts"
           }
         ]
       },
@@ -478,131 +585,159 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_creation_marker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_creation_marker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/secret_deploy_trigger.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/secret_deploy_trigger.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/e2e_test_recorder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/e2e_test_recorder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/bash_failure_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/bash_failure_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/doc_reference_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/bypass_detector.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_metrics_collector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/doc_reference_warning.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ci_recovery_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_metrics_collector.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/tool_efficiency_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/ci_recovery_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/git_operations_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/tool_efficiency_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_creation_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/git_operations_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/issue_ai_review.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_creation_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/development_workflow_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_ai_review.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reflection_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/phase_issue_auto_continuation.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post_merge_reflection_enforcer.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/development_workflow_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_auto_cleanup.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reflection_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_auto_setup.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/post_merge_reflection_enforcer.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/plan_file_updater.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/merge_result_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr_merge_pull_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/review_comment_action_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post_merge_flow_completion.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_auto_cleanup.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post_merge_observation_issue.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_auto_setup.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observation_auto_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/plan_file_updater.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observation_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/pr_merge_pull_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/copilot_review_retry_suggestion.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/post_merge_flow_completion.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/codex_review_output_logger.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/post_merge_observation_issue.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/commit_marker_update.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/observation_auto_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/flow_progress_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/observation_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reflection_progress_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/copilot_review_retry_suggestion.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/api_operation_logger.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/codex_review_output_logger.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/review_promise_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/commit_marker_update.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/tool_substitution_detector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/flow_progress_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/similar_pattern_search.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reflection_progress_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block_improvement_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/api_operation_logger.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/review_promise_tracker.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/tool_substitution_detector.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/similar_pattern_search.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/block_improvement_reminder.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/abstract_issue_suggester.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reply_resolve_enforcer.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/rule_enforcement_check.ts"
           }
         ]
       },
@@ -611,7 +746,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/dogfooding_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/dogfooding_reminder.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/scope_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/rule_consistency_check.ts"
           }
         ]
       },
@@ -620,23 +763,27 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/rework_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/rework_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/tool_efficiency_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/rule_consistency_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/script_test_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/tool_efficiency_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/dogfooding_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/script_test_reminder.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/regex_pattern_reminder.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/dogfooding_reminder.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/regex_pattern_reminder.ts"
           }
         ]
       },
@@ -645,19 +792,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/tool_efficiency_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/tool_efficiency_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/exploration_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/exploration_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/observation_auto_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/observation_auto_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/file_size_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/file_size_warning.ts"
           }
         ]
       },
@@ -666,7 +813,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/research_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/research_tracker.ts"
           }
         ]
       },
@@ -675,7 +822,29 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/skill_failure_detector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/skill_failure_detector.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/doc_implementation_mismatch_detector.ts"
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/doc_implementation_mismatch_detector.ts"
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/plan_ai_review.ts"
           }
         ]
       }
@@ -685,143 +854,167 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/flow_state_updater.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/flow_state_updater.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/flow_verifier.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/flow_verifier.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop_auto_review.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/stop_auto_review.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block_response_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/block_response_tracker.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/askuser_suggestion.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/bypass_analysis.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/defer_keyword_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/askuser_suggestion.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/merge_confirmation_warning.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/defer_keyword_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook_effectiveness_evaluator.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/merge_confirmation_warning.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/hook_behavior_evaluator.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/hook_effectiveness_evaluator.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_metrics_collector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/hook_behavior_evaluator.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_outcome_collector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_metrics_collector.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/log_health_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_outcome_collector.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_handoff_writer.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/log_health_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/secret_deploy_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_handoff_writer.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/cwd_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/secret_deploy_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/git_status_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/cwd_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/related_task_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/git_status_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/problem_report_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/related_task_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/user_feedback_systematization_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/problem_report_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/systematization_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/user_feedback_systematization_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/flow_effect_verifier.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/systematization_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/worktree_cleanup_suggester.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/flow_effect_verifier.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_end_worktree_cleanup.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/worktree_cleanup_suggester.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_log_compressor.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_end_worktree_cleanup.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_end_main_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_log_compressor.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reflection_completion_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_end_main_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reflection_quality_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reflection_completion_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/reflection_self_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reflection_quality_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lesson_issue_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/reflection_self_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/vague_action_block.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/issue_creation_request_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/immediate_action_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/lesson_issue_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/review_promise_tracker.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/vague_action_block.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_todo_check.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/immediate_action_check.ts"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/false_positive_detector.py"
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/review_promise_tracker.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/session_todo_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/false_positive_detector.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/plan_checklist_guard.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/plan_mode_exit_check.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/phase_progression_guard.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/handlers/conservative_behavior_check.ts"
           },
           {
             "type": "prompt",
-            "prompt": "You are evaluating whether Claude Code should stop or continue working.\n\n## Context\n$ARGUMENTS\n\nThe context is provided as a JSON object with fields like:\n- `stop_hook_active`: boolean indicating if a Stop hook is already running\n- `session_id`: unique session identifier\n- `transcript_path`: path to the conversation transcript\n\n## Evaluation Criteria (五省 - Five Reflections)\nEvaluate the work based on these criteria:\n\n1. **要件理解 (Requirements)**: Did you correctly understand and address user requirements?\n2. **実装品質 (Quality)**: Is the implementation complete and of good quality?\n3. **検証 (Verification)**: Did you verify the work (build/test/lint if applicable)?\n4. **対応 (Responsiveness)**: Were all review comments or user feedback addressed?\n5. **効率 (Efficiency)**: Was work done efficiently without unnecessary steps?\n6. **仕組み化 (Systematization)**: If lessons/反省点/学び were identified, were they SYSTEMATIZED (hook/CI/tool) rather than just documented?\n\n## Issue Documentation Check (CRITICAL)\nIf during the session:\n- A bug or unexpected behavior was discovered\n- A tool/hook/script malfunction was identified\n- An error or problem that needs investigation was found\n\nThen check:\n- Was a GitHub Issue created to track it?\n- Fixing without Issue creation is NOT acceptable\n- Problems must be documented before or while fixing\n\nIf problems were discovered but NOT documented as Issues, respond with:\n`{\"ok\": false, \"decision\": \"block\", \"reason\": \"問題が発見されましたが、Issueが作成されていません。発見した問題は必ずGitHub Issueとして記録してください。修正は後からでも可能ですが、記録がないと問題が忘れられます。\"}`\n\n## Systematization Check (CRITICAL)\nIf during the session:\n- A lesson was learned (反省点、学び、教訓)\n- A mistake was made and corrected\n- User pointed out an issue\n\nThen check:\n- Was a hook, CI check, or enforcement tool created?\n- Simply adding to AGENTS.md is NOT sufficient\n- Documentation without enforcement will be ignored\n\nIf lessons were identified but NOT systematized, respond with:\n`{\"ok\": false, \"decision\": \"block\", \"reason\": \"[IMMEDIATE: /reflect]\\n\\n教訓が見つかりましたが、仕組み化されていません。まず振り返り（/reflect）を実行してから、フック/CI/ツールで再発防止の仕組みを作成してください。\"}`\n\n## Decision Rules\n- If the JSON context contains `\"stop_hook_active\": true`, respond with `{\"ok\": true, \"decision\": \"approve\"}` to prevent infinite loops\n- If there are CRITICAL unfinished tasks or obvious errors, respond with `{\"ok\": false, \"decision\": \"block\", \"reason\": \"[specific action needed]\"}`\n- If problems were discovered but not documented as Issues, BLOCK (see Issue Documentation Check above)\n- If lessons were learned but not systematized, BLOCK (see Systematization Check above)\n- If the main task is substantially complete, respond with `{\"ok\": true, \"decision\": \"approve\", \"systemMessage\": \"✅ 振り返り完了\"}`\n\n## Important\n- Do NOT block for minor improvements or nice-to-haves\n- Only block for critical incomplete work\n- ALWAYS block if problems discovered but not documented as Issues\n- ALWAYS block if lessons learned were not systematized\n- Be specific in the reason field about what needs to be done\n- The goal is quality assurance, not perfectionism\n\nRespond with valid JSON only.",
+            "prompt": "Evaluate whether the session can stop based on these criteria. The context is: $ARGUMENTS\n\nIf the context contains stop_hook_active set to true, APPROVE to prevent infinite loops.\n\nOtherwise, evaluate using the Five Reflections (五省):\n1. Requirements: Were user requirements correctly understood and addressed?\n2. Quality: Is the implementation complete and of good quality?\n3. Verification: Was the work verified (build/test/lint if applicable)?\n4. Responsiveness: Were all review comments or user feedback addressed?\n5. Efficiency: Was work done efficiently?\n\nCRITICAL checks - block if any fail:\n- If bugs were INTRODUCED by this PR's code changes, they must be fixed in the same PR. Creating a separate Issue for bugs you introduced is NOT acceptable.\n- If PRE-EXISTING bugs were DISCOVERED during the work (in code NOT modified by this PR), creating a separate Issue IS acceptable and correct.\n- If lessons were learned or mistakes corrected, enforcement mechanisms (hooks/CI/tools) must have been created. Documentation alone is insufficient. Include in the reason: [IMMEDIATE: /reflecting-sessions]\n\nApprove if the main task is substantially complete and critical checks pass. Do not block for minor improvements or nice-to-haves. Be specific about what needs to be done if blocking.",
             "timeout": 45
           }
         ]

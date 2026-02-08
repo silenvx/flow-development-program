@@ -7,7 +7,7 @@
 ## 使い方
 
 ```bash
-python3 .claude/scripts/generate_index.py
+bun run .claude/scripts/generate_index.ts
 ```
 
 ---
@@ -25,8 +25,8 @@ python3 .claude/scripts/generate_index.py
 
 ```bash
 # 詳細出力
-python3 .claude/scripts/generate_index.py --verbose
+bun run .claude/scripts/generate_index.ts --verbose
 
 # ドライラン（ファイル出力なし）
-python3 .claude/scripts/generate_index.py --dry-run
+bun run .claude/scripts/generate_index.ts --dry-run
 ```
